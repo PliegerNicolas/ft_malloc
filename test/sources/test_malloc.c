@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_malloc_tester.h                                 :+:      :+:    :+:   */
+/*   test_malloc.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-27 12:31:08 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-27 12:31:08 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-28 15:25:10 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-28 15:25:10 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_MALLOC_TESTER_H
-# define FT_MALLOC_TESTER_H
+#include "test_ft_malloc.h"
 
-# include "ft_malloc.h"
-
-#endif
+void    test_malloc()
+{
+    write(1, "Testing malloc\n", 16);
+}

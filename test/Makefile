@@ -56,7 +56,12 @@ SOURCES_FILE_EXTENSION			:=	.c
 HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
-SOURCES_FILE_NAMES					:=	main
+SOURCES_FILE_NAMES					:=	main \
+										test_malloc \
+										test_realloc \
+										test_free \
+										test_macros \
+										test_show_alloc_mem
 
 SOURCES_FILE_NAMES_WITH_EXT			:=	$(foreach file, $(SOURCES_FILE_NAMES), \
 											$(if $(filter $(SOURCES_FILE_EXTENSION), $(suffix $(file))), \

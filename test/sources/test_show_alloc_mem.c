@@ -1,25 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   test_show_alloc_mem.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-27 11:49:56 by nicolas           #+#    #+#             */
-/*   Updated: 2025/03/27 19:50:34 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-28 15:25:47 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-28 15:25:47 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "test_ft_malloc.h"
 
-int main() {
-    test_macros();
-
-    test_free();
-    test_malloc();
-    test_realloc();
-
-    test_show_alloc_mem();
-
-    return (0);
+void    test_show_alloc_mem()
+{
+    write(1, "Testing show_alloc_mem\n", 24);
 }
