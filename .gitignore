@@ -1,0 +1,19 @@
+# GCC
+*.so
+**/objects/
+**/objs/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.*
+.env.*.local
+!.env.example
+!.env.template
+
+# IDE and Editor folders
+.vscode/
+.idea/

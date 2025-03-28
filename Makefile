@@ -1,0 +1,151 @@
+#* ************************************************************************** *#
+#*                                                                            *#
+#*                                                        :::      ::::::::   *#
+#*   Makefile                                           :+:      :+:    :+:   *#
+#*                                                    +:+ +:+         +:+     *#
+#*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        *#
+#*                                                +#+#+#+#+#+   +#+           *#
+#*   Created: 2025-03-27 09:38:49 by nicolas           #+#    #+#             *#
+#*   Updated: 2025-03-27 09:38:49 by nicolas          ###   ########.fr       *#
+#*                                                                            *#
+#* ************************************************************************** *#
+
+#* *************************************************************************** *#
+#* *                                    ID                                   * *#
+#* *************************************************************************** *#
+
+NAME				:=	libft_malloc
+
+# Compilation flags and utils.
+CC					:=	gcc
+CFLAGS				:=	-Wall -Wextra -Werror -Wno-unused
+
+# Linkage
+# Shared is used to specify we want to create a shared library (.so).
+LD_FLAGS			:= -shared -lpthread
+LIB_FILE_EXTENSION	:= .so
+
+# Artefact
+HOSTTYPE			?=	$(shell uname -m)_$(shell uname -s)
+ARTEFACT_NAME		:=	$(NAME)_${HOSTTYPE}$(LIB_FILE_EXTENSION)
+SYM_LINK_NAME		:=	$(NAME)$(LIB_FILE_EXTENSION)
+
+#* *************************************************************************** *#
+#* *                                  FILES                                  * *#
+#* *************************************************************************** *#
+
+#* Config *#
+
+# Directories
+SOURCES_DIR_PATH	:=	sources
+HEADERS_DIR_PATH	:=	includes
+OBJECTS_DIR_PATH	:=	objects
+
+# File extensions
+SOURCES_FILE_EXTENSION			:=	.c
+HEADERS_FILE_EXTENSION			:=	.h
+
+# Files
+SOURCES_FILE_NAMES					:=	malloc realloc free \
+										show_alloc_mem
+
+SOURCES_FILE_NAMES_WITH_EXT			:=	$(foreach file, $(SOURCES_FILE_NAMES), \
+											$(if $(filter $(SOURCES_FILE_EXTENSION), $(suffix $(file))), \
+												$(file), \
+												$(file)$(SOURCES_FILE_EXTENSION)))
+SORTED_SOURCES_FILE_NAMES_WITH_EXT	:=	$(sort $(SOURCES_FILE_NAMES_WITH_EXT))
+
+#* Data *#
+
+SOURCES			:= $(addprefix $(SOURCES_DIR_PATH)/, $(SORTED_SOURCES_FILE_NAMES_WITH_EXT))
+OBJECTS			:= $(addprefix $(OBJECTS_DIR_PATH)/, $(SORTED_SOURCES_FILE_NAMES_WITH_EXT:%$(SOURCES_FILE_EXTENSION)=%.o))
+DEPENDENCIES	:= $(OBJECTS:%.o=%.d)
+HEADERS			:= $(addprefix -I , $(HEADERS_DIR_PATH))
+
+#* *************************************************************************** *#
+#* *                              CONSTANTS                                  * *#
+#* *************************************************************************** *#
+
+# Text formatting
+BOLD			:=		\033[1m
+ITALIC			:=		\033[3m
+UNDERLINE		:=		\033[4m
+STRIKETHROUGH	:=		\033[9m
+
+# Color codes
+RED			:=		\033[0;31m
+GREEN		:=		\033[0;32m
+YELLOW		:=		\033[0;33m
+BLUE		:=		\033[0;34m
+PURPLE		:=		\033[0;35m
+CYAN		:=		\033[0;36m
+WHITE		:=		\033[0;37m
+RESET		:=		\033[0m
+
+#* *************************************************************************** *#
+#* *                               MESSAGES                                  * *#
+#* *************************************************************************** *#
+
+define make_successful
+	echo "🌟 $(GREEN)$(BOLD)Make successful$(RESET) 🌟"
+endef
+
+define linkage_message
+	echo "🔗 $(YELLOW)Linking $(BOLD)$(CYAN)$@$(RESET)$(YELLOW)...$(RESET)"
+endef
+
+define symlink_build_message
+	$(if $1,, $(error Missing argument for symlink_build_message))
+	echo "➿ $(YELLOW)Building symbolic link: $(BOLD)$(CYAN)$(1)$(WHITE) -> $(CYAN)$(@)$(RESET)$(YELLOW)...$(RESET)"
+endef
+
+define build_object_message
+	echo "Creating $(nodir $<)"
+endef
+
+define build_object_message
+		echo "    $(YELLOW)•$(RESET) $(CYAN)$(notdir $<)$(RESET)"
+endef
+
+define build_object_dir_and_message
+	if [ ! -d $(dir $@) ]; then \
+		mkdir -p $(dir $@); \
+		echo "$(CYAN)Building object files in directory $(BOLD)./$(patsubst %/,%,$(dir $@))$(RESET)"; \
+	fi
+endef
+
+#* *************************************************************************** *#
+#* *                                  RULES                                  * *#
+#* *************************************************************************** *#
+
+all: $(ARTEFACT_NAME)
+
+# Rule to build the final executable/shared object/...
+$(ARTEFACT_NAME): $(OBJECTS)
+	@$(call linkage_message)
+	@$(CC) $(CFLAGS) $(HEADERS) -o $@ $(OBJECTS) $(LD_FLAGS)
+	@$(call symlink_build_message,$(SYM_LINK_NAME))
+	@ln -sf $(ARTEFACT_NAME) $(SYM_LINK_NAME)
+	@$(call make_successful)
+
+# Rule to build object and dependency files (.o & .d) from source files (.c)
+-include $(DEPENDENCIES) # Include the header files if they exist, to take them into account. Fail silently if needed.
+$(OBJECTS_DIR_PATH)/%.o: $(SOURCES_DIR_PATH)/%$(SOURCES_FILE_EXTENSION)
+	@$(call build_object_dir_and_message)
+	@$(call build_object_message)
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(@:%.o=%.d) $(HEADERS) -c $< -o $@
+
+# Rule to delete all objects (.o) and dependencies (.d).
+clean:
+	@rm -rf $(OBJECTS_DIR_PATH)
+
+# Rule to delete all objects (.o), dependencies (.d) and artifact (.a, .so, .dll, ...).
+fclean: clean
+	@rm -f $(ARTEFACT_NAME)
+	@rm -f $(SYM_LINK_NAME)
+
+# Rule to clean all and build it everything from scratch again.
+re: fclean all
+
+
+.PHONY: clean fclean re
