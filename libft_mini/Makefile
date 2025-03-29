@@ -5,8 +5,8 @@
 #*                                                    +:+ +:+         +:+     *#
 #*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        *#
 #*                                                +#+#+#+#+#+   +#+           *#
-#*   Created: 2025-03-27 09:38:49 by nicolas           #+#    #+#             *#
-#*   Updated: 2025-03-27 09:38:49 by nicolas          ###   ########.fr       *#
+#*   Created: 2025-03-29 15:36:36 by nicolas           #+#    #+#             *#
+#*   Updated: 2025-03-29 15:36:36 by nicolas          ###   ########.fr       *#
 #*                                                                            *#
 #* ************************************************************************** *#
 
@@ -14,25 +14,22 @@
 #* *                                    ID                                   * *#
 #* *************************************************************************** *#
 
-NAME				:=	libft_malloc
+NAME				:=	libft_mini
 
 # Compilation flags and utils.
 CC					:=	gcc
-CFLAGS				:=	-Wall -Wextra -Werror -Wno-unused -fPIC
-
-# Libraries
-LIBFT_MINI_PATH		:=	$(CURDIR)/libft_mini
-LIBFT_MINI_LD_FLAGS	:=	-L$(LIBFT_MINI_PATH) -lft_mini
+CFLAGS				:=	-Wall -Wextra -Werror -Wno-unused
+AR					:=	ar
+ARFLAGS				:=	-rcs
 
 # Linkage
 # Shared is used to specify we want to create a shared library (.so).
-LD_FLAGS			:= -shared -lpthread
-LIB_FILE_EXTENSION	:= .so
+LD_FLAGS			:=
+LIB_FILE_EXTENSION	:= .a
 
 # Artefact
 HOSTTYPE			?=	$(shell uname -m)_$(shell uname -s)
-ARTEFACT_NAME		:=	$(NAME)_${HOSTTYPE}$(LIB_FILE_EXTENSION)
-SYM_LINK_NAME		:=	$(NAME)$(LIB_FILE_EXTENSION)
+ARTEFACT_NAME		:=	$(NAME)$(LIB_FILE_EXTENSION)
 
 #* *************************************************************************** *#
 #* *                             RULE FILTERS                                * *#
@@ -54,7 +51,7 @@ endif
 
 # Directories
 SOURCES_DIR_PATH	:=	sources
-HEADERS_DIR_PATH	:=	includes $(LIBFT_MINI_PATH)/includes
+HEADERS_DIR_PATH	:=	includes
 OBJECTS_DIR_PATH	:=	objects
 
 # File extensions
@@ -62,11 +59,12 @@ SOURCES_FILE_EXTENSION			:=	.c
 HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
-SOURCES_FILE_NAMES			:=	malloc \
-								realloc \
-								free \
-								show_alloc_mem \
-								heap/initialize
+SOURCES_FILE_NAMES				:=	ft_strlen \
+									ft_putchar_fd \
+									ft_putstr_fd \
+									ft_putendl_fd \
+									ft_putint_fd \
+									ft_putsize_t_fd
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))
@@ -109,13 +107,8 @@ define make_successful
 	echo "🌟 $(GREEN)$(BOLD)Make successful$(RESET) 🌟"
 endef
 
-define linkage_message
-	echo "🔗 $(YELLOW)Linking $(BOLD)$(CYAN)$@$(RESET)$(YELLOW)...$(RESET)"
-endef
-
-define symlink_build_message
-	$(if $1,, $(error Missing argument for symlink_build_message))
-	echo "➿ $(YELLOW)Building symbolic link: $(BOLD)$(CYAN)$(1)$(WHITE) -> $(CYAN)$(@)$(RESET)$(YELLOW)...$(RESET)"
+define archiving_message
+	echo "🔗 $(YELLOW)Archiving $(BOLD)$(CYAN)$@$(RESET)$(YELLOW)...$(RESET)"
 endef
 
 define build_object_message
@@ -139,17 +132,12 @@ endef
 #* *                                  RULES                                  * *#
 #* *************************************************************************** *#
 
-all: build_libft_mini $(ARTEFACT_NAME)
-
-build_libft_mini:
-	@make -C $(LIBFT_MINI_PATH) $(MAKECMDGOALS)
+all: $(ARTEFACT_NAME)
 
 # Rule to build the final executable/shared object/...
 $(ARTEFACT_NAME): $(OBJECTS)
-	@$(call linkage_message)
-	@$(CC) $(CFLAGS) $(HEADERS) -o $@ $(OBJECTS) $(LD_FLAGS) $(LIBFT_MINI_LD_FLAGS)
-	@$(call symlink_build_message,$(SYM_LINK_NAME))
-	@ln -sf $(ARTEFACT_NAME) $(SYM_LINK_NAME)
+	@$(call archiving_message)
+	@$(AR) $(ARFLAGS) $@ $(OBJECTS)
 	@$(call make_successful)
 
 # Rule to build object and dependency files (.o & .d) from source files (.c)
@@ -162,13 +150,10 @@ $(OBJECTS_DIR_PATH)/%.o: $(SOURCES_DIR_PATH)/%$(SOURCES_FILE_EXTENSION)
 # Rule to delete all objects (.o) and dependencies (.d).
 clean:
 	@rm -rf $(OBJECTS_DIR_PATH)
-	@make -C $(LIBFT_MINI_PATH) clean
 
 # Rule to delete all objects (.o), dependencies (.d) and artifact (.a, .so, .dll, ...).
 fclean: clean
 	@rm -f $(ARTEFACT_NAME)
-	@rm -f $(SYM_LINK_NAME)
-	@make -C $(LIBFT_MINI_PATH) fclean
 
 # Rule to clean all and build it everything from scratch again.
 re: fclean all

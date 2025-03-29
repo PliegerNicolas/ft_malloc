@@ -14,5 +14,5 @@
 
 void    test_realloc()
 {
-    write(1, "Testing realloc\n", 17);
+    write_title("Testing realloc()", 1);
 }

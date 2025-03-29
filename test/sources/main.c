@@ -13,6 +13,8 @@
 #include "test_ft_malloc.h"
 
 int main() {
+    int *a = malloc(10);
+
     test_macros();
 
     test_free();

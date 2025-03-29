@@ -55,4 +55,17 @@ heap_t
 - **`arena_t`**: Contains a arbitrarly defined fixed-size of `mbin_t` sizes and their configuration (kind of `mchunk_t` data to stored and etc.).  
 - **`heap_t`**: Root structure containing data about the portion(s) of the heap we're using with our ft_malloc implementation.  
 
+The largest `mbin_t` category (LARGE) calls `mmap()` on each occasion to retrieve enough memory space as large bins are too big and inconsistent to be worth strategical management.
+
 A more precise explanation of each of these structures can be found inside their relative header files.
+
+## libft_mini
+
+I create **libft_mini** because I am not satisfied with my original one. It can easily be replace by the real one.
+This one is more minimal and follows a more modern approach, now that I know C better.
+
+## Usage
+
+If you want to use this malloc implementation instead of the libc's one inside existing programs you have to:
+- Prepend the path where `libft_malloc.so` is located in `LD_LIBRARY_PATH` environment variable. Ensure our *.so file is read first and has precedence.
+- Ensure the existing program only uses functions that are present in the header file of libc's malloc and ours.

@@ -24,8 +24,42 @@
 # include <stddef.h>
 
 /* *************************************************************************** */
+/* *                           CONFIGURABLE MACROS                           * */
+/* *************************************************************************** */
+
+/*
+* One `mbin_t` size should be "open". In other words, it should be able to accomodate
+* all the chunks that are too big for the other `mbin_t`s.
+* In our case that's our `MBIN_LARGE`. For each large `mchunk_t`, a new `mbin_t`
+* is create and thus a new `mmap()` call is made.
+*/
+
+/* CONSTANTS */
+
+/** @brief Configurable arbitrary value for how many allocations should ideally be available per `mbin_t`. */
+# define TARGET_MIN_ALLOCATIONS_PER_MBIN ((size_t)(100))
+/** @brief Configurable arbitrary value for how many allocations should ideally be available per large `mbin_t`. */
+# define TARGET_MIN_ALLOCATIONS_PER_LARGE_MBIN ((size_t)1)
+
+/** @brief Configurable arbitrary value for how many tiny bins should be created on initialization. */
+# define TARGET_INITIAL_TINY_MBINS ((size_t)3)
+/** @brief Configurable arbitrary value for how many small bins should be created on initialization. */
+# define TARGET_INITAL_SMALL_MBINS ((size_t)3)
+
+/* FUNCTIONS */
+
+/* *************************************************************************** */
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
+
+/* CONSTANTS */
+
+/** @brief Size of a tiny `mbin_t`. */
+# define TINY_MBIN_SIZE ((size_t)(ALIGN_UP(TARGET_MIN_ALLOCATIONS_PER_MBIN * TINY_MCHUNK_SIZE, PAGE_SIZE)))
+/** @brief Size of a small `mbin_t`. */
+# define SMALL_MBIN_SIZE ((size_t)(ALIGN_UP(TARGET_MIN_ALLOCATIONS_PER_MBIN * SMALL_MCHUNK_SIZE, PAGE_SIZE)))
+
+/* FUNCTIONS */
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */

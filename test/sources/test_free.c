@@ -14,5 +14,5 @@
 
 void    test_free()
 {
-    write(1, "Testing free\n", 14);
+    write_title("Testing free()", 1);
 }

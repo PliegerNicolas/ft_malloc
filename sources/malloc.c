@@ -14,7 +14,9 @@
 
 void    *malloc(size_t size)
 {
-    write(1, "Salut", 6);
+    if (!gheap.is_initialized)
+        gheap = initialize_heap();
+    ft_putint_fd(10, 1);
     (void)size;
     return NULL;
 }

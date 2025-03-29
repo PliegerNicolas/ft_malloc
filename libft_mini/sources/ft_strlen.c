@@ -1,18 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_show_alloc_mem.c                              :+:      :+:    :+:   */
+/*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:25:47 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:25:47 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-29 17:53:20 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-29 17:53:20 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "test_ft_malloc.h"
+#include "libft_mini.h"
 
-void    test_show_alloc_mem()
+size_t		ft_strlen(const char *s)
 {
-    write_title("Testing show_alloc_mem()", 1);
+    size_t  len = 0;
+
+    if (!s)
+        return len;
+
+    while (*s++)
+        ++len;
+
+    return len;
 }

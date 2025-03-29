@@ -1,18 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_show_alloc_mem.c                              :+:      :+:    :+:   */
+/*   shared.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:25:47 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:25:47 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-29 21:19:27 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-29 21:19:27 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "test_ft_malloc.h"
 
-void    test_show_alloc_mem()
+void write_title(char *title, int fd)
 {
-    write_title("Testing show_alloc_mem()", 1);
+    ft_putstr_fd(YELLOW, fd);
+    ft_putstr_fd(title, fd);
+    ft_putendl_fd(RESET, fd);
 }

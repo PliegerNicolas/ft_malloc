@@ -1,4 +1,5 @@
 # GCC
+*.a
 *.so
 **/objects/
 **/objs/

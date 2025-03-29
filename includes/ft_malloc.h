@@ -55,6 +55,9 @@
 /* Annexe ft_malloc headers. */
 # include "ft_malloc_heap.h"
 
+/* libft_mini */
+# include "libft_mini.h"
+
 /* For NULL and size_t. */
 # include <stddef.h>
 
@@ -74,12 +77,14 @@
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
+/* Global variable */
+extern heap_t   gheap;
+
 /* Mandatory functions */
 
 void    *malloc(size_t size);
 void    *realloc(void *ptr, size_t size);
 void    free(void *ptr);
-
 void    show_alloc_mem();
 
 #endif

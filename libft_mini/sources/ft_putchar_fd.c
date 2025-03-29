@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_show_alloc_mem.c                              :+:      :+:    :+:   */
+/*   ft_putchar_fd.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:25:47 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:25:47 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-29 17:47:10 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-29 17:47:10 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "test_ft_malloc.h"
+#include "libft_mini.h"
 
-void    test_show_alloc_mem()
+size_t		ft_putchar_fd(char c, int fd)
 {
-    write_title("Testing show_alloc_mem()", 1);
+    return write(fd, &c, 1);
 }

@@ -14,5 +14,5 @@
 
 void    test_malloc()
 {
-    write(1, "Testing malloc\n", 16);
+    write_title("Testing malloc()", 1);
 }

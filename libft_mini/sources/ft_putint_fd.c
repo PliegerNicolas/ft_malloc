@@ -1,18 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_show_alloc_mem.c                              :+:      :+:    :+:   */
+/*   ft_putint_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:25:47 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:25:47 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-29 18:50:19 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-29 18:50:19 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "test_ft_malloc.h"
+#include "libft_mini.h"
 
-void    test_show_alloc_mem()
+size_t	ft_putint_fd(int n, int fd)
 {
-    write_title("Testing show_alloc_mem()", 1);
+	size_t	count = 0;
+
+	if (n == -2147483648)
+		return ft_putint_fd((n / 10), fd) + ft_putint_fd(-(n % 10), fd);
+	else
+	{
+		if (n < 0)
+		{
+			count += ft_putchar_fd('-', fd);
+			n = -n;
+		}
+		if (n >= 10)
+			count += ft_putint_fd(n / 10, fd) + ft_putint_fd(n % 10, fd);
+		else
+			count += ft_putchar_fd(n + '0', fd);
+	}
+
+	return count;
 }

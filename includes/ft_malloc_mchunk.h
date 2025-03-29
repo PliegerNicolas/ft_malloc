@@ -37,22 +37,12 @@
  * @brief Configurable arbitrary value for tiny `mchunk_t` maximum size.
  * It should have enough space to store `MCHUNK_ALIGNED_SIZE`.
 */
-# define TARGET_TINY_CHUNK_SIZE ((size_t)(64))
+# define TARGET_TINY_CHUNK_SIZE ((size_t)(256))
 /**
  * @brief Configurable arbitrary value for small `mchunk_t` maximum size.
  * It should have enough space to store `MCHUNK_ALIGNED_SIZE`.
 */
 # define TARGET_SMALL_CHUNK_SIZE ((size_t)(1024))
-
-/** @brief Configurable arbitrary value for how many allocations should ideally be available per `mbin_t`. */
-# define TARGET_MIN_ALLOCATIONS_PER_MBIN ((size_t)(128))
-/** @brief Configurable arbitrary value for how many allocations should ideally be available per large `mbin_t`. */
-# define TARGET_MIN_ALLOCATIONS_PER_LARGE_MBIN ((size_t)3)
-
-/** @brief Configurable arbitrary value for how many tiny bins should be created on initialization. */
-# define TARGET_INITIAL_TINY_MBINS ((size_t)3)
-/** @brief Configurable arbitrary value for how many small bins should be created on initialization. */
-# define TARGET_INITAL_SMALL_MBINS ((size_t)3)
 
 /* FUNCTIONS */
 
@@ -75,20 +65,22 @@
 /** @brief Maximum data storable in a small `mchunk_t`, excluding the struct itself. */
 # define MAX_SMALL_MCHUNK_DATA_SIZE ((size_t)(SMALL_MCHUNK_SIZE - MCHUNK_ALIGNED_SIZE))
 
-/** @brief Size of a tiny `mbin_t`. */
-# define TINY_MBIN_SIZE ((size_t)(TARGET_MIN_ALLOCATIONS_PER_MBIN * TINY_MCHUNK_SIZE))
-/** @brief Size of a small `mbin_t`. */
-# define SMALL_MBIN_SIZE ((size_t)(TARGET_MIN_ALLOCATIONS_PER_MBIN * SMALL_MCHUNK_SIZE))
-
 /* FUNCTIONS */
 
 /**
  * @brief Get the size of the data stored after the current `mchunk_t` in bytes.
  * 
+ * If MCHUNK_ALIGNED_SIZE < mchunk_ptr->size, then 0 is forcefully returned. 
+ * 
  * @param mchunk_ptr (mchunk_t *) Pointer to a given `mchunk_t`.
  * @return (size_t) Size in bytes of stored data.
 */
-# define GET_MCHUNK_DATA_SIZE(mchunk_ptr) ((size_t)(mchunk_ptr->size - MCHUNK_ALIGNED_SIZE))
+#define GET_MCHUNK_DATA_SIZE(mchunk_ptr) \
+    ((size_t)( \
+        ((mchunk_t *)(mchunk_ptr))->size > MCHUNK_ALIGNED_SIZE \
+        ? ((mchunk_t *)(mchunk_ptr))->size - MCHUNK_ALIGNED_SIZE \
+        : 0 \
+    ))
 
 /**
  * @brief Get pointer to the `mchunk_t`s data.
@@ -96,7 +88,8 @@
  * @param mchunk_ptr (mchunk_t *) Pointer to a given `mchunk_t`.
  * @return (void *) Pointer to the stored data.
 */
-# define GET_MCHUNK_DATA_PTR(mchunk_ptr) ((void *)((char *)mchunk_ptr + MCHUNK_ALIGNED_SIZE))
+# define GET_MCHUNK_DATA_PTR(mchunk_ptr) \
+    ((void *)((char *)mchunk_ptr + MCHUNK_ALIGNED_SIZE))
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */

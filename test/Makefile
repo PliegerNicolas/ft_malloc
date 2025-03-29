@@ -22,10 +22,11 @@ CFLAGS				:=	-Wall -Wextra -Werror -Wno-unused
 
 # Libraries
 LIBFT_MALLOC_PATH	:=	$(CURDIR)/..
-RPATH_FLAGS			=	
+LIBFT_MINI_PATH		:=	$(LIBFT_MALLOC_PATH)/libft_mini
 
 # Linkage
-LD_FLAGS			=
+LD_FLAGS			= -L $(LIBFT_MINI_PATH) -lft_mini
+RPATH_FLAGS			=
 
 # Artefact
 HOSTTYPE			?=	$(shell uname -m)_$(shell uname -s)
@@ -40,6 +41,14 @@ ifneq (std, $(filter std, $(MAKECMDGOALS)))
 	RPATH_FLAGS			+=	-Wl,-rpath,$(LIBFT_MALLOC_PATH)
 endif
 
+ifeq (debug, $(filter debug, $(MAKECMDGOALS)))
+	CFLAGS				+=	-g3
+endif
+
+ifeq (optimize, $(filter optimize, $(MAKECMDGOALS)))
+	CFLAGS				+=	-O3
+endif
+
 #* *************************************************************************** *#
 #* *                                  FILES                                  * *#
 #* *************************************************************************** *#
@@ -48,7 +57,7 @@ endif
 
 # Directories
 SOURCES_DIR_PATH	:=	sources
-HEADERS_DIR_PATH	:=	includes $(LIBFT_MALLOC_PATH)/includes
+HEADERS_DIR_PATH	:=	includes $(LIBFT_MALLOC_PATH)/includes $(LIBFT_MINI_PATH)/includes
 OBJECTS_DIR_PATH	:=	objects
 
 # File extensions
@@ -57,22 +66,23 @@ HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
 SOURCES_FILE_NAMES					:=	main \
+										shared \
 										test_malloc \
 										test_realloc \
 										test_free \
 										test_macros \
 										test_show_alloc_mem
 
-SOURCES_FILE_NAMES_WITH_EXT			:=	$(foreach file, $(SOURCES_FILE_NAMES), \
-											$(if $(filter $(SOURCES_FILE_EXTENSION), $(suffix $(file))), \
-												$(file), \
-												$(file)$(SOURCES_FILE_EXTENSION)))
-SORTED_SOURCES_FILE_NAMES_WITH_EXT	:=	$(sort $(SOURCES_FILE_NAMES_WITH_EXT))
+SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
+DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))
+SORTED_COMPLETE_SOURCES_FILE_NAMES := $(foreach directory, $(DIRECTORIES), \
+    	$(sort $(foreach file, $(SOURCES_FILE_NAMES_WITH_EXT), \
+        	$(if $(filter $(directory), $(dir $(file))), $(file), ))))
 
 #* Data *#
 
-SOURCES			:= $(addprefix $(SOURCES_DIR_PATH)/, $(SORTED_SOURCES_FILE_NAMES_WITH_EXT))
-OBJECTS			:= $(addprefix $(OBJECTS_DIR_PATH)/, $(SORTED_SOURCES_FILE_NAMES_WITH_EXT:%$(SOURCES_FILE_EXTENSION)=%.o))
+SOURCES			:= $(addprefix $(SOURCES_DIR_PATH)/, $(SORTED_COMPLETE_SOURCES_FILE_NAMES))
+OBJECTS			:= $(addprefix $(OBJECTS_DIR_PATH)/, $(SORTED_COMPLETE_SOURCES_FILE_NAMES:%$(SOURCES_FILE_EXTENSION)=%.o))
 DEPENDENCIES	:= $(OBJECTS:%.o=%.d)
 HEADERS			:= $(addprefix -I , $(HEADERS_DIR_PATH))
 
@@ -116,11 +126,13 @@ define build_object_message
 		echo "    $(YELLOW)•$(RESET) $(CYAN)$(notdir $<)$(RESET)"
 endef
 
+LAST_DIR	:=
 define build_object_dir_and_message
-	if [ ! -d $(dir $@) ]; then \
+	if [ "$(dir $@)" != "$(LAST_DIR)" ]; then \
 		mkdir -p $(dir $@); \
 		echo "$(CYAN)Building object files in directory $(BOLD)./$(patsubst %/,%,$(dir $@))$(RESET)"; \
 	fi
+	$(eval LAST_DIR := $(dir $@))
 endef
 
 #* *************************************************************************** *#
@@ -130,7 +142,7 @@ endef
 all: build_ft_malloc $(ARTEFACT_NAME)
 
 build_ft_malloc:
-	@make -C $(LIBFT_MALLOC_PATH)
+	@make -C $(LIBFT_MALLOC_PATH) $(MAKECMDGOALS)
 
 # Rule to build the final executable/shared object/...
 $(ARTEFACT_NAME): $(OBJECTS)
@@ -159,5 +171,7 @@ re: fclean all
 
 # Rule to build project with malloc from c's standard library.
 std: $(ARTEFACT_NAME)
+debug: all
+optimize: all
 
-.PHONY: clean fclean re std
+.PHONY: clean fclean re std debug optimize

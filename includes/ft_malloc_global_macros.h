@@ -65,7 +65,7 @@
  * Private as it should only accessible by the current process and it's threads.
  * Anonymous as we the memory allocations are temporary and only used at runtime.
 */
-# define MMAP_FLAGS (MAP_PRIVATE | MAP_ANON)
+# define MMAP_FLAGS (MAP_PRIVATE | MAP_ANONYMOUS)
 
 /* FUNCTIONS */
 
