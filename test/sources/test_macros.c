@@ -12,6 +12,16 @@
 
 #include "test_ft_malloc.h"
 
+static void test_global_macros()
+{
+
+}
+
+static void test_mchunk_macros()
+{
+    
+}
+
 void    test_macros()
 {
     write(1, "Testing macros\n", 16);

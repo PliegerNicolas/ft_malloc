@@ -54,19 +54,22 @@ enum e_mbin_type
 
 /**
  * @struct s_mbin
- * @brief Represents a memory bin, stored in a doubly-linked list, 
- * containing an mmap()-allocated memory region ready to be partitioned into `mchunk_t`s.
+ * @brief A doubly-linked-list of memory bins.
+ * It contais mmap()-allocated memory regions ready to be partitioned into `mchunk_t`s.
 */
 typedef struct s_mbin
 {
-    /** @brief The initial chunk of the `mbin_t`, also the original pointer returned by `mmap()`. */
-    mchunk_t *initial_chunk;
+    /** @brief The `mbin_t`s size: the amount of memory allocated by `mmap()`. */
+    size_t          size;
+
+    /** @brief The `mbin_t`s initial chunk: the original pointer returned by `mmap()`. */
+    mchunk_t        *initial_chunk;
 
     /** @brief Pointer to the next `mbin_t` in the doubly-linked list. NULL if this is the last. */
-    struct s_mbin *next;
+    struct s_mbin   *next;
     
     /** @brief Pointer to the previous `mbin_t` in the doubly-linked list. NULL if this is the first. */
-    struct s_mbin *prev;
+    struct s_mbin   *prev;
 } mbin_t;
 
 /* *************************************************************************** */
