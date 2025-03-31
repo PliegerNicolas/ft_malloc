@@ -51,8 +51,9 @@ heap_t
 ```
 
 - **`mchunk_t`:** Metadata about memory chunks usable by the user to store data and their state.  
-- **`mbin_t`:** Doubly-linked-list of memory region allocated by `mmap()`, their `mchunk_t`s and some metadata.  
-- **`arena_t`**: Contains a arbitrarly defined fixed-size of `mbin_t` sizes and their configuration (kind of `mchunk_t` data to stored and etc.).  
+- **`mbin_t`:** Doubly-linked-list of mmap() allocated memory regions. These regions are partitionned through `mchunk_t`s using pointer arthimetics and other metadata. See here below a simple schema.
+![mbin_t schema](.images/mbin_schema.png)
+- **`arena_t`**: Contains a arbitrarly defined fixed-size of `mbin_t`s, separated by storage size range.  
 - **`heap_t`**: Root structure containing data about the portion(s) of the heap we're using with our ft_malloc implementation.  
 
 The largest `mbin_t` category (LARGE) calls `mmap()` on each occasion to retrieve enough memory space as large bins are too big and inconsistent to be worth strategical management.
