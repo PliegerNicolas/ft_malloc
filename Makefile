@@ -66,7 +66,7 @@ SOURCES_FILE_NAMES			:=	malloc \
 								realloc \
 								free \
 								show_alloc_mem \
-								heap/initialize
+								heap/gheap
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

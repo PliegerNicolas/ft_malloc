@@ -1,24 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   malloc.c                                           :+:      :+:    :+:   */
+/*   initialize_heap.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:02:35 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:02:35 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-30 17:23:19 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-30 17:23:19 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-// Check is initialisé.
-// - Si non, setup les mmap pour chacun des bails.
+/* Global variable(s) */
 
-void    *malloc(size_t size)
-{
-    // if (!gheap.is_initialized)
-    //     initialize_heap(&gheap);
-
-    return NULL;
-}
+/*
+* @brief Global variable used throughout this dynamic library.
+*
+* @note As a global variable. On start-up it is initialized to 0.
+* This sets .is_initialized to false.
+*/
+heap_t  gheap;

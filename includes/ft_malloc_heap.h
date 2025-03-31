@@ -19,7 +19,7 @@
 /* *************************************************************************** */
 
 /* Annexe ft_malloc headers. */
-# include "ft_malloc_arena.h"
+# include "ft_malloc_marena.h"
 
 /* For bool */
 # include <stdbool.h>
@@ -38,18 +38,15 @@
 */
 typedef struct s_heap
 {
-    /** @brief Pointer to the head of a doubly-linked list of `arena_t` structures. */
-    bool    is_initialized;
+    /** @brief Indicates if the `heap_t` has been initialized. */
+    bool        is_initialized;
 
-    /** @brief Pointer to the head of a doubly-linked list of `arena_t` structures. */
-    arena_t arenas;
-
+    /** @brief A memory arena. */
+    marena_t    marena;
 } heap_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
-
-heap_t  initialize_heap();
 
 #endif

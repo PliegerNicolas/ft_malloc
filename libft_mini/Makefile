@@ -64,7 +64,9 @@ SOURCES_FILE_NAMES				:=	ft_strlen \
 									ft_putstr_fd \
 									ft_putendl_fd \
 									ft_putint_fd \
-									ft_putsize_t_fd
+									ft_putsize_t_fd \
+									ft_memset \
+									ft_bzero
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

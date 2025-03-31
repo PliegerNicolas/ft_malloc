@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_malloc_arena.h                                  :+:      :+:    :+:   */
+/*   ft_malloc_marena.h                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 19:59:31 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 19:59:31 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-30 19:47:22 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-30 19:47:22 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_MALLOC_ARENA_H
-# define FT_MALLOC_ARENA_H
+#ifndef FT_MALLOC_MARENA_H
+# define FT_MALLOC_MARENA_H
 
 /* *************************************************************************** */
 /* *                                 INCLUDES                                * */
@@ -19,6 +19,24 @@
 
 /* Annexe ft_malloc headers. */
 # include "ft_malloc_mbin.h"
+
+/* *************************************************************************** */
+/* *                           CONFIGURABLE MACROS                           * */
+/* *************************************************************************** */
+
+# define MAX_MARENA
+
+/* *************************************************************************** */
+/* *                           CONFIGURABLE MACROS                           * */
+/* *************************************************************************** */
+
+/* CONSTANTS */
+
+/** @brief Default maximum `marena_t`s.
+ * @note Configurable arbitrary value. */
+# define DEFAULT_MAX_MARENAS ((size_t)(8))
+
+/* FUNCTIONS */
 
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */
@@ -29,20 +47,18 @@
 /* *************************************************************************** */
 
 /**
- * @struct s_arena
- * @brief Doubly-linked-list of arenas. Contains a fixed number of `mbin_t` and some metadata.
- * 
- * Each `mbin_t` is dedicated to managing memory chunks (`mchunk_t`) of specific size ranges.
- * The `mchunk_t` specify where the user's data is stored in the `mbin_t`s.
+ * @brief A memory arena.
+ * @note Only one `marena_t` is defined per thread thus it can be defined on the stack.
 */
-typedef struct s_arena
+typedef struct s_marena
 {
-    /** @brief A fixed-size array of pointers to `mbin_t` structures, one for each supported bin type. */
-    mbin_t          bins[NUM_MBIN_TYPES];
-
-    struct s_arena  *next;
-    struct s_arena  *prev;
-} arena_t;
+    /** @brief A fixed-size array of pointers to `irregular_mbin_t` structures,
+     * @note Based on `NUM_UNIFORM_MBIN_CATEGORIES`. */
+    uniform_mbin_t      uniform_mbins[NUM_UNIFORM_MBIN_CATEGORIES];
+    /** @brief A fixed-size array of pointers to `irregular_mbin_t` structures,
+     * @note Based on `NUM_IRREGULAR_MBIN_CATEGORIES`. */
+    irregular_mbin_t    irregular_mbins[NUM_IRREGULAR_MBIN_CATEGORIES];
+} marena_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */

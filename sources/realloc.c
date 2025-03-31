@@ -14,7 +14,8 @@
 
 void    *realloc(void *ptr, size_t size)
 {
-    if (!gheap.is_initialized)
-        gheap = initialize_heap();
-    return ptr;
+    // if (!gheap.is_initialized)
+    //     initialize_heap(&gheap);
+
+    return NULL;
 }

@@ -1,24 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   malloc.c                                           :+:      :+:    :+:   */
+/*   ft_memset.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:02:35 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:02:35 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-30 18:21:48 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-30 18:21:48 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_malloc.h"
+#include "libft_mini.h"
 
-// Check is initialisé.
-// - Si non, setup les mmap pour chacun des bails.
-
-void    *malloc(size_t size)
+void	*ft_memset(void *s, int c, size_t n)
 {
-    // if (!gheap.is_initialized)
-    //     initialize_heap(&gheap);
+    unsigned char   *ptr = s;
+    unsigned char   value = (unsigned char)c;
 
-    return NULL;
+    for (size_t i = 0; i < n; i++)
+        ptr[i] = value;
+
+    return s;
 }

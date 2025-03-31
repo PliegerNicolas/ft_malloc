@@ -25,6 +25,8 @@
 # include <stddef.h>
 
 /* For MMAP related constants. */
+// Include the necessary GNU extensions (https://github.com/microsoft/vscode-cpptools/issues/4268) for MAP_ANONYMOUS.
+#define _GNU_SOURCE
 #include <sys/mman.h>
 
 /* *************************************************************************** */
@@ -33,10 +35,10 @@
 
 /* CONSTANTS */
 
-/** @brief Configurable arbitrary minimum memory alignment boundary (in bytes).
+/** @brief Minimum memory alignment boundary (in bytes).
+ * Should be a multiple of 2. 16 is recommended to accomodate SIMD operations.
  * 
- * Should be a multiple of 2.
- * Should use 16 to accomodate SIMD operations.
+ * @note Configurable arbitrary value.
 */
 # define MIN_ALIGNMENT_BOUNDARY ((size_t) 16)
 
@@ -46,10 +48,23 @@
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
 
+/* UTILS */
+
+/** @brief A pointer to indicate failure. Represents NULL */
+# define FAILURE ((void *)0)
+
 /* CONSTANTS */
 
 /** @brief System page size in bytes (typically aligned to a multiple of 2). */
-# define PAGE_SIZE ((size_t)sysconf(_SC_PAGESIZE))
+# define PAGE_SIZE ((size_t)(sysconf(_SC_PAGE_SIZE)))
+
+// # if defined(_SC_PAGE_SIZE)
+// #  define PAGE_SIZE ((size_t)(sysconf(_SC_PAGE_SIZE)))
+// # elif defined(_SC_PAGESIZE)
+// #  define PAGE_SIZE ((size_t)(sysconf(_SC_PAGESIZE)))
+// # elif defined
+// #  define PAGE_SIZE ((size_t)getpagesize())
+// # endif
 
 /**
  * @brief Memory protections for mmap().
@@ -78,5 +93,7 @@
 */
 #define ALIGN_UP(value, align) \
     ((size_t)(value) + ((align) - 1)) & ~((align) - 1)
+
+
 
 #endif

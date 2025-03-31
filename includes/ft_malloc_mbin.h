@@ -27,24 +27,18 @@
 /* *                           CONFIGURABLE MACROS                           * */
 /* *************************************************************************** */
 
-/*
-* One `mbin_t` size should be "open". In other words, it should be able to accomodate
-* all the chunks that are too big for the other `mbin_t`s.
-* In our case that's our `MBIN_LARGE`. For each large `mchunk_t`, a new `mbin_t`
-* is create and thus a new `mmap()` call is made.
-*/
-
 /* CONSTANTS */
 
-/** @brief Configurable arbitrary value for how many allocations should ideally be available per `mbin_t`. */
-# define TARGET_MIN_ALLOCATIONS_PER_MBIN ((size_t)(100))
-/** @brief Configurable arbitrary value for how many allocations should ideally be available per large `mbin_t`. */
-# define TARGET_MIN_ALLOCATIONS_PER_LARGE_MBIN ((size_t)1)
+/** @brief Minimum amount of allocations permitted per `uniform_mbin_t`.
+ * @note Configurable arbitrary value. */
+# define TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN ((size_t)(100))
+/** @brief Minimum amount of allocations permitted per `irregular_mbin_t`.
+ * @note Configurable arbitrary value. */
+# define TARGET_MIN_ALLOCATIONS_PER_IRREGULAR_MBIN ((size_t)(1))
 
-/** @brief Configurable arbitrary value for how many tiny bins should be created on initialization. */
-# define TARGET_INITIAL_TINY_MBINS ((size_t)3)
-/** @brief Configurable arbitrary value for how many small bins should be created on initialization. */
-# define TARGET_INITAL_SMALL_MBINS ((size_t)3)
+/** @brief Total `uniform_mbin_t` to create on heap initialization per category.
+ * @note Configurable arbitrary value. */
+# define TARGET_INITIAL_UNIFORM_MBINS_PER_CATEGORY ((size_t)(3))
 
 /* FUNCTIONS */
 
@@ -54,57 +48,103 @@
 
 /* CONSTANTS */
 
-/** @brief Size of a tiny `mbin_t`. */
-# define TINY_MBIN_SIZE ((size_t)(ALIGN_UP(TARGET_MIN_ALLOCATIONS_PER_MBIN * TINY_MCHUNK_SIZE, PAGE_SIZE)))
-/** @brief Size of a small `mbin_t`. */
-# define SMALL_MBIN_SIZE ((size_t)(ALIGN_UP(TARGET_MIN_ALLOCATIONS_PER_MBIN * SMALL_MCHUNK_SIZE, PAGE_SIZE)))
+/** @brief Padded `uniform_mbin_t` structure size. @note Based on `sizeof(uniform_mbin_t)`. */
+# define UNIFORM_MBIN_METADATA_SIZE ((size_t)(ALIGN_UP(sizeof(uniform_mbin_t), MIN_ALIGNMENT_BOUNDARY)))
+/** @brief Padded `uniform_mbin_t` structure size. @note Based on `sizeof(irregular_mbin_t)`. */
+# define IRREGULAR_MBIN_METADATA_SIZE ((size_t)(ALIGN_UP(sizeof(irregular_mbin_t), MIN_ALIGNMENT_BOUNDARY)))
 
+/** @brief Size of a TINY `uniform_mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
+ * @note Represents the number of bytes that should be requested through mmap() for a TINY `uniform_mbin_t`. */
+# define TINY_MBIN_SIZE ((size_t)(ALIGN_UP(UNIFORM_MBIN_METADATA_SIZE \
+    + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * TINY_MCHUNK_SIZE), PAGE_SIZE)))
+/** @brief Size of a SMALL `uniform_mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
+ * @note Represents the number of bytes that should be requested through mmap() for a SMALL `uniform_mbin_t`. */
+# define SMALL_MBIN_SIZE ((size_t)(ALIGN_UP(UNIFORM_MBIN_METADATA_SIZE \
+    + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * SMALL_MCHUNK_SIZE), PAGE_SIZE)))
+    
 /* FUNCTIONS */
+
+/** @brief Size of a LARGE `irregular_mbin_t`, including metadata, padding and `irregular_mchunk_t`s.
+ * @note Represents the number of bytes that should be requested through mmap()
+ * for a LARGE `irregular_mbin_t`. If `bytes_to_store < IRREGULAR_MCHUNK_METADATA_SIZE`,
+ * then 0 is forcefully returned. */
+# define LARGE_MBIN_SIZE(bytes_to_store) \
+    ((size_t)bytes_to_store >= IRREGULAR_MCHUNK_METADATA_SIZE \
+        ? (ALIGN_UP(IRREGULAR_MCHUNK_METADATA_SIZE + \
+            (TARGET_MIN_ALLOCATIONS_PER_IRREGULAR_MBIN * (size_t)(bytes_to_store)), PAGE_SIZE)) \
+        : 0 \
+    )
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
 
-/**
- * @enum e_mbin_type
- * @brief Enumeration representing the supported `mbin_t` categories.
- *
- * These categories are used to identify the type of each `mbin_t` in an array of size `NUM_MBIN_TYPES`.
-*/
-enum e_mbin_type
+/** @brief Uniform `mbin_t` categories. @note Used with `uniform_mchunk_t`s. */
+enum e_mbin_uniform_category
 {
-    /** @brief Category for `mbin_t` structures managing tiny `mchunk_t` allocations. */
+    /** @brief Category for `uniform_mbin_t` structures managing tiny `uniform_mchunk_t` allocations. */
     MBIN_TINY,
     
-    /** @brief Category for `mbin_t` structures managing small `mchunk_t` allocations. */
+    /** @brief Category for `uniform_mbin_t` structures managing small `uniform_mchunk_t` allocations. */
     MBIN_SMALL,
-    
-    /** @brief Category for `mbin_t` structures managing large `mchunk_t` allocations. */
-    MBIN_LARGE,
 
-    /** @brief Number of supported `mbin_t` categories. */
-    NUM_MBIN_TYPES
+    /** @brief Number of supported `uniform_mbin_t` categories. */
+    NUM_UNIFORM_MBIN_CATEGORIES,
 };
 
-/**
- * @struct s_mbin
- * @brief A doubly-linked-list of memory bins.
- * It contais mmap()-allocated memory regions ready to be partitioned into `mchunk_t`s.
-*/
-typedef struct s_mbin
+/** @brief Irregular `mbin_t` categories. @note Used with `irregular_mchunk_t`s. */
+enum e_mbin_irregular_category
 {
-    /** @brief The `mbin_t`s size: the amount of memory allocated by `mmap()`. */
+    /** @brief Category for `irregular_mbin_t` structures managing large `irregular_mchunk_t` allocations. */
+    MBIN_LARGE,
+
+    /** @brief Number of supported `irregular_mbin_t` categories. */
+    NUM_IRREGULAR_MBIN_CATEGORIES,
+};
+
+/* STRUCTURES */
+
+/**
+ * @brief A doubly-linked list of uniform-sized memory chunks, also called a memory bin.
+ * This structure is used to manage memory bins that hold uniform-sized chunks.
+ * 
+ * @note Typically placed at the start of a memory region allocated via `mmap()`.
+*/
+typedef struct s_uniform_mbin
+{
+    /** @brief Initial `uniform_mchunk_t` defined inside this `uniform_mbin_t`.
+     * @note Should be positionned just after this `uniform_mbin_t` in memory. */
+    uniform_mchunk_t  *start;
+    /** @brief Available bytes for this `uniform_mbin_t`.
+     * @note In other words, the size in bytes of the region provided by mmap(). */
     size_t          size;
 
-    /** @brief The `mbin_t`s initial chunk: the original pointer returned by `mmap()`. */
-    mchunk_t        *initial_chunk;
-
-    /** @brief Pointer to the next `mbin_t` in the doubly-linked list. NULL if this is the last. */
+    /** @brief Next `uniform_mbin_t` of the doubly-linked-list. */
     struct s_mbin   *next;
-    
-    /** @brief Pointer to the previous `mbin_t` in the doubly-linked list. NULL if this is the first. */
+    /** @brief Previous `uniform_mbin_t` of the doubly-linked-list. */
     struct s_mbin   *prev;
-} mbin_t;
+} uniform_mbin_t;
+
+/**
+ * @brief A doubly-linked list of irregularly sized memory chunks, also called a memory bin.
+ * This structure is used to manage memory bins that hold irregularly sized chunks.
+ * 
+ * @note Typically placed at the start of a memory region allocated via `mmap()`.
+*/
+typedef struct s_irregular_mbin
+{
+    /** @brief Initial `irregular_mchunk_t` defined inside this `irregular_mbin_t`.
+     * @note Should be positionned just after this `irregular_mbin_t` in memory. */
+    irregular_mchunk_t    *start;
+    /** @brief Available bytes for this `irregular_mbin_t`.
+     * @note In other words, the size in bytes of the region provided by mmap(). */
+    size_t              size;
+
+    /** @brief Next `irregular_mbin_t` of the doubly-linked-list. */
+    struct s_mbin       *next;
+    /** @brief Previous `irregular_mbin_t` of the doubly-linked-list. */
+    struct s_mbin       *prev;
+} irregular_mbin_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
