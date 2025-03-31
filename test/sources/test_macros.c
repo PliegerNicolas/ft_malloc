@@ -46,8 +46,7 @@ static void test_mbin_macros()
     test_macro_returning_size_t("TARGET_MIN_ALLOCATIONS_PER_IRREGULAR_MBIN", NULL, TARGET_MIN_ALLOCATIONS_PER_IRREGULAR_MBIN);
     test_macro_returning_size_t("TARGET_INITIAL_UNIFORM_MBINS_PER_CATEGORY", NULL, TARGET_INITIAL_UNIFORM_MBINS_PER_CATEGORY);
 
-    test_macro_returning_size_t("UNIFORM_MBIN_METADATA_SIZE", NULL, UNIFORM_MBIN_METADATA_SIZE);
-    test_macro_returning_size_t("IRREGULAR_MBIN_METADATA_SIZE", NULL, IRREGULAR_MBIN_METADATA_SIZE);
+    test_macro_returning_size_t("MBIN_METADATA_SIZE", NULL, MBIN_METADATA_SIZE);
 
     test_macro_returning_size_t("TINY_MBIN_SIZE", NULL, TINY_MBIN_SIZE);
     test_macro_returning_size_t("SMALL_MBIN_SIZE", NULL, SMALL_MBIN_SIZE);
@@ -55,6 +54,11 @@ static void test_mbin_macros()
     test_macro_returning_size_t("LARGE_MBIN_SIZE", "bytes_to_store = 0", LARGE_MBIN_SIZE(0));
     test_macro_returning_size_t("LARGE_MBIN_SIZE", "bytes_to_store = 4242", LARGE_MBIN_SIZE(4242));
     test_macro_returning_size_t("LARGE_MBIN_SIZE", "bytes_to_store = 123456789", LARGE_MBIN_SIZE(123456789));
+
+    // test_macro_returning_size_t();
+    // test_macro_returning_size_t();
+    // GET_UNIFORM_MBIN_INITIAL_MCHUNK_PTR()
+    // GET_IRREGULAR_MBIN_INITIAL_MCHUNK_PTR()
 }
 
 static void test_mchunk_macros()

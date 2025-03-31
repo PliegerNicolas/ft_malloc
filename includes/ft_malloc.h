@@ -82,9 +82,19 @@ extern heap_t   gheap;
 
 /* Mandatory functions */
 
-void        *malloc(size_t size);
-void        *realloc(void *ptr, size_t size);
-void        free(void *ptr);
-void        show_alloc_mem();
+void                *malloc(size_t size);
+void                *realloc(void *ptr, size_t size);
+void                free(void *ptr);
+void                show_alloc_mem();
+
+void                initialize_heap(heap_t *heap);
+
+void                set_uniform_mbin_initial_mchunk(mbin_t *mbin, size_t size);
+void                set_irregular_mbin_initial_mchunk(mbin_t *mbin, size_t size);
+
+mbin_t              *new_mbin(size_t size, enum e_mbin_categories category);
+mbin_t              *mbin_last(mbin_t *head);
+void                mbin_add_front(mbin_t **head, mbin_t *new);
+void                mbin_add_back(mbin_t **head, mbin_t *new);
 
 #endif

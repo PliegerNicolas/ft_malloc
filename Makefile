@@ -66,7 +66,15 @@ SOURCES_FILE_NAMES			:=	malloc \
 								realloc \
 								free \
 								show_alloc_mem \
-								heap/gheap
+								\
+								heap/gheap \
+								heap/initialize_heap \
+								\
+								mbin/mbin \
+								mbin/mbin_list_operations \
+								\
+								mchunk/uniform_mchunk \
+								mchunk/irregular_mchunk
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

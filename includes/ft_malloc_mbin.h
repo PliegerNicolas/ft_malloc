@@ -48,18 +48,16 @@
 
 /* CONSTANTS */
 
-/** @brief Padded `uniform_mbin_t` structure size. @note Based on `sizeof(uniform_mbin_t)`. */
-# define UNIFORM_MBIN_METADATA_SIZE ((size_t)(ALIGN_UP(sizeof(uniform_mbin_t), MIN_ALIGNMENT_BOUNDARY)))
-/** @brief Padded `uniform_mbin_t` structure size. @note Based on `sizeof(irregular_mbin_t)`. */
-# define IRREGULAR_MBIN_METADATA_SIZE ((size_t)(ALIGN_UP(sizeof(irregular_mbin_t), MIN_ALIGNMENT_BOUNDARY)))
+/** @brief Padded `mbin_t` structure size. @note Based on `sizeof(uniform_mbin_t)`. */
+# define MBIN_METADATA_SIZE ((size_t)(ALIGN_UP(sizeof(mbin_t), MIN_ALIGNMENT_BOUNDARY)))
 
-/** @brief Size of a TINY `uniform_mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
- * @note Represents the number of bytes that should be requested through mmap() for a TINY `uniform_mbin_t`. */
-# define TINY_MBIN_SIZE ((size_t)(ALIGN_UP(UNIFORM_MBIN_METADATA_SIZE \
+/** @brief Size of a TINY `mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
+ * @note Represents the number of bytes that should be requested through mmap() for a TINY `mbin_t`. */
+# define TINY_MBIN_SIZE ((size_t)(ALIGN_UP(MBIN_METADATA_SIZE \
     + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * TINY_MCHUNK_SIZE), PAGE_SIZE)))
-/** @brief Size of a SMALL `uniform_mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
- * @note Represents the number of bytes that should be requested through mmap() for a SMALL `uniform_mbin_t`. */
-# define SMALL_MBIN_SIZE ((size_t)(ALIGN_UP(UNIFORM_MBIN_METADATA_SIZE \
+/** @brief Size of a SMALL `mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
+ * @note Represents the number of bytes that should be requested through mmap() for a SMALL `mbin_t`. */
+# define SMALL_MBIN_SIZE ((size_t)(ALIGN_UP(MBIN_METADATA_SIZE \
     + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * SMALL_MCHUNK_SIZE), PAGE_SIZE)))
     
 /* FUNCTIONS */
@@ -75,12 +73,15 @@
         : 0 \
     )
 
+# define GET_MBIN_INITIAL_MCHUNK_PTR(mbin_ptr) \
+    ((void *)((unsigned char *)(mbin_t *)(mbin_ptr) + MBIN_METADATA_SIZE))
+
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
 
 /** @brief Uniform `mbin_t` categories. @note Used with `uniform_mchunk_t`s. */
-enum e_mbin_uniform_category
+enum e_mbin_uniform_subcategory
 {
     /** @brief Category for `uniform_mbin_t` structures managing tiny `uniform_mchunk_t` allocations. */
     MBIN_TINY,
@@ -88,63 +89,52 @@ enum e_mbin_uniform_category
     /** @brief Category for `uniform_mbin_t` structures managing small `uniform_mchunk_t` allocations. */
     MBIN_SMALL,
 
-    /** @brief Number of supported `uniform_mbin_t` categories. */
-    NUM_UNIFORM_MBIN_CATEGORIES,
+    /** @brief Number of supported `uniform_mbin_t` subcategories. */
+    NUM_UNIFORM_MBIN_SUBCATEGORIES,
 };
 
 /** @brief Irregular `mbin_t` categories. @note Used with `irregular_mchunk_t`s. */
-enum e_mbin_irregular_category
+enum e_mbin_irregular_subcategory
 {
     /** @brief Category for `irregular_mbin_t` structures managing large `irregular_mchunk_t` allocations. */
     MBIN_LARGE,
 
-    /** @brief Number of supported `irregular_mbin_t` categories. */
-    NUM_IRREGULAR_MBIN_CATEGORIES,
+    /** @brief Number of supported `irregular_mbin_t` subcategories. */
+    NUM_IRREGULAR_MBIN_SUBCATEGORIES,
+};
+
+/** @brief List of categories. */
+enum e_mbin_categories
+{
+    UNIFORM,
+    IRREGULAR,
+    NUM_MBIN_CATEGORIES,
 };
 
 /* STRUCTURES */
 
-/**
- * @brief A doubly-linked list of uniform-sized memory chunks, also called a memory bin.
- * This structure is used to manage memory bins that hold uniform-sized chunks.
- * 
- * @note Typically placed at the start of a memory region allocated via `mmap()`.
-*/
-typedef struct s_uniform_mbin
+// Could use an union, but it ould make it less clear and prone to errors.
+
+typedef struct s_mbin
 {
-    /** @brief Initial `uniform_mchunk_t` defined inside this `uniform_mbin_t`.
-     * @note Should be positionned just after this `uniform_mbin_t` in memory. */
-    uniform_mchunk_t  *start;
+    /** @brief Union discriminator. */
+    enum e_mbin_categories  category;
+    /** @brief Initial `*_mchunk_t` defined inside this `mbin_t`.
+     * @note Should be positionned just after this `mbin_t` in memory. */
+    union {
+        uniform_mchunk_t    *uniform_start;
+        irregular_mchunk_t  *irregular_start;
+    };
+
     /** @brief Available bytes for this `uniform_mbin_t`.
      * @note In other words, the size in bytes of the region provided by mmap(). */
-    size_t          size;
+    size_t                  size;
 
-    /** @brief Next `uniform_mbin_t` of the doubly-linked-list. */
-    struct s_mbin   *next;
-    /** @brief Previous `uniform_mbin_t` of the doubly-linked-list. */
-    struct s_mbin   *prev;
-} uniform_mbin_t;
-
-/**
- * @brief A doubly-linked list of irregularly sized memory chunks, also called a memory bin.
- * This structure is used to manage memory bins that hold irregularly sized chunks.
- * 
- * @note Typically placed at the start of a memory region allocated via `mmap()`.
-*/
-typedef struct s_irregular_mbin
-{
-    /** @brief Initial `irregular_mchunk_t` defined inside this `irregular_mbin_t`.
-     * @note Should be positionned just after this `irregular_mbin_t` in memory. */
-    irregular_mchunk_t    *start;
-    /** @brief Available bytes for this `irregular_mbin_t`.
-     * @note In other words, the size in bytes of the region provided by mmap(). */
-    size_t              size;
-
-    /** @brief Next `irregular_mbin_t` of the doubly-linked-list. */
-    struct s_mbin       *next;
-    /** @brief Previous `irregular_mbin_t` of the doubly-linked-list. */
-    struct s_mbin       *prev;
-} irregular_mbin_t;
+    /** @brief Next `mbin_t` of the doubly-linked-list. */
+    struct s_mbin           *next;
+    /** @brief Previous `mbin_t` of the doubly-linked-list. */
+    struct s_mbin           *prev;
+} mbin_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */

@@ -12,78 +12,42 @@
 
 #include "ft_malloc.h"
 
-// static mchunk_t *new_mchunk(size_t mmap_size)
-// {
-//     mchunk_t    *mchunk_ptr;
-//     void        *mmap_ptr;
+static size_t   get_mbin_size_per_uniform_subcategory(enum e_mbin_uniform_subcategory category)
+{
+    switch (category)
+    {
+        case MBIN_TINY:
+            return TINY_MBIN_SIZE;
+        case MBIN_SMALL:
+            return SMALL_MBIN_SIZE;
+        default:
+            return 0;
+    }
+}
 
-//     mmap_ptr = mmap(NULL, mmap_size, MMAP_PROTECTIONS, MMAP_FLAGS, -1, 0);
-//     if (mmap_ptr == MAP_FAILED)
-//         return MALLOC_FAILED;
+static mbin_t *create_mbins(enum e_mbin_categories category, size_t bins, size_t mbin_size)
+{
+    mbin_t *mbin = NULL;
 
-//     mchunk_ptr = mmap_ptr;
-//     *mchunk_ptr = (mchunk_t){
-//         .state = FREE,
-//         .size = mmap_size,
-//         .prev_size = 0,
-//         .next_free_chunk = NULL,
-//         .prev_free_chunk = NULL,
-//     };
+    if (bins == 0)
+        return NULL;
 
-//     return mchunk_ptr;
-// }
+    for (size_t i = 0; i < bins; i++)
+    {
+        mbin_add_front(&mbin, new_mbin(mbin_size, category));
+    }
 
-// static size_t   get_mbin_size_by_category(enum e_mbin_category category, size_t fallback_size)
-// {
-//     switch(category)
-//     {
-//         case MBIN_TINY:
-//             return TINY_MBIN_SIZE;
-//         case MBIN_SMALL:
-//             return SMALL_MBIN_SIZE;
-//         case MBIN_LARGE:
-//             return ALIGN_UP(fallback_size, PAGE_SIZE);
-//         default:
-//             return 0;
-//     };
-// }
+    return mbin;
+}
 
-// static mbin_t   new_mbin_by_size(size_t mbin_size)
-// {
-//     mbin_t      mbin = {0};
-//     mchunk_t    *mchunk_ptr;
-    
-//     mchunk_ptr = new_mchunk(mbin_size);
-//     if (mchunk_ptr == MALLOC_FAILED)
-//         return mbin;
+void    initialize_heap(heap_t *heap)
+{
+    for (enum e_mbin_uniform_subcategory c = 0; c < NUM_UNIFORM_MBIN_SUBCATEGORIES; c++)
+        heap->marena.uniform_mbins[c] = create_mbins(UNIFORM, TARGET_INITIAL_UNIFORM_MBINS_PER_CATEGORY, get_mbin_size_per_uniform_subcategory(c));
 
-//     mbin.initial_chunk = mchunk_ptr;
-//     mbin.size = mbin_size;
+    for (enum e_mbin_irregular_subcategory c = 0; c < NUM_IRREGULAR_MBIN_SUBCATEGORIES; c++)
+        heap->marena.irregular_mbins[c] = create_mbins(IRREGULAR, 0, 0);
 
-//     return mbin;
-// }
-
-// static marena_t new_arena()
-// {
-//     marena_t    arena = {0};
-
-//     for (enum e_mbin_category c; c < NUM_MBIN_CATEGORIES; c++)
-//         arena.bins[c] = new_mbin_by_size(get_mbin_size_by_category(c, 0));
-//         // VALIDATION
-
-//     return arena;
-// }
-
-// /**
-//  * @brief Initializes a `heap_t` structure.
-//  * 
-//  * @param heap A pointer to the `heap_t` structure to be initialized.
-//  * 
-//  * @note It assumes that the `heap_t` structure already has valid memory space
-//  * and has been zeroed out (e.g. global variable, static variable...).
-// */
-// void    initialize_heap(heap_t *heap)
-// {
-//     heap->arenas = new_arena();
-//     heap->is_initialized = true;
-// }
+    heap->marena.irregular_mbins;
+    heap->is_initialized = true;
+}
