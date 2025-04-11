@@ -98,7 +98,8 @@ YELLOW		:=		\033[0;33m
 BLUE		:=		\033[0;34m
 PURPLE		:=		\033[0;35m
 CYAN		:=		\033[0;36m
-WHITE		:=		\033[0;37m
+ORANGE		:=		\033[0;38;5;209m
+GRAY		:=		\033[0;37m
 RESET		:=		\033[0m
 
 #* *************************************************************************** *#
@@ -112,6 +113,17 @@ endef
 define archiving_message
 	echo "🔗 $(YELLOW)Archiving $(BOLD)$(CYAN)$@$(RESET)$(YELLOW)...$(RESET)"
 endef
+
+define clean_message
+		echo "🗑️🧹 $(ORANGE)Cleaning up object files...$(RESET)"
+endef
+
+define fclean_message
+		echo "🗑️🧹 $(ORANGE)Cleaning up artefacts...$(RESET)"
+endef
+
+
+
 
 define build_object_message
 	echo "Creating $(nodir $<)"
@@ -151,10 +163,12 @@ $(OBJECTS_DIR_PATH)/%.o: $(SOURCES_DIR_PATH)/%$(SOURCES_FILE_EXTENSION)
 
 # Rule to delete all objects (.o) and dependencies (.d).
 clean:
+	@$(call clean_message)
 	@rm -rf $(OBJECTS_DIR_PATH)
 
 # Rule to delete all objects (.o), dependencies (.d) and artifact (.a, .so, .dll, ...).
 fclean: clean
+	@$(call fclean_message)
 	@rm -f $(ARTEFACT_NAME)
 
 # Rule to clean all and build it everything from scratch again.

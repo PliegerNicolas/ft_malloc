@@ -50,8 +50,10 @@
 
 /* UTILS */
 
-/** @brief A pointer to indicate failure. Represents NULL */
-# define FAILURE ((void *)0)
+/** @brief A pointer to indicate failure. */
+# define FAILURE ((void *)-1)
+/** @brief A pointer to indicate success. */
+# define SUCCESS ((void *)1)
 
 /* CONSTANTS */
 

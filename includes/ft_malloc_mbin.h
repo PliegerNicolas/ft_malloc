@@ -29,14 +29,14 @@
 
 /* CONSTANTS */
 
-/** @brief Minimum amount of allocations permitted per `uniform_mbin_t`.
+/** @brief Minimum amount of allocations that can be handled per `UNIFORM` `mbin_t`.
  * @note Configurable arbitrary value. */
 # define TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN ((size_t)(100))
-/** @brief Minimum amount of allocations permitted per `irregular_mbin_t`.
+/** @brief Minimum amount of allocations that can be handled per `NON_UNIFORM` `mbin_t`.
  * @note Configurable arbitrary value. */
-# define TARGET_MIN_ALLOCATIONS_PER_IRREGULAR_MBIN ((size_t)(1))
+# define TARGET_MIN_ALLOCATIONS_PER_NON_UNIFORM_MBIN ((size_t)(1))
 
-/** @brief Total `uniform_mbin_t` to create on heap initialization per category.
+/** @brief Total `UNIFORM` `mbin_t`s to create for each subcategory on heap initialization.
  * @note Configurable arbitrary value. */
 # define TARGET_INITIAL_UNIFORM_MBINS_PER_CATEGORY ((size_t)(3))
 
@@ -46,98 +46,114 @@
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
 
-/* CONSTANTS */
+/* MBIN METADATA */
 
 /** @brief Padded `mbin_t` structure size. @note Based on `sizeof(uniform_mbin_t)`. */
 # define MBIN_METADATA_SIZE ((size_t)(ALIGN_UP(sizeof(mbin_t), MIN_ALIGNMENT_BOUNDARY)))
 
-/** @brief Size of a TINY `mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
- * @note Represents the number of bytes that should be requested through mmap() for a TINY `mbin_t`. */
-# define TINY_MBIN_SIZE ((size_t)(ALIGN_UP(MBIN_METADATA_SIZE \
-    + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * TINY_MCHUNK_SIZE), PAGE_SIZE)))
-/** @brief Size of a SMALL `mbin_t`, including metadata, padding and `uniform_mchunk_t`s.
- * @note Represents the number of bytes that should be requested through mmap() for a SMALL `mbin_t`. */
-# define SMALL_MBIN_SIZE ((size_t)(ALIGN_UP(MBIN_METADATA_SIZE \
-    + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * SMALL_MCHUNK_SIZE), PAGE_SIZE)))
+/* MBIN SIZES */
+
+/** @brief Total `PAGE` aligned size in bytes of a `TINY_MBIN` (metadata and data included).
+ * @note This value should be passed to mmap(). */
+# define TINY_MBIN_SIZE ((size_t)(ALIGN_UP(MBIN_METADATA_SIZE + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * TINY_MCHUNK_SIZE), PAGE_SIZE)))
+/** @brief Total `PAGE` aligned size in bytes of a `SMALL_MBIN` (metadata and data included).
+ * @note This value should be passed to mmap(). */
+# define SMALL_MBIN_SIZE ((size_t)(ALIGN_UP(MBIN_METADATA_SIZE + (TARGET_MIN_ALLOCATIONS_PER_UNIFORM_MBIN * SMALL_MCHUNK_SIZE), PAGE_SIZE)))
+/** @brief Total `PAGE` aligned size in bytes of a `LARGE_MBIN` (metadata and data included).
+ * @param mchunk_data_size (size_t) Number of bytes the `mbin_t`s is expected to hold per `mchunk_t`.
+ * @note This value should be passed to mmap(). */
+# define LARGE_MBIN_SIZE(mchunk_data_size) \
+    ((size_t)(ALIGN_UP(MBIN_METADATA_SIZE + \
+        (TARGET_MIN_ALLOCATIONS_PER_NON_UNIFORM_MBIN * LARGE_MCHUNK_SIZE(mchunk_data_size)), PAGE_SIZE)))
     
-/* FUNCTIONS */
+/* MBIN MCHUNKs */
 
-/** @brief Size of a LARGE `irregular_mbin_t`, including metadata, padding and `irregular_mchunk_t`s.
- * @note Represents the number of bytes that should be requested through mmap()
- * for a LARGE `irregular_mbin_t`. If `bytes_to_store < IRREGULAR_MCHUNK_METADATA_SIZE`,
- * then 0 is forcefully returned. */
-# define LARGE_MBIN_SIZE(bytes_to_store) \
-    ((size_t)bytes_to_store >= IRREGULAR_MCHUNK_METADATA_SIZE \
-        ? (ALIGN_UP(IRREGULAR_MCHUNK_METADATA_SIZE + \
-            (TARGET_MIN_ALLOCATIONS_PER_IRREGULAR_MBIN * (size_t)(bytes_to_store)), PAGE_SIZE)) \
-        : 0 \
-    )
+/** @return The address to the first `*mchunk_ptr` in the given `mbin_t`. */
+# define MBIN_INITIAL_MCHUNK_PTR(mbin_ptr) \
+    ((mchunk_t *)((unsigned char *)((mbin_t *)mbin_ptr) + MBIN_METADATA_SIZE))
 
-# define GET_MBIN_INITIAL_MCHUNK_PTR(mbin_ptr) \
-    ((void *)((unsigned char *)(mbin_t *)(mbin_ptr) + MBIN_METADATA_SIZE))
+/** @return The size the `mbin_t` dedicates to it's `mchunk_t`s.
+ * @note In other words. The size of it's first `mchunk_t`. */
+# define MBIN_INITIAL_MCHUNK_SIZE(mbin_ptr) \
+    ((size_t)((mbin_t *)mbin_ptr->size - MBIN_METADATA_SIZE))
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
 
-/** @brief Uniform `mbin_t` categories. @note Used with `uniform_mchunk_t`s. */
-enum e_mbin_uniform_subcategory
+/* ENUMS */
+
+/** @brief `mbin_t` categories.
+ * @param MBIN_UNIFORM stores it's `mchunk_t`s in a uniform manner. Evenly space and of constant size.
+ * @param MBIN_UNIFORM stores it's `mchunk_t`s in a non-uniform manner. Size is determined on the fly.
+ */
+typedef enum e_mbin_category
 {
-    /** @brief Category for `uniform_mbin_t` structures managing tiny `uniform_mchunk_t` allocations. */
-    MBIN_TINY,
-    
-    /** @brief Category for `uniform_mbin_t` structures managing small `uniform_mchunk_t` allocations. */
-    MBIN_SMALL,
-
-    /** @brief Number of supported `uniform_mbin_t` subcategories. */
-    NUM_UNIFORM_MBIN_SUBCATEGORIES,
-};
-
-/** @brief Irregular `mbin_t` categories. @note Used with `irregular_mchunk_t`s. */
-enum e_mbin_irregular_subcategory
-{
-    /** @brief Category for `irregular_mbin_t` structures managing large `irregular_mchunk_t` allocations. */
-    MBIN_LARGE,
-
-    /** @brief Number of supported `irregular_mbin_t` subcategories. */
-    NUM_IRREGULAR_MBIN_SUBCATEGORIES,
-};
-
-/** @brief List of categories. */
-enum e_mbin_categories
-{
-    UNIFORM,
-    IRREGULAR,
+    MBIN_UNIFORM,
+    MBIN_NON_UNIFORM,
     NUM_MBIN_CATEGORIES,
-};
+} mbin_category_t;
+
+/** @brief `UNIFORM` `mbin_t` subcategory. */
+typedef enum e_mbin_uniform_subcategory
+{
+    MBIN_TINY,
+    MBIN_SMALL,
+    NUM_MBIN_UNIFORM_SUBCATEGORIES,
+} mbin_uniform_subcategory_t;
+
+/** @brief `NON_UNIFORM` `mbin_t` subcategory. */
+typedef enum e_mbin_non_uniform_subcategory
+{
+    MBIN_LARGE,
+    NUM_MBIN_NON_UNIFORM_SUBCATEGORIES,
+} mbin_non_uniform_subcategory_t;
+
+// typedef union e_mbin_subcategory
+// {
+//     mbin_uniform_subcategory_t      uniform_subcategory;
+//     mbin_non_uniform_subcategory_t  non_uniform_subcategory;
+// } mbin_subcategory_t;
 
 /* STRUCTURES */
 
-// Could use an union, but it ould make it less clear and prone to errors.
+/**
+ * @brief Header for a `marena_t` memory bin.
+ * Usable data is stored directly behind the header in memory (`mchunk_t` *start).
+ * Don't forget about padding.
 
+ * @note For convenience, please use the provided macros (cf. header files).
+ */
 typedef struct s_mbin
 {
-    /** @brief Union discriminator. */
-    enum e_mbin_categories  category;
-    /** @brief Initial `*_mchunk_t` defined inside this `mbin_t`.
-     * @note Should be positionned just after this `mbin_t` in memory. */
-    union {
-        uniform_mchunk_t    *uniform_start;
-        irregular_mchunk_t  *irregular_start;
-    };
+    /** @brief Pointer to the first `mchunk_t` held by this `mbin_t`. */
+    mchunk_t        *start;
 
-    /** @brief Available bytes for this `uniform_mbin_t`.
-     * @note In other words, the size in bytes of the region provided by mmap(). */
-    size_t                  size;
+    /** @brief Aligned size of current `mbin_t`. Metadata and data included.
+     * @note The size requested to mmap(). */
+    size_t          size;
 
-    /** @brief Next `mbin_t` of the doubly-linked-list. */
-    struct s_mbin           *next;
-    /** @brief Previous `mbin_t` of the doubly-linked-list. */
-    struct s_mbin           *prev;
+    /** @brief Next `mbin_t` of this doubly-linked list.
+     * @note NULL if current. */
+    struct s_mbin   *next;
+    /** @brief Previous `mbin_t` of this doubly-linked list.
+     * @note NULL if current. */
+    struct s_mbin   *prev;
 } mbin_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
+
+
+size_t  get_mchunk_data_size_per_mbin_uniform_subcategory(mbin_uniform_subcategory_t subcategory);
+size_t  get_mchunk_data_size_per_mbin_non_uniform_subcategory(mbin_non_uniform_subcategory_t subcategory, size_t mchunk_data_size);
+size_t  get_mbin_size(size_t mchunk_data_size);
+
+mbin_t  *new_mbin(size_t mchunk_data_size);
+void    prepend_mbin(mbin_t **mbin, mbin_t *new_mbin);
+void    append_mbin(mbin_t **mbin, mbin_t *new_mbin);
+
+void    clear_mbin(mbin_t **mbin);
 
 #endif

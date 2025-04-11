@@ -68,13 +68,18 @@ SOURCES_FILE_NAMES			:=	malloc \
 								show_alloc_mem \
 								\
 								heap/gheap \
-								heap/initialize_heap \
+								heap/new_heap \
+								heap/clear_heap \
 								\
-								mbin/mbin \
-								mbin/mbin_list_operations \
+								marena/new_marena \
+								marena/clear_marena \
 								\
-								mchunk/uniform_mchunk \
-								mchunk/irregular_mchunk
+								mbin/new_mbin \
+								mbin/add_mbin \
+								mbin/clear_mbin \
+								\
+								mapping/mbin \
+								mapping/mchunk
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))
@@ -106,7 +111,8 @@ YELLOW		:=		\033[0;33m
 BLUE		:=		\033[0;34m
 PURPLE		:=		\033[0;35m
 CYAN		:=		\033[0;36m
-WHITE		:=		\033[0;37m
+ORANGE		:=		\033[0;38;5;209m
+GRAY		:=		\033[0;37m
 RESET		:=		\033[0m
 
 #* *************************************************************************** *#
@@ -125,6 +131,17 @@ define symlink_build_message
 	$(if $1,, $(error Missing argument for symlink_build_message))
 	echo "➿ $(YELLOW)Building symbolic link: $(BOLD)$(CYAN)$(1)$(WHITE) -> $(CYAN)$(@)$(RESET)$(YELLOW)...$(RESET)"
 endef
+
+define clean_message
+		echo "🗑️🧹 $(ORANGE)Cleaning up object files...$(RESET)"
+endef
+
+define fclean_message
+		echo "🗑️🧹 $(ORANGE)Cleaning up artefacts...$(RESET)"
+endef
+
+
+
 
 define build_object_message
 	echo "Creating $(nodir $<)"
@@ -169,11 +186,13 @@ $(OBJECTS_DIR_PATH)/%.o: $(SOURCES_DIR_PATH)/%$(SOURCES_FILE_EXTENSION)
 
 # Rule to delete all objects (.o) and dependencies (.d).
 clean:
+	@$(call clean_message)
 	@rm -rf $(OBJECTS_DIR_PATH)
 	@make -C $(LIBFT_MINI_PATH) clean
 
 # Rule to delete all objects (.o), dependencies (.d) and artifact (.a, .so, .dll, ...).
 fclean: clean
+	@$(call fclean_message)
 	@rm -f $(ARTEFACT_NAME)
 	@rm -f $(SYM_LINK_NAME)
 	@make -C $(LIBFT_MINI_PATH) fclean

@@ -49,4 +49,8 @@ typedef struct s_heap
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
+void        initialize_gheap(heap_t *gheap);
+void        clear_heap(heap_t *heap);
+heap_t      new_heap();
+
 #endif

@@ -1,33 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   uniform_mchunk.c                                   :+:      :+:    :+:   */
+/*   clear_mbin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-31 04:02:30 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-31 04:02:30 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-11 19:32:49 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-11 19:32:49 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void set_uniform_mbin_initial_mchunk(mbin_t *mbin, size_t size)
+void    clear_mbin(mbin_t **mbin)
 {
-    uniform_mchunk_t    *initial_mchunk;
+    mbin_t  *node;
+    mbin_t  *next;
 
-    initial_mchunk = GET_MBIN_INITIAL_MCHUNK_PTR(mbin);
+    if (!mbin || !*mbin)
+        return;
 
-    *initial_mchunk = (uniform_mchunk_t) {
-        .state = FREE,
-        .next_free_mchunk = NULL,
-        .prev_free_mchunk = NULL,
+    node = *mbin;
+    while (node)
+    {
+        next = node->next;
+        munmap(node, node->size);
+        node = next;
     };
 
-    *mbin = (typeof(*mbin)) {
-        .uniform_start = initial_mchunk,
-        .size = size,
-        .next = NULL,
-        .prev = NULL,
-    };
+    *mbin = NULL;
 }

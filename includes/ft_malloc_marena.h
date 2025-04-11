@@ -54,14 +54,17 @@ typedef struct s_marena
 {
     /** @brief A fixed-size array of pointers to uniform-`mbin_t` structures,
      * @note Based on `NUM_UNIFORM_MBIN_SUBCATEGORIES`. */
-    mbin_t      *uniform_mbins[NUM_UNIFORM_MBIN_SUBCATEGORIES];
-    /** @brief A fixed-size array of pointers to irregular-`mbin_t` structures,
-     * @note Based on `NUM_IRREGULAR_MBIN_SUBCATEGORIES`. */
-    mbin_t    *irregular_mbins[NUM_IRREGULAR_MBIN_SUBCATEGORIES];
+    mbin_t  *uniform_mbins[NUM_MBIN_UNIFORM_SUBCATEGORIES];
+    /** @brief A fixed-size array of pointers to non_uniform-`mbin_t` structures,
+     * @note Based on `NUM_NON_UNIFORM_MBIN_SUBCATEGORIES`. */
+    mbin_t  *non_uniform_mbins[NUM_MBIN_NON_UNIFORM_SUBCATEGORIES];
 } marena_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
+
+marena_t    new_marena();
+void        clear_marena(marena_t *marena);
 
 #endif
