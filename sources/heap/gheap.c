@@ -27,7 +27,13 @@ heap_t  gheap;
  * 
  * Should happen the first time malloc or similar is called.
 */
-void    initialize_gheap(heap_t *gheap)
+status_t    initialize_gheap(heap_t *gheap)
 {
-    *gheap = new_heap();
+    status_t    status = SUCCESS;
+
+    *gheap = new_heap(&status);
+    if (status == FAILURE)
+        clear_heap(gheap);
+
+    return status;
 }

@@ -12,12 +12,14 @@
 
 #include "ft_malloc.h"
 
-heap_t  new_heap()
+heap_t  new_heap(status_t *status)
 {
     heap_t  heap;
 
-    heap.marena = new_marena();
-    heap.is_initialized = true;
+    heap.marena = new_marena(status);
+    if (*status == FAILURE)
+        return heap;
 
+    heap.is_initialized = true;
     return heap;
 }

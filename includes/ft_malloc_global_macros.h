@@ -48,13 +48,6 @@
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
 
-/* UTILS */
-
-/** @brief A pointer to indicate failure. */
-# define FAILURE ((void *)-1)
-/** @brief A pointer to indicate success. */
-# define SUCCESS ((void *)1)
-
 /* CONSTANTS */
 
 /** @brief System page size in bytes (typically aligned to a multiple of 2). */
@@ -96,6 +89,17 @@
 #define ALIGN_UP(value, align) \
     ((size_t)(value) + ((align) - 1)) & ~((align) - 1)
 
+/* *************************************************************************** */
+/* *                                  MODELS                                 * */
+/* *************************************************************************** */
 
+/** @brief A pointer to indicate failure. */
+# define FAILURE ((void *)-1)
+/** @brief A pointer to indicate success. */
+# define SUCCESS ((void *)1)
+/** @brief A pointer indicating execution status.
+ * @note To be used with `SUCCESS` and `FAILURE`.
+*/
+typedef void    *status_t;
 
 #endif

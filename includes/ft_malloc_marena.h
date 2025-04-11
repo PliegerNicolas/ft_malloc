@@ -64,7 +64,7 @@ typedef struct s_marena
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-marena_t    new_marena();
+marena_t    new_marena(status_t *status);
 void        clear_marena(marena_t *marena);
 
 #endif
