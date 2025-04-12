@@ -12,17 +12,17 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief Clear an existing `marena_t`.
+ * @note Deallocate its content and resets its internal state.
+*/
 void    clear_marena(marena_t *marena)
 {
-    for (mbin_uniform_subcategory_t category = 0; category < NUM_MBIN_UNIFORM_SUBCATEGORIES; category++)
-    {
-        if (marena->uniform_mbins[category])
-            clear_mbin(&marena->uniform_mbins[category]);
-    };
+    for (mbin_subcategory_t c = 0; c < NUM_UNIFORM_MBINS; c++)
+        if (marena->uniform_mbins[c])
+            clear_mbin(&marena->uniform_mbins[c]);
 
-    for (mbin_non_uniform_subcategory_t category = 0; category < NUM_MBIN_NON_UNIFORM_SUBCATEGORIES; category++)
-    {
-        if (marena->non_uniform_mbins[category])
-            clear_mbin(&marena->non_uniform_mbins[category]);
-    };
+    for (mbin_subcategory_t c = 0; c < NUM_NON_UNIFORM_MBINS; c++)
+        if (marena->non_uniform_mbins[c])
+            clear_mbin(&marena->non_uniform_mbins[c]);
 }

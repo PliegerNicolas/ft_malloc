@@ -141,9 +141,11 @@ typedef struct s_mchunk
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-size_t  get_mchunk_size(size_t mchunk_data_size);
-size_t  get_mchunk_data_size(size_t mchunk_data_size);
+/* mappings */
 
-size_t  show_mchunks(mchunk_t **initial_mchunk, int fd);
+size_t      get_mchunk_size(size_t requested_bytes);
+size_t      get_mchunk_data_size(mchunk_t *mchunk);
+
+size_t      show_mchunks(mchunk_t **initial_mchunk, int fd);
 
 #endif

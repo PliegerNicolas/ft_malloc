@@ -67,27 +67,27 @@ SOURCES_FILE_NAMES			:=	malloc \
 								free \
 								show_alloc_mem \
 								\
+								mapping/mbin \
+								mapping/mchunk \
+								\
 								heap/gheap \
 								heap/new_heap \
-								heap/show \
+								heap/show_heap \
 								heap/clear_heap \
 								\
 								marena/new_marena \
-								marena/show \
+								marena/show_marena \
 								marena/clear_marena \
 								\
 								mbin/mmap_mbin \
 								mbin/new_mbin \
 								mbin/add_mbin \
 								mbin/mchunkify_mbin \
-								mbin/show \
+								mbin/show_mbin \
 								mbin/clear_mbin \
 								\
-								mchunk/show \
-								\
-								mapping/mbin \
-								mapping/mbin_categories \
-								mapping/mchunk
+								mchunk/show_mchunks \
+								mchunk/find_free_mchunk
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

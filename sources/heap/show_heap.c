@@ -1,36 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   clear_mbin.c                                       :+:      :+:    :+:   */
+/*   show_heap.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-11 19:32:49 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-11 19:32:49 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-12 23:19:14 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-12 23:19:14 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
 /**
- * @brief Clear an existing `mbin_t`.
- * @note Deallocate its content and resets its internal state.
+ * @brief ...
 */
-void    clear_mbin(mbin_t **mbin)
+void    show_heap(heap_t *heap, int fd)
 {
-    mbin_t  *node;
-    mbin_t  *next;
+    size_t  total_size;
 
-    if (!mbin || !*mbin)
+    if (!heap->is_initialized)
         return;
 
-    node = *mbin;
-    while (node)
-    {
-        next = node->next;
-        munmap(node, node->size);
-        node = next;
-    };
+    total_size = show_marena(&heap->marena, fd);
 
-    *mbin = NULL;
+    ft_putstr_fd("Total: ", fd);
+    ft_putsize_t_base_fd(total_size, "0123456789", 10, fd);
+    ft_putendl_fd(" bytes", fd);
 }

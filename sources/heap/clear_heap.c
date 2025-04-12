@@ -12,6 +12,10 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief Clear an existing `heap_t`.
+ * @note Deallocate its content and resets its internal state.
+*/
 void    clear_heap(heap_t *heap)
 {
     clear_marena(&heap->marena);

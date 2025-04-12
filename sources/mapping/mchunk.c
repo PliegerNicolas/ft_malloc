@@ -13,25 +13,24 @@
 #include "ft_malloc.h"
 
 /**
- * @brief ...
+ * @brief Infer a `MCHUNK_SIZE` based on a given data size in bytes.
+ * @param requested_bytes The amount of bytes we want the `mchunk_t` to hold.
 */
-size_t  get_mchunk_data_size(size_t mchunk_data_size)
+size_t  get_mchunk_size(size_t requested_bytes)
 {
-    if (mchunk_data_size <= TINY_MCHUNK_DATA_SIZE)
-        return TINY_MCHUNK_DATA_SIZE;
-    if (mchunk_data_size <= SMALL_MCHUNK_DATA_SIZE)
-        return SMALL_MCHUNK_DATA_SIZE;
-    return LARGE_MCHUNK_DATA_SIZE(mchunk_data_size);
+    if (requested_bytes <= TINY_MCHUNK_DATA_SIZE)
+        return TINY_MCHUNK_SIZE;
+    else if (requested_bytes <= SMALL_MCHUNK_DATA_SIZE)
+        return SMALL_MCHUNK_SIZE;
+    else
+        return LARGE_MCHUNK_SIZE(requested_bytes);
 }
 
 /**
- * @brief ...
+ * @brief Infer a `MCHUNK_SIZE` based on a given `mchunk_t*`.
+ * @param requested_bytes The amount of bytes we want the `mchunk_t` to hold.
 */
-size_t  get_mchunk_size(size_t mchunk_data_size)
+size_t   get_mchunk_data_size(mchunk_t *mchunk)
 {
-    if (mchunk_data_size <= TINY_MCHUNK_DATA_SIZE)
-        return TINY_MCHUNK_SIZE;
-    if (mchunk_data_size <= SMALL_MCHUNK_DATA_SIZE)
-        return SMALL_MCHUNK_SIZE;
-    return LARGE_MCHUNK_SIZE(mchunk_data_size);
+    return GET_MCHUNK_DATA_SIZE(mchunk);
 }

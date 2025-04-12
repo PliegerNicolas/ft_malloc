@@ -42,6 +42,19 @@
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
 
+/**
+ * @brief Number of `mbin_subcategory_t` recognized as part of `mbin_category_t` `UNIFORM`.
+ * @note `NUM_MBIN_SUBCATEGORIES` + [start_value] - [end_value].
+*/
+# define NUM_UNIFORM_MBINS \
+    (size_t)(NUM_MBIN_SUBCATEGORIES + MBIN_TINY - MBIN_LARGE)
+/**
+ * @brief Number of `mbin_subcategory_t` recognized as part of `mbin_category_t` `NON_UNIFORM`.
+ * @note `NUM_MBIN_SUBCATEGORIES` + [start_value] - [end_value].
+*/
+# define NUM_NON_UNIFORM_MBINS \
+    (size_t)(NUM_MBIN_SUBCATEGORIES + MBIN_LARGE - NUM_MBIN_CATEGORIES)
+
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
@@ -53,11 +66,11 @@
 typedef struct s_marena
 {
     /** @brief A fixed-size array of pointers to uniform-`mbin_t` structures,
-     * @note Based on `NUM_UNIFORM_MBIN_SUBCATEGORIES`. */
-    mbin_t  *uniform_mbins[NUM_MBIN_UNIFORM_SUBCATEGORIES];
+     * @note Based on `NUM_UNIFORM_MBINS`. */
+    mbin_t  *uniform_mbins[NUM_UNIFORM_MBINS];
     /** @brief A fixed-size array of pointers to non_uniform-`mbin_t` structures,
-     * @note Based on `NUM_NON_UNIFORM_MBIN_SUBCATEGORIES`. */
-    mbin_t  *non_uniform_mbins[NUM_MBIN_NON_UNIFORM_SUBCATEGORIES];
+     * @note Based on `NUM_NON_UNIFORM_MBINS`. */
+    mbin_t  *non_uniform_mbins[NUM_NON_UNIFORM_MBINS];
 } marena_t;
 
 /* *************************************************************************** */

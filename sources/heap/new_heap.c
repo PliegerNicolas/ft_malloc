@@ -12,6 +12,10 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief Create and initialize a new `heap_t`.
+ * @param status Is modified tu reflect `SUCCESS` or `FAILURE`.
+*/
 heap_t  new_heap(status_t *status)
 {
     heap_t  heap;

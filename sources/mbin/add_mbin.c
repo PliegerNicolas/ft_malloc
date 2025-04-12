@@ -12,6 +12,10 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief Append a `mbin_t` node to the end of an existing doubly-linked-list.
+ * @note Can also set the first node.
+*/
 void    append_mbin(mbin_t **mbin, mbin_t *new_mbin)
 {
     mbin_t  *node;
@@ -40,6 +44,10 @@ void    append_mbin(mbin_t **mbin, mbin_t *new_mbin)
     };
 }
 
+/**
+ * @brief Prepend a `mbin_t` node to the end of an existing doubly-linked-list.
+ * @note Can also set the first node.
+*/
 void    prepend_mbin(mbin_t **mbin, mbin_t *new_mbin)
 {
     mbin_t  *node;

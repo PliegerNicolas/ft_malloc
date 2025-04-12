@@ -14,18 +14,17 @@
 
 /* Global variable(s) */
 
-/*
+/**
 * @brief Global variable used throughout this dynamic library.
 *
 * @note As a global variable. On start-up it is initialized to 0.
-* This sets .is_initialized to false.
+* So by default `.is_initialized` is set to `false`.
 */
 heap_t  gheap;
 
 /**
  * @brief Initialize the global heap structure.
- * 
- * Should happen the first time malloc or similar is called.
+ * @note Should happen the first time malloc or similar is called.
 */
 status_t    initialize_gheap(heap_t *gheap)
 {

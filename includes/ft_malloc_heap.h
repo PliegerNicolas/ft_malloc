@@ -55,4 +55,6 @@ heap_t      new_heap(status_t *status);
 void        show_heap(heap_t *heap, int fd);
 void        clear_heap(heap_t *heap);
 
+mchunk_t    *find_free_mchunk(heap_t *heap, size_t requested_data_size);
+
 #endif

@@ -1,29 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   show.c                                             :+:      :+:    :+:   */
+/*   get_free_mchunk.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-12 13:41:32 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-12 13:41:32 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-12 21:18:50 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-12 21:18:50 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/**
- * @brief ...
-*/
-void    show_heap(heap_t *heap, int fd)
+mchunk_t    *find_free_mchunk(heap_t *heap, size_t requested_data_size)
 {
-    size_t  total_size;
-
-    if (!heap->is_initialized)
-        return;
-
-    total_size = show_marena(&heap->marena, fd);
-    ft_putstr_fd("Total: ", fd);
-    ft_putsize_t_base_fd(total_size, "0123456789", 10, fd);
-    ft_putendl_fd(" bytes", fd);
-}
+    size_t  target_mbin_size;
+    
+    target_mbin_size = get_mbin_size(requested_data_size);
+    
+    return NULL;
+};

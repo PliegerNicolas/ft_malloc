@@ -15,21 +15,21 @@
 /**
  * @brief Create a new `mbin_t` and initialises it's first `mchunk_t`.
  * 
- * @param mchunk_data_size Expected bytes that can be held per `mchunk_t`.
+ * @param requested_data_size Expected bytes that can be held per `mchunk_t`.
  * `mbin_t`s size is deduced from it.
  * 
  * @note `mbin_t`s size is equivalent to the bytes requested to mmap().
 */
-mbin_t  *new_mbin(size_t mchunk_data_size)
+mbin_t  *new_mbin(size_t requested_data_size)
 {
     mbin_t  *mbin;
     size_t  padded_mbin_size;
     size_t  target_mchunk_size;
 
-    if (mchunk_data_size == 0)
+    if (requested_data_size == 0)
         return NULL;
 
-    padded_mbin_size = get_mbin_size(mchunk_data_size);
+    padded_mbin_size = get_mbin_size(requested_data_size);
     mbin = mmap_mbin(padded_mbin_size);
     if (mbin == MAP_FAILED)
         return FAILURE;
@@ -50,7 +50,7 @@ mbin_t  *new_mbin(size_t mchunk_data_size)
         .prev_free_mchunk = NULL,
     };
 
-    target_mchunk_size = get_mchunk_size(mchunk_data_size);
+    target_mchunk_size = get_mchunk_size(requested_data_size);
     mchunkify_mbin(&mbin->start, target_mchunk_size);
 
     return mbin;

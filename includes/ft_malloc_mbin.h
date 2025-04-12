@@ -94,20 +94,14 @@ typedef enum e_mbin_category
     NUM_MBIN_CATEGORIES,
 } mbin_category_t;
 
-/** @brief `UNIFORM` `mbin_t` subcategory. */
-typedef enum e_mbin_uniform_subcategory
+/** @brief */
+typedef enum e_mbin_subcategory
 {
     MBIN_TINY,
     MBIN_SMALL,
-    NUM_MBIN_UNIFORM_SUBCATEGORIES,
-} mbin_uniform_subcategory_t;
-
-/** @brief `NON_UNIFORM` `mbin_t` subcategory. */
-typedef enum e_mbin_non_uniform_subcategory
-{
     MBIN_LARGE,
-    NUM_MBIN_NON_UNIFORM_SUBCATEGORIES,
-} mbin_non_uniform_subcategory_t;
+    NUM_MBIN_SUBCATEGORIES,
+} mbin_subcategory_t;
 
 /* STRUCTURES */
 
@@ -139,20 +133,24 @@ typedef struct s_mbin
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
+/* mappings */
 
-size_t      get_mchunk_data_size_per_mbin_uniform_subcategory(mbin_uniform_subcategory_t subcategory);
-size_t      get_mchunk_data_size_per_mbin_non_uniform_subcategory(mbin_non_uniform_subcategory_t subcategory, size_t mchunk_data_size);
-size_t      get_mbin_size(size_t mchunk_data_size);
-char        *get_mbin_subcategory_name(size_t mchunk_data_size);
+size_t              get_mbin_size(size_t requested_bytes);
+mbin_category_t     get_mbin_category(mbin_subcategory_t subcategory);
+mbin_subcategory_t  get_mbin_subcategory(size_t mchunk_data_size);
+size_t              get_mbin_subcategory_mchunk_size(mbin_subcategory_t subcategory, size_t requested_bytes);
+size_t              get_mbin_subcategory_mchunk_data_size(mbin_subcategory_t subcategory, size_t requested_bytes);
+char                *get_mbin_category_name(size_t mbin_size);
+char                *get_mbin_subcategory_name(size_t mbin_size);
 
-mbin_t      *mmap_mbin(size_t mmap_size);
-mbin_t      *new_mbin(size_t mchunk_data_size);
-void        mchunkify_mbin(mchunk_t **initial_mchunk, size_t target_mchunk_size);
+mbin_t              *mmap_mbin(size_t mmap_size);
+mbin_t              *new_mbin(size_t requested_data_size);
+void                mchunkify_mbin(mchunk_t **initial_mchunk, size_t target_mchunk_size);
 
-void        prepend_mbin(mbin_t **mbin, mbin_t *new_mbin);
-void        append_mbin(mbin_t **mbin, mbin_t *new_mbin);
+void                prepend_mbin(mbin_t **mbin, mbin_t *new_mbin);
+void                append_mbin(mbin_t **mbin, mbin_t *new_mbin);
 
-size_t      show_mbin(mbin_t **mbin, int fd);
-void        clear_mbin(mbin_t **mbin);
+size_t              show_mbin(mbin_t **mbin, int fd);
+void                clear_mbin(mbin_t **mbin);
 
 #endif
