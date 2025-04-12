@@ -24,6 +24,7 @@ mbin_t  *new_mbin(size_t mchunk_data_size)
 {
     mbin_t  *mbin;
     size_t  padded_mbin_size;
+    size_t  target_mchunk_size;
 
     if (mchunk_data_size == 0)
         return NULL;
@@ -46,6 +47,9 @@ mbin_t  *new_mbin(size_t mchunk_data_size)
         .next_free_mchunk = NULL,
         .prev_free_mchunk = NULL,
     };
+
+    target_mchunk_size = get_mchunk_size(mchunk_data_size);
+    mchunkify_mbin(&mbin->start, target_mchunk_size);
 
     return mbin;
 };

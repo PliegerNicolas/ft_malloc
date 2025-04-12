@@ -109,12 +109,6 @@ typedef enum e_mbin_non_uniform_subcategory
     NUM_MBIN_NON_UNIFORM_SUBCATEGORIES,
 } mbin_non_uniform_subcategory_t;
 
-// typedef union e_mbin_subcategory
-// {
-//     mbin_uniform_subcategory_t      uniform_subcategory;
-//     mbin_non_uniform_subcategory_t  non_uniform_subcategory;
-// } mbin_subcategory_t;
-
 /* STRUCTURES */
 
 /**
@@ -151,6 +145,8 @@ size_t  get_mchunk_data_size_per_mbin_non_uniform_subcategory(mbin_non_uniform_s
 size_t  get_mbin_size(size_t mchunk_data_size);
 
 mbin_t  *new_mbin(size_t mchunk_data_size);
+void    mchunkify_mbin(mchunk_t **initial_mchunk, size_t target_mchunk_size);
+
 void    prepend_mbin(mbin_t **mbin, mbin_t *new_mbin);
 void    append_mbin(mbin_t **mbin, mbin_t *new_mbin);
 

@@ -15,7 +15,7 @@
 void    *realloc(void *ptr, size_t size)
 {
     if (!gheap.is_initialized)
-        if (initialize_gheap(&gheap))
+        if (initialize_gheap(&gheap) == FAILURE)
             return NULL; // Setup more error details.
 
     clear_heap(&gheap);

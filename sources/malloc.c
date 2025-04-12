@@ -18,7 +18,7 @@
 void    *malloc(size_t size)
 {
     if (!gheap.is_initialized)
-        if (initialize_gheap(&gheap))
+        if (initialize_gheap(&gheap) == FAILURE)
             return NULL;
 
     clear_heap(&gheap);

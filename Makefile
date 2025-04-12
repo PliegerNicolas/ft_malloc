@@ -76,6 +76,7 @@ SOURCES_FILE_NAMES			:=	malloc \
 								\
 								mbin/new_mbin \
 								mbin/add_mbin \
+								mbin/mchunkify_mbin \
 								mbin/clear_mbin \
 								\
 								mapping/mbin \
