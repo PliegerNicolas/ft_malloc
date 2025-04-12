@@ -31,6 +31,7 @@ void    mchunkify_mbin(mchunk_t **initial_mchunk, size_t target_mchunk_size)
             .state = FREE,
             .size = current_mchunk->size - target_mchunk_size,
             .prev_size = target_mchunk_size,
+            .requested_size = 0,
             .next_free_mchunk = NULL,
             .prev_free_mchunk = current_mchunk,
         };

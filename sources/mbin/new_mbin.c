@@ -30,7 +30,7 @@ mbin_t  *new_mbin(size_t mchunk_data_size)
         return NULL;
 
     padded_mbin_size = get_mbin_size(mchunk_data_size);
-    mbin = mmap(NULL, padded_mbin_size, MMAP_PROTECTIONS, MMAP_FLAGS, -1, 0);
+    mbin = mmap_mbin(padded_mbin_size);
     if (mbin == MAP_FAILED)
         return FAILURE;
 
@@ -44,6 +44,8 @@ mbin_t  *new_mbin(size_t mchunk_data_size)
     *mbin->start = (mchunk_t) {
         .state = FREE,
         .size = MBIN_INITIAL_MCHUNK_SIZE(mbin),
+        .prev_size = 0,
+        .requested_size = 0,
         .next_free_mchunk = NULL,
         .prev_free_mchunk = NULL,
     };

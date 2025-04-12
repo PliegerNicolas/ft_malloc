@@ -88,6 +88,10 @@
 # define LARGE_MCHUNK_SIZE(bytes) \
     ((size_t)(MCHUNK_METADATA_SIZE + LARGE_MCHUNK_DATA_SIZE((size_t)bytes)))
 
+/** @return The next `mchunk_t` in memory. */
+# define GET_NEXT_MCHUNK(mchunk_ptr) \
+    ((mchunk_t *)((unsigned char *)((mchunk_t *)(mchunk_ptr)) + ((mchunk_t*)(mchunk_ptr))->size))
+
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
@@ -121,6 +125,9 @@ typedef struct s_mchunk
     /** @brief Padded size of previous `mchunk_t`: metadata + size.
      * @note 0 if not found. Not useful in `UNIFORM` `mchunk_t`s. */
     size_t          prev_size;
+    /** @brief User requested size.
+     * @note The actual size of the data requested by the user. */
+    size_t          requested_size;
 
     /** @brief Pointer to the closest previous FREE `mchunk_t` of the current `mbin_t`.
      * @note NULL if current. */
@@ -136,5 +143,7 @@ typedef struct s_mchunk
 
 size_t  get_mchunk_size(size_t mchunk_data_size);
 size_t  get_mchunk_data_size(size_t mchunk_data_size);
+
+size_t  show_mchunks(mchunk_t **initial_mchunk, int fd);
 
 #endif

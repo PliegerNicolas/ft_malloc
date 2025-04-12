@@ -1,35 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putint_fd.c                                     :+:      :+:    :+:   */
+/*   ft_putptr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-29 18:50:19 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-29 18:50:19 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-12 13:54:51 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-12 13:54:51 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_mini.h"
 
-size_t	ft_putint_fd(int n, int fd)
+size_t  ft_putptr_fd(void *ptr, int fd)
 {
-	size_t	count = 0;
+    uintptr_t   addr;
+    size_t      count;
 
-	if (n == -2147483648)
-		return ft_putint_fd((n / 10), fd) + ft_putint_fd(-(n % 10), fd);
-	else
-	{
-		if (n < 0)
-		{
-			count += ft_putchar_fd('-', fd);
-			n = -n;
-		}
-		if (n >= 10)
-			count += ft_putint_fd(n / 10, fd) + ft_putint_fd(n % 10, fd);
-		else
-			count += ft_putchar_fd(n + '0', fd);
-	}
+    if (!ptr)
+        return ft_putstr_fd("(nil)", fd);
 
-	return count;
-}
+    addr = (uintptr_t)ptr;
+    count = ft_putstr_fd("0x", fd);
+
+    if (addr == 0)
+        return count + ft_putchar_fd('0', fd);
+
+    return count + ft_putbase_fd(addr, "0123456789abcdef", 16, fd);
+};

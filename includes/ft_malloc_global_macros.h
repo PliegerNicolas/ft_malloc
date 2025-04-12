@@ -48,8 +48,6 @@
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
 
-/* CONSTANTS */
-
 /** @brief System page size in bytes (typically aligned to a multiple of 2). */
 # define PAGE_SIZE ((size_t)(sysconf(_SC_PAGE_SIZE)))
 
@@ -76,8 +74,6 @@
  * Anonymous as we the memory allocations are temporary and only used at runtime.
 */
 # define MMAP_FLAGS (MAP_PRIVATE | MAP_ANONYMOUS)
-
-/* FUNCTIONS */
 
 /** 
  * @brief Rounds `value` up to the nearest multiple of `align`. 

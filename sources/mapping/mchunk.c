@@ -12,6 +12,9 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief ...
+*/
 size_t  get_mchunk_data_size(size_t mchunk_data_size)
 {
     if (mchunk_data_size <= TINY_MCHUNK_DATA_SIZE)
@@ -21,6 +24,9 @@ size_t  get_mchunk_data_size(size_t mchunk_data_size)
     return LARGE_MCHUNK_DATA_SIZE(mchunk_data_size);
 }
 
+/**
+ * @brief ...
+*/
 size_t  get_mchunk_size(size_t mchunk_data_size)
 {
     if (mchunk_data_size <= TINY_MCHUNK_DATA_SIZE)

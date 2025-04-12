@@ -15,4 +15,6 @@
 void    test_show_alloc_mem()
 {
     write_title("Testing show_alloc_mem()", 1);
+
+    show_alloc_mem();
 }

@@ -65,6 +65,8 @@ typedef struct s_marena
 /* *************************************************************************** */
 
 marena_t    new_marena(status_t *status);
+
+size_t      show_marena(marena_t *marena, int fd);
 void        clear_marena(marena_t *marena);
 
 #endif

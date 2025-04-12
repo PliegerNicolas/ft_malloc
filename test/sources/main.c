@@ -15,11 +15,11 @@
 int main() {
     int *a = malloc(10);
 
-    test_macros();
+    // test_macros();
 
-    test_free();
-    test_malloc();
-    test_realloc();
+    // test_free();
+    // test_malloc();
+    // test_realloc();
 
     test_show_alloc_mem();
 

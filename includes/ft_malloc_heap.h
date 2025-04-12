@@ -50,7 +50,9 @@ typedef struct s_heap
 /* *************************************************************************** */
 
 status_t    initialize_gheap(heap_t *gheap);
-void        clear_heap(heap_t *heap);
 heap_t      new_heap(status_t *status);
+
+void        show_heap(heap_t *heap, int fd);
+void        clear_heap(heap_t *heap);
 
 #endif

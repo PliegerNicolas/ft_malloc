@@ -25,7 +25,7 @@ static void test_macro_returning_size_t(char *macro_name, char *description, siz
         ft_putchar_fd(')', 1);
     }
     ft_putstr_fd(": ", 1);
-    ft_putsize_t_fd(macro_result, 1);
+    ft_putsize_t_base_fd(macro_result, "0123456789", 10, 1);
     ft_putchar_fd('\n', 1);
 }
 

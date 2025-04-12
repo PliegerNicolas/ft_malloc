@@ -1,29 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putsize_t_fd.c                                  :+:      :+:    :+:   */
+/*   ft_putint_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-29 18:50:22 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-29 18:50:22 by nicolas          ###   ########.fr       */
+/*   Created: 2025-03-29 18:50:19 by nicolas           #+#    #+#             */
+/*   Updated: 2025-03-29 18:50:19 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_mini.h"
 
-// size_t  ft_putsize_t_fd(size_t n, int fd)
-// {
-//     if (n >= 10)
-//         return ft_putsize_t_fd(n / 10, fd) + ft_putsize_t_fd(n % 10, fd);
-//     else
-//         return ft_putchar_fd(n + '0', fd);
-// }
-
-size_t	ft_putsize_t_base_fd(size_t n, const char *base, size_t base_len, int fd)
+size_t	ft_putint_base_fd(int n, const char *base, int base_len, int fd)
 {
-	if (base_len < 2)
-		return 0;
+	size_t count = 0;
 
-	return ft_putbase_fd(n, base, base_len, fd);
+	if (base_len < 2)
+		return count;
+
+	if (n == INT_MIN)
+		return ft_putint_base_fd((n / base_len), base, base_len, fd)
+			+ ft_putint_base_fd(-(n % base_len), base, base_len, fd);
+
+	if (n < 0)
+	{
+		n = -n;
+		count += ft_putchar_fd('-', fd);
+	};
+	
+	return count + ft_putbase_fd(n, base, base_len, fd);
 }

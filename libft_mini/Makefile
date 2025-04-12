@@ -63,8 +63,10 @@ SOURCES_FILE_NAMES				:=	ft_strlen \
 									ft_putchar_fd \
 									ft_putstr_fd \
 									ft_putendl_fd \
-									ft_putint_fd \
+									ft_putint_base_fd \
 									ft_putsize_t_fd \
+									ft_putbase_fd \
+									ft_putptr_fd \
 									ft_memset \
 									ft_bzero
 

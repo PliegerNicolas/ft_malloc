@@ -12,16 +12,14 @@
 
 #include "ft_malloc.h"
 
-// Check is initialisé.
-// - Si non, setup les mmap pour chacun des bails.
+// Gérer getrlimit.
 
 void    *malloc(size_t size)
 {
-    if (!gheap.is_initialized)
-        if (initialize_gheap(&gheap) == FAILURE)
-            return NULL;
+    if (!gheap.is_initialized && initialize_gheap(&gheap) == FAILURE)
+        return NULL; // Setup more error details. errno ?
 
-    clear_heap(&gheap);
+    // clear_heap(&gheap);
 
     return NULL;
 }

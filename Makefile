@@ -69,17 +69,24 @@ SOURCES_FILE_NAMES			:=	malloc \
 								\
 								heap/gheap \
 								heap/new_heap \
+								heap/show \
 								heap/clear_heap \
 								\
 								marena/new_marena \
+								marena/show \
 								marena/clear_marena \
 								\
+								mbin/mmap_mbin \
 								mbin/new_mbin \
 								mbin/add_mbin \
 								mbin/mchunkify_mbin \
+								mbin/show \
 								mbin/clear_mbin \
 								\
+								mchunk/show \
+								\
 								mapping/mbin \
+								mapping/mbin_categories \
 								mapping/mchunk
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
