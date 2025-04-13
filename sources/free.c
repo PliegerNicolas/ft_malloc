@@ -14,5 +14,8 @@
 
 void    free(void *ptr)
 {
-    (void)ptr;
+    if (!gheap.is_initialized)
+        return;
+
+    free_mchunk(&gheap, ptr);
 }

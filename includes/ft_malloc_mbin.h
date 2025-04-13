@@ -75,7 +75,7 @@
 /** @return The size the `mbin_t` dedicates to it's `mchunk_t`s.
  * @note In other words. The size of it's first `mchunk_t`. */
 # define MBIN_INITIAL_MCHUNK_SIZE(mbin_ptr) \
-    ((size_t)((mbin_t *)mbin_ptr->size - MBIN_METADATA_SIZE))
+    ((size_t)(((mbin_t *)mbin_ptr)->size - MBIN_METADATA_SIZE))
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
@@ -133,24 +133,34 @@ typedef struct s_mbin
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-/* mappings */
+/* mbin_t */
 
-size_t              get_mbin_size(size_t requested_bytes);
-mbin_category_t     get_mbin_category(mbin_subcategory_t subcategory);
-mbin_subcategory_t  get_mbin_subcategory(size_t mchunk_data_size);
-size_t              get_mbin_subcategory_mchunk_size(mbin_subcategory_t subcategory, size_t requested_bytes);
-size_t              get_mbin_subcategory_mchunk_data_size(mbin_subcategory_t subcategory, size_t requested_bytes);
+mbin_t              *mbin_create(size_t requested_data_size);
+mbin_t              *mbins_create(mbin_subcategory_t mbin_subcategory, size_t num_mbins);
+
+void                mbin_partition(mbin_t *mbin, size_t target_mchunk_size);
+
+size_t              mbin_inspect(mbin_t **mbin, int fd);
+void                mbin_clear(mbin_t **mbin);
+
+/* mbin_t doubly-linked-list operations */
+
+void                mbin_append(mbin_t **mbin, mbin_t *new_mbin);
+void                mbin_prepend(mbin_t **mbin, mbin_t *new_mbin);
+
+/* inference */
+
+size_t              mbin_infer_size(size_t requested_bytes);
+
+mbin_category_t     mbin_infer_category(mbin_subcategory_t subcategory);
+mbin_subcategory_t  mbin_infer_subcategory(size_t requested_bytes);
+
 char                *get_mbin_category_name(size_t mbin_size);
 char                *get_mbin_subcategory_name(size_t mbin_size);
 
-mbin_t              *mmap_mbin(size_t mmap_size);
-mbin_t              *new_mbin(size_t requested_data_size);
-void                mchunkify_mbin(mchunk_t **initial_mchunk, size_t target_mchunk_size);
+/* inference => mbin_t + mchunk_t */
 
-void                prepend_mbin(mbin_t **mbin, mbin_t *new_mbin);
-void                append_mbin(mbin_t **mbin, mbin_t *new_mbin);
-
-size_t              show_mbin(mbin_t **mbin, int fd);
-void                clear_mbin(mbin_t **mbin);
+size_t              mchunk_infer_size_by_mbin_subcategory(mbin_subcategory_t subcategory, size_t requested_bytes);
+size_t              mchunk_infer_data_size_by_mbin_subcategory(mbin_subcategory_t subcategory, size_t requested_bytes);
 
 #endif

@@ -1,29 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   new_heap.c                                         :+:      :+:    :+:   */
+/*   mbin_infer_subcategory_name.c                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-10 14:51:49 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-10 14:51:49 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-14 20:45:17 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-14 20:45:17 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
 /**
- * @brief Create and initialize a new `heap_t`.
- * @param status Is modified tu reflect `SUCCESS` or `FAILURE`.
+ * @brief Infers `mbin_subcategory_t` name representation
+ * given `mbin_size` in bytes.
 */
-heap_t  new_heap(status_t *status)
+char  *get_mbin_subcategory_name(size_t mbin_size)
 {
-    heap_t  heap;
-
-    heap.marena = new_marena(status);
-    if (*status == FAILURE)
-        return heap;
-
-    heap.is_initialized = true;
-    return heap;
+    if (mbin_size <= TINY_MBIN_SIZE)
+        return "MBIN_TINY";
+    else if (mbin_size <= SMALL_MBIN_SIZE)
+        return "MBIN_SMALL";
+    else
+        return "MBIN_LARGE";
 }

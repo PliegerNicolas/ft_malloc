@@ -1,29 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   show_marena.c                                      :+:      :+:    :+:   */
+/*   marena_clear.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-12 23:19:11 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-12 23:19:11 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-14 20:06:29 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-14 20:06:29 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
 /**
- * @brief ...
+ * @brief Deallocates and resets internal state of the given `marena_t*`.
+ * 
+ * @note Does nothing if marena is NULL.
 */
-size_t  show_marena(marena_t *marena, int fd)
+void    marena_clear(marena_t *marena)
 {
-    size_t  total_size = 0;
+    if (!marena)
+        return;
 
     for (mbin_subcategory_t c = 0; c < NUM_UNIFORM_MBINS; c++)
-        total_size += show_mbin(&marena->uniform_mbins[c], fd);
+        if (marena->uniform_mbins[c])
+            mbin_clear(&marena->uniform_mbins[c]);
 
     for (mbin_subcategory_t c = 0; c < NUM_NON_UNIFORM_MBINS; c++)
-        total_size += show_mbin(&marena->non_uniform_mbins[c], fd);
-
-    return total_size;
+        if (marena->non_uniform_mbins[c])
+            mbin_clear(&marena->non_uniform_mbins[c]);
 }

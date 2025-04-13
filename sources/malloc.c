@@ -16,12 +16,11 @@
 
 void    *malloc(size_t size)
 {
-    mchunk_t    *tmp;
-
-    if (!gheap.is_initialized && initialize_gheap(&gheap) == FAILURE)
+    if (!gheap.is_initialized && gheap_initialize(&gheap) == FAILURE)
         return NULL; // Setup more error details. errno ?
 
-    tmp = find_free_mchunk(&gheap, size);
+    if (allocate_mchunk(&gheap, size) == FAILURE)
+        return NULL;
 
     // Check quel bin.
     // Check si une place de libre dans le bien donné.

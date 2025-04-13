@@ -1,28 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   mchunk_free.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-27 11:49:56 by nicolas           #+#    #+#             */
-/*   Updated: 2025/03/27 19:50:34 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-14 20:09:41 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-14 20:09:41 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "test_ft_malloc.h"
+#include "ft_malloc.h"
 
-int main() {
-    int *a = malloc(20000);
-    free(a);
-
-    // test_macros();
-
-    // test_free();
-    // test_malloc();
-    // test_realloc();
-
-    test_show_alloc_mem();
-
-    return (0);
+void    free_mchunk(heap_t *heap, void *ptr)
+{
+    
 }

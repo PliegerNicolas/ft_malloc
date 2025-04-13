@@ -88,9 +88,12 @@
 # define LARGE_MCHUNK_SIZE(bytes) \
     ((size_t)(MCHUNK_METADATA_SIZE + LARGE_MCHUNK_DATA_SIZE((size_t)bytes)))
 
-/** @return The next `mchunk_t` in memory. */
-# define GET_NEXT_MCHUNK(mchunk_ptr) \
-    ((mchunk_t *)((unsigned char *)((mchunk_t *)(mchunk_ptr)) + ((mchunk_t*)(mchunk_ptr))->size))
+/** @return Get the next `mchunk_t*` in memory. */
+# define GET_NEXT_MCHUNK_PTR(mchunk_ptr) \
+    ((mchunk_t *)((unsigned char *)((mchunk_t *)mchunk_ptr) + ((mchunk_t*)mchunk_ptr)->size))
+/** @return Get the previous `mchunk_t*` in memory. */
+# define GET_PREVIOUS_MCHUNK_PTR(mchunk_ptr) \
+    ((mchunk_t *)((unsigned char *)((mchunk_t *)mchunk_ptr) - ((mchunk_t*)mchunk_ptr)->prev_size))
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
@@ -141,11 +144,15 @@ typedef struct s_mchunk
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-/* mappings */
+/* mchunk_t */
 
-size_t      get_mchunk_size(size_t requested_bytes);
-size_t      get_mchunk_data_size(mchunk_t *mchunk);
+mchunk_t    *mchunk_create_next(mchunk_t **mchunk, size_t target_mchunk_size);
 
-size_t      show_mchunks(mchunk_t **initial_mchunk, int fd);
+size_t      mchunks_inspect(mchunk_t **initial_mchunk, int fd);
+
+/* inference */
+
+size_t      mchunk_infer_size_by_storage_size(size_t requested_bytes);
+size_t      mchunk_infer_data_size(mchunk_t *mchunk);
 
 #endif

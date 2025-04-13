@@ -1,23 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   clear_heap.c                                       :+:      :+:    :+:   */
+/*   mbin_clear.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-11 19:40:00 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-11 19:40:00 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-14 20:07:03 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-14 20:07:03 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
 /**
- * @brief Clear an existing `heap_t`.
- * @note Deallocate its content and resets its internal state.
+ * @brief Deallocates and resets internal state of the given `mbin_t**`.
+ * 
+ * @note Does nothing if (*)mbin is NULL.
 */
-void    clear_heap(heap_t *heap)
+void    mbin_clear(mbin_t **mbin)
 {
-    clear_marena(&heap->marena);
-    heap->is_initialized = false;
+    mbin_t  *node;
+    mbin_t  *next;
+
+    if (!mbin || !*mbin)
+        return;
+
+    node = *mbin;
+    while (node)
+    {
+        next = node->next;
+        munmap(node, node->size);
+        node = next;
+    };
+
+    *mbin = NULL;
 }

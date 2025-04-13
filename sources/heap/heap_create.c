@@ -1,30 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   show_heap.c                                        :+:      :+:    :+:   */
+/*   heap_create.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-12 23:19:14 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-12 23:19:14 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-14 20:06:15 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-14 20:06:15 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
 /**
- * @brief ...
+ * @brief Create and initializes to default values a new `heap_t`.
+ * 
+ * @return A `heap_t`.
+ * The value of the parameter `status` is set to `SUCCESS` if initialization succeeded,
+ * or `FAILURE` if it failed.
 */
-void    show_heap(heap_t *heap, int fd)
+heap_t  heap_create(status_t *status)
 {
-    size_t  total_size;
+    heap_t  heap;
 
-    if (!heap->is_initialized)
-        return;
+    heap.marena = marena_create(status);
+    if (*status == FAILURE)
+        return heap;
 
-    total_size = show_marena(&heap->marena, fd);
-
-    ft_putstr_fd("Total: ", fd);
-    ft_putsize_t_base_fd(total_size, "0123456789", 10, fd);
-    ft_putendl_fd(" bytes", fd);
+    heap.is_initialized = true;
+    return heap;
 }

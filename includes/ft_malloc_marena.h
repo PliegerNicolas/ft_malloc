@@ -42,18 +42,21 @@
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
 
-/**
- * @brief Number of `mbin_subcategory_t` recognized as part of `mbin_category_t` `UNIFORM`.
- * @note `NUM_MBIN_SUBCATEGORIES` + [start_value] - [end_value].
-*/
+/** @brief Number of `mbin_subcategory_t` recognized as part of `mbin_category_t` `UNIFORM`.
+ * @note 1 + [start_value] - [end_value]. */
 # define NUM_UNIFORM_MBINS \
-    (size_t)(NUM_MBIN_SUBCATEGORIES + MBIN_TINY - MBIN_LARGE)
-/**
- * @brief Number of `mbin_subcategory_t` recognized as part of `mbin_category_t` `NON_UNIFORM`.
- * @note `NUM_MBIN_SUBCATEGORIES` + [start_value] - [end_value].
-*/
+    (size_t)(1 + MBIN_SMALL - MBIN_TINY)
+/** @brief Number of `mbin_subcategory_t` recognized as part of `mbin_category_t` `NON_UNIFORM`.
+ * @note 1 + [start_value] - [end_value]. */
 # define NUM_NON_UNIFORM_MBINS \
-    (size_t)(NUM_MBIN_SUBCATEGORIES + MBIN_LARGE - NUM_MBIN_CATEGORIES)
+    (size_t)(1 + MBIN_LARGE - MBIN_LARGE)
+
+/** @brief Get the index to the `marena_t`.`uniform_mbins` `mbin_t` per category. */
+# define GET_UNIFORM_MBIN_INDEX(mbin_subcategory) \
+    (size_t)(mbin_subcategory - MBIN_TINY)
+/** @brief Get the index to the `marena_t`.`non_uniform_mbins` `mbin_t` per category. */
+# define GET_NON_UNIFORM_MBIN_INDEX(mbin_subcategory) \
+    (size_t)(mbin_subcategory - MBIN_LARGE)
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
@@ -77,9 +80,10 @@ typedef struct s_marena
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-marena_t    new_marena(status_t *status);
+/* marena_t */
 
-size_t      show_marena(marena_t *marena, int fd);
-void        clear_marena(marena_t *marena);
+marena_t    marena_create(status_t *status);
+size_t      marena_inspect(marena_t *marena, int fd);
+void        marena_clear(marena_t *marena);
 
 #endif

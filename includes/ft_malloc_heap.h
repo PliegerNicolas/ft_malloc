@@ -49,12 +49,20 @@ typedef struct s_heap
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-status_t    initialize_gheap(heap_t *gheap);
-heap_t      new_heap(status_t *status);
+/* heap_t */
 
-void        show_heap(heap_t *heap, int fd);
-void        clear_heap(heap_t *heap);
+heap_t      heap_create(status_t *status);
+size_t      heap_inspect(heap_t *heap, int fd);
+void        heap_clear(heap_t *heap);
 
-mchunk_t    *find_free_mchunk(heap_t *heap, size_t requested_data_size);
+/* heap_t + mbin_t */
+
+mbin_t      **mbin_select(heap_t *heap, mbin_category_t category, mbin_subcategory_t subcategory);
+mbin_t      **mbin_fetch_or_create(heap_t *heap, size_t requested_bytes);
+
+/* heap_t + mchunk_t */
+
+void        *allocate_mchunk(heap_t *heap, size_t requested_bytes);
+void        free_mchunk(heap_t *heap, void *ptr);
 
 #endif

@@ -17,5 +17,5 @@ void    show_alloc_mem()
     if (!gheap.is_initialized)
         return;
 
-    show_heap(&gheap, STDOUT_FILENO);
+    heap_inspect(&gheap, STDOUT_FILENO);
 }
