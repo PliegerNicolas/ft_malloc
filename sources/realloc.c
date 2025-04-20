@@ -14,10 +14,7 @@
 
 void    *realloc(void *ptr, size_t size)
 {
-    if (!gheap.is_initialized && gheap_initialize(&gheap) == FAILURE)
+    if (init_gmarena_once(&gmarena, NUM_INITIAL_BOUNDED_MREGIONS) == STATUS_FAILURE)
         return NULL;
-
-    // clear_heap(&gheap);
-
     return NULL;
 }

@@ -14,5 +14,11 @@
 
 void    test_malloc()
 {
-    write_title("Testing malloc()", 1);
+    int *ptr1, *ptr2;
+
+    ptr1 = malloc(42);
+    ptr2 = malloc(20000);
+
+    free(ptr1);
+    free(ptr2);
 }

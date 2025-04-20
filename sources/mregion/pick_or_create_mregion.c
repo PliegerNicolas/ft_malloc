@@ -1,22 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mbin_infer_name.c                                  :+:      :+:    :+:   */
+/*   pick_or_create_mregion.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-14 20:42:52 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-14 20:42:52 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-21 09:50:05 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-21 09:50:05 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/**
- * @brief Infers `mbin_category_t` name representation
- * given `mbin_size` in bytes.
-*/
-char  *get_mbin_category_name(size_t mbin_size)
+mregion_t   *pick_or_create_mregion(marena_t *marena, size_t allocation_size)
 {
-    return (mbin_size <= SMALL_MBIN_SIZE) ? "MBIN_UNIFORM" : "MBIN_NON_UNIFORM";
+    mregion_t **mregion;
+
+    mregion = map_allocation_size_to_existing_mregion(marena, allocation_size);
+    if (!mregion)
+        return STATUS_FAILURE;
+    
+    if (*mregion == NULL && init_mregion(mregion, map_allocation_size_to_mregion_size(allocation_size)) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    return *mregion;
 }

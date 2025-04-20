@@ -67,37 +67,22 @@ SOURCES_FILE_NAMES			:=	malloc \
 								free \
 								show_alloc_mem \
 								\
-								heap/gheap \
-								heap/heap_create \
-								heap/heap_inspect \
-								heap/heap_clear \
+								marena/init_gmarena_once \
+								marena/init_marena \
+								marena/put_marena \
 								\
-								marena/marena_create \
-								marena/marena_inspect \
-								marena/marena_clear \
+								mregion/init_mregion \
+								mregion/init_mregions \
+								mregion/append_mregion \
+								mregion/prepend_mregion \
+								mregion/put_mregion \
+								mregion/pick_or_create_mregion \
+								mregion/map/map_allocation_size_to_existing_mregion \
+								mregion/map/map_allocation_size_to_mregion_size \
+								mregion/map/map_bounded_mregion_category_to_mregion_size \
 								\
-								mbin/mbin_create \
-								mbin/mbins_create \
-								mbin/mbin_select \
-								mbin/mbin_partition \
-								mbin/mbin_fetch_or_create \
-								mbin/mbin_inspect \
-								mbin/mbin_clear \
-								mbin/operations/mbin_append \
-								mbin/operations/mbin_prepend \
-								mbin/inference/mbin_infer_size \
-								mbin/inference/mbin_infer_category \
-								mbin/inference/mbin_infer_subcategory \
-								mbin/inference/mbin_infer_category_name \
-								mbin/inference/mbin_infer_subcategory_name \
-								\
-								mchunk/mchunk_create_next \
-								mchunk/mchunk_fetch_available \
-								mchunk/mchunk_allocate \
-								mchunk/mchunk_free \
-								mchunk/mchunks_inspect \
-								mchunk/inference/mchunk_infer_size \
-								mchunk/inference/mchunk_infer_data_size
+								mchunk/put_mchunk \
+								mchunk/map/map_allocation_size_to_mchunk_size
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

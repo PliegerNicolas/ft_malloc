@@ -1,28 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mbin_infer_subcategory.c                           :+:      :+:    :+:   */
+/*   append_mregion.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-14 20:39:11 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-14 20:39:11 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-20 22:36:34 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-20 22:36:34 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/**
- * @brief Infer a `mbin_subcategory_t` based on size of storable data in `mchunk_t`.
- * 
- * @param requested_bytes The amount of bytes we want the `mchunk_t` to hold.
-*/
-mbin_subcategory_t  mbin_infer_subcategory(size_t requested_bytes)
+void    append_mregion(mregion_t **mregion, mregion_t *new_mregion)
 {
-    if (requested_bytes < TINY_MCHUNK_DATA_SIZE)
-        return MBIN_TINY;
-    else if (requested_bytes < SMALL_MCHUNK_DATA_SIZE)
-        return MBIN_SMALL;
+    mregion_t   *current_mregion;
+
+    if  (!mregion)
+        return;
+
+    if (*mregion != NULL)
+    {
+        current_mregion = *mregion;
+        while (current_mregion->next)
+            current_mregion = current_mregion->next;
+        current_mregion->next = new_mregion;
+    }
     else
-        return MBIN_LARGE;
+        *mregion = new_mregion;
 }

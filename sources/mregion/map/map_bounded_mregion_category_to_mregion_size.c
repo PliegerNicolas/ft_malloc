@@ -1,37 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mbin_clear.c                                       :+:      :+:    :+:   */
+/*   map_bounded_mregion_category_to_mregion_size.c        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-14 20:07:03 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-14 20:07:03 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-21 10:18:53 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-21 10:18:53 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/**
- * @brief Deallocates and resets internal state of the given `mbin_t**`.
- * 
- * @note Does nothing if (*)mbin is NULL.
-*/
-void    mbin_clear(mbin_t **mbin)
+size_t  map_bounded_mregion_category_to_mregion_size(bounded_mregion_category_t category)
 {
-    mbin_t  *node;
-    mbin_t  *next;
-
-    if (!mbin || !*mbin)
-        return;
-
-    node = *mbin;
-    while (node)
+    switch (category)
     {
-        next = node->next;
-        munmap(node, node->size);
-        node = next;
-    };
-
-    *mbin = NULL;
+        case TINY_MREGION:
+            return map_allocation_size_to_mregion_size(MCHUNK_TINY_MAX_DATA_SIZE);
+        case SMALL_MREGION:
+            return map_allocation_size_to_mregion_size(MCHUNK_SMALL_MAX_DATA_SIZE);
+        default:
+            return 0;
+    }
 }

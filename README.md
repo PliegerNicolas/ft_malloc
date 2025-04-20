@@ -31,34 +31,7 @@ With our **malloc** implementation, we aim to optimize memory allocation while b
 
 ## Internal structure
 
-To manage our dedicated heap we split our data into the following hierarchical structure:
-
-```
-heap_t
-├── arena_t
-│   ├── mbin_t
-│   │   └── mchunk_t, mchunk_t, mchunk_t...
-│   ├── ...
-│   └── mbin_t
-│       └── mchunk_t, mchunk_t, mchunk_t...
-├── ...
-└── arena_t
-    ├── mbin_t
-    │   └── mchunk_t, mchunk_t, mchunk_t...
-    ├── ...
-    └── mbin_t
-        └── mchunk_t, mchunk_t, mchunk_t...
-```
-
-- **`mchunk_t`:** Metadata about memory chunks usable by the user to store data and their state.  
-- **`mbin_t`:** Doubly-linked-list of mmap() allocated memory regions. These regions are partitionned through `mchunk_t`s using pointer arthimetics and other metadata. See here below a simple schema.
-![mbin_t schema](.images/mbin_schema.png)
-- **`arena_t`**: Contains a arbitrarly defined fixed-size of `mbin_t`s, separated by storage size range.  
-- **`heap_t`**: Root structure containing data about the portion(s) of the heap we're using with our ft_malloc implementation.  
-
-The largest `mbin_t` category (LARGE) calls `mmap()` on each occasion to retrieve enough memory space as large bins are too big and inconsistent to be worth strategical management.
-
-A more precise explanation of each of these structures can be found inside their relative header files.
+...
 
 ## libft_mini
 

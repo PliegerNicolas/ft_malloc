@@ -12,22 +12,16 @@
 
 #include "ft_malloc.h"
 
-// Gérer getrlimit.
-
 void    *malloc(size_t size)
 {
-    if (!gheap.is_initialized && gheap_initialize(&gheap) == FAILURE)
-        return NULL; // Setup more error details. errno ?
+    mregion_t   *mregion;
 
-    if (allocate_mchunk(&gheap, size) == FAILURE)
+    if (init_gmarena_once(&gmarena, NUM_INITIAL_BOUNDED_MREGIONS) == STATUS_FAILURE)
         return NULL;
 
-    // Check quel bin.
-    // Check si une place de libre dans le bien donné.
-    // Remplir.
-    // Si pas de place, nouveau mbin prepended.
-
-    // clear_heap(&gheap);
-
+    mregion = pick_or_create_mregion(&gmarena, size);
+    if (mregion == STATUS_FAILURE)
+        return NULL;
+    
     return NULL;
 }

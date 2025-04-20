@@ -13,15 +13,11 @@
 #include "test_ft_malloc.h"
 
 int main() {
-    int *a = malloc(20000);
-    free(a);
+    test_macros();
 
-    // test_macros();
-
-    // test_free();
-    // test_malloc();
-    // test_realloc();
-
+    test_malloc();
+    test_realloc();
+    test_free();
     test_show_alloc_mem();
 
     return (0);

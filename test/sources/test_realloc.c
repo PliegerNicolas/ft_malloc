@@ -14,5 +14,5 @@
 
 void    test_realloc()
 {
-    write_title("Testing realloc()", 1);
+
 }
