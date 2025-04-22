@@ -72,11 +72,12 @@ status_t    init_mregions(mregion_t **mregion, size_t mregion_size,  size_t tota
 void        append_mregion(mregion_t **mregion, mregion_t *new_mregion);
 void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
 
-mregion_t   *pick_or_create_mregion(marena_t *marena, size_t allocation_size);
+mregion_t   *find_best_fit_mregion_head(marena_t *marena, size_t allocation_size);
+void        iterate_to_best_fit_mregion(mregion_t **mregion);
 
-mregion_t   **map_allocation_size_to_existing_mregion(marena_t *marena, size_t allocation_size);
 size_t      map_allocation_size_to_mregion_size(size_t allocation_size);
 size_t      map_bounded_mregion_category_to_mregion_size(bounded_mregion_category_t category);
+mregion_t   **map_allocation_size_to_mregion_head(marena_t *marena, size_t allocation_size);
 # pragma GCC visibility pop
 
 #endif // FT_MREGION_H

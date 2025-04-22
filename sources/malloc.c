@@ -14,14 +14,14 @@
 
 void    *malloc(size_t size)
 {
-    mregion_t   *mregion;
+    mchunk_t    *free_mchunk;
 
     if (init_gmarena_once(&gmarena, NUM_INITIAL_BOUNDED_MREGIONS) == STATUS_FAILURE)
         return NULL;
 
-    mregion = pick_or_create_mregion(&gmarena, size);
-    if (mregion == STATUS_FAILURE)
+    free_mchunk = select_free_mchunk(&gmarena, size);
+    if (free_mchunk == STATUS_FAILURE)
         return NULL;
-    
+
     return NULL;
 }

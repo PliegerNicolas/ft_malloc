@@ -69,19 +69,21 @@ SOURCES_FILE_NAMES			:=	malloc \
 								\
 								marena/init_gmarena_once \
 								marena/init_marena \
-								marena/put_marena \
 								\
 								mregion/init_mregion \
 								mregion/init_mregions \
 								mregion/append_mregion \
 								mregion/prepend_mregion \
-								mregion/put_mregion \
-								mregion/pick_or_create_mregion \
-								mregion/map/map_allocation_size_to_existing_mregion \
+								mregion/find_best_fit_mregion_head \
+								mregion/iterate_to_best_fit_mregion \
+								mregion/map/map_allocation_size_to_mregion_head \
 								mregion/map/map_allocation_size_to_mregion_size \
 								mregion/map/map_bounded_mregion_category_to_mregion_size \
 								\
-								mchunk/put_mchunk \
+								mchunk/use_mchunk \
+								mchunk/free_mchunk \
+								mchunk/find_best_fit_free_mchunk \
+								mchunk/select_free_mchunk \
 								mchunk/map/map_allocation_size_to_mchunk_size
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
