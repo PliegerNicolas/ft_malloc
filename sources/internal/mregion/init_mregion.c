@@ -12,6 +12,10 @@
 
 #include "ft_malloc.h"
 
+/* *************************************************************************** */
+/* *                                 STATIC                                  * */
+/* *************************************************************************** */
+
 /**
  * @brief Wrapper for `mmap()` dedicated to memory allocation for `mregion_t`s.
  * @param bytes Number of bytes to allocate via `mmap()`.
@@ -43,6 +47,10 @@ static void *mmap_mregion(size_t bytes)
 
     return ptr;
 }
+
+/* *************************************************************************** */
+/* *                                 LINKED                                  * */
+/* *************************************************************************** */
 
 /**
  * @brief Initializes a given `mregion_t` node.

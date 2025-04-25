@@ -19,7 +19,7 @@ void    *malloc(size_t size)
     if (init_gmarena_once() == STATUS_FAILURE)
         return NULL;
 
-    free_mchunk = select_free_mchunk(&gmarena, size);
+    free_mchunk = find_marena_best_fit_free_mchunk(&gmarena, size);
     if (free_mchunk == STATUS_FAILURE)
         return NULL;
 

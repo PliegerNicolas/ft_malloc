@@ -12,6 +12,10 @@
 
 #include "ft_malloc.h"
 
+/* *************************************************************************** */
+/* *                                 STATIC                                  * */
+/* *************************************************************************** */
+
 /**
  * @brief Initializes a `marena_t`'s bound `mregion_t`s.
  * @param marena Reference to the pointer of the concerned `marena_t`. `NULL` causes failure.
@@ -59,6 +63,10 @@ static status_t init_marena_unbound_mregion(marena_t **marena)
     
     return STATUS_SUCCESS;
 }
+
+/* *************************************************************************** */
+/* *                                 LINKED                                  * */
+/* *************************************************************************** */
 
 /**
  * @brief Initializes a given `marena_t`.

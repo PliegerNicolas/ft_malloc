@@ -50,6 +50,7 @@ status_t    init_marena(marena_t *marena, size_t initial_mregions_per_bound_cate
 status_t    init_marena_once(marena_t *marena, size_t initial_mregions_per_bound_category);
 
 mregion_t   *find_marena_best_fit_mregion_head(marena_t *marena, size_t allocation_size);
+mchunk_t    *find_marena_best_fit_free_mchunk(marena_t *marena, size_t allocation_size);
 
 mregion_t   **map_allocation_size_to_marena_mregion_head(marena_t *marena, size_t allocation_size);
 # pragma GCC visibility pop

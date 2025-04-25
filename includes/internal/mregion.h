@@ -72,6 +72,8 @@ status_t    init_mregions(mregion_t **mregion, size_t mregion_size,  size_t tota
 void        append_mregion(mregion_t **mregion, mregion_t *new_mregion);
 void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
 
+mchunk_t    *find_mregion_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size);
+
 size_t      map_allocation_size_to_mregion_size(size_t allocation_size);
 size_t      map_bound_mregion_category_to_mregion_size(bound_mregion_category_t category);
 # pragma GCC visibility pop

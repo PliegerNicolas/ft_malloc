@@ -52,12 +52,11 @@ typedef struct s_mchunk
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-void        *use_mchunk(mchunk_t *free_mchunk, size_t allocation_size);
+// void        *use_mchunk(mchunk_t *free_mchunk, size_t allocation_size);
 
-mchunk_t    *find_best_fit_free_mchunk(mchunk_t **mbin, size_t allocation_size);
-mchunk_t    *select_free_mchunk(marena_t *gmarena, size_t allocation_size);
+mchunk_t    *find_mbin_best_fit_free_mchunk(mchunk_t **mbin, size_t allocation_size);
 
-size_t  map_allocation_size_to_mchunk_size(size_t allocation_size);
+size_t      map_allocation_size_to_mchunk_size(size_t allocation_size);
 # pragma GCC visibility pop
 
 #endif // MCHUNK_H
