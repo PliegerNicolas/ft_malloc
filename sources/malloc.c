@@ -16,7 +16,7 @@ void    *malloc(size_t size)
 {
     mchunk_t    *free_mchunk;
 
-    if (init_gmarena_once(&gmarena, NUM_INITIAL_BOUNDED_MREGIONS) == STATUS_FAILURE)
+    if (init_gmarena_once() == STATUS_FAILURE)
         return NULL;
 
     free_mchunk = select_free_mchunk(&gmarena, size);

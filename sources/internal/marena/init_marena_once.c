@@ -13,30 +13,33 @@
 #include "ft_malloc.h"
 
 /**
- * @brief Declaration of global variable `marena_t`.
- * It represents the current thread's internal heap state.
-*/
-marena_t    gmarena;
-
-/**
- * @brief Initializes global variable `gmarena` if needed.
+ * @brief Initializes a `marena_t` instance in a singleton-like pattern.
  * 
- * @returns `STATUS_SUCCESS` if initialization succeeded or was already initialized.
- * Else `STATUS_FAILURE`.
- * @note Tracks initialization state through internal static boolean.
+ * Ensures that only one `marena_t` instance is initialized throughout 
+ * the process.
+ * 
+ * @param marena Reference to the concerned `marena_t`. `NULL` causes failure.
+ * @param initial_mregions_per_bound_category Total bound `mregion_t`s to initialize
+ * per `bound_mregion_category_t`.
+ * 
+ * @returns Operation related `status_t`.
 */
-status_t    init_gmarena_once(marena_t *gmarena, size_t bounded_regions)
+status_t    init_marena_once(marena_t *marena, size_t initial_mregions_per_bound_category)
 {
-    static bool is_initialized;
+    static marena_t *previously_initialized_marena;
 
-    if (!gmarena)
+    if (!marena)
         return STATUS_FAILURE;
-    
-    if (is_initialized)
+
+    if (previously_initialized_marena)
+    {
+        if (previously_initialized_marena != marena)
+            return STATUS_FAILURE;
         return STATUS_SUCCESS;
+    }
 
-    if (init_marena(gmarena, NUM_INITIAL_BOUNDED_MREGIONS) == STATUS_FAILURE)
+    if (init_marena(marena, initial_mregions_per_bound_category) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
-    return STATUS_SUCCESS;
+    return (previously_initialized_marena = marena), STATUS_SUCCESS;
 }

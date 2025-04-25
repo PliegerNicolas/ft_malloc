@@ -1,25 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_mregion.h                                       :+:      :+:    :+:   */
+/*   mregion.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-20 21:51:45 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-20 21:51:45 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-25 12:38:36 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-25 12:38:36 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_MREGION_H
-# define FT_MREGION_H
+#ifndef MREGION_H
+# define MREGION_H
 
 /* *************************************************************************** */
 /* *                                 INCLUDES                                * */
 /* *************************************************************************** */
 
 /* Annexe headers. */
-# include "macros.h"
-# include "ft_mchunk.h"
+# include "internal/macros.h"
+# include "internal/mchunk.h"
 
 /* For size_t. */
 # include <stddef.h>
@@ -29,17 +29,17 @@
 /* *************************************************************************** */
 
 /**
- * @brief Enum of all the bounded `mregion` categories.
+ * @brief Enum of all the bound `mregion` categories.
  * @param TINY_MREGION A `mregion` containing only `mchunk` of maximum `MCHUNK_TINY_MAX_DATA_SIZE` bytes.
  * @param SMALL_MREGION A `mregion_t` containing only `mchunk` of maximum `MCHUNK_SMALL_MAX_DATA_SIZE` bytes.
- * @param NUM_BOUNDED_MREGIONS Total number of bounded `mregion_t`s.
+ * @param NUM_BOUND_MREGIONS Total number of bound `mregion_t`s.
 */
-typedef enum e_bounded_mregion_category
+typedef enum e_bound_mregion_category
 {
     TINY_MREGION,
     SMALL_MREGION,
-    NUM_BOUNDED_MREGIONS_CATEGORIES,
-} bounded_mregion_category_t;
+    NUM_BOUND_MREGIONS_CATEGORIES,
+} bound_mregion_category_t;
 
 /**
  * @brief A linked-list representing actual allocated data by the OS, also called a memory region.
@@ -72,12 +72,8 @@ status_t    init_mregions(mregion_t **mregion, size_t mregion_size,  size_t tota
 void        append_mregion(mregion_t **mregion, mregion_t *new_mregion);
 void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
 
-mregion_t   *find_best_fit_mregion_head(marena_t *marena, size_t allocation_size);
-void        iterate_to_best_fit_mregion(mregion_t **mregion);
-
 size_t      map_allocation_size_to_mregion_size(size_t allocation_size);
-size_t      map_bounded_mregion_category_to_mregion_size(bounded_mregion_category_t category);
-mregion_t   **map_allocation_size_to_mregion_head(marena_t *marena, size_t allocation_size);
+size_t      map_bound_mregion_category_to_mregion_size(bound_mregion_category_t category);
 # pragma GCC visibility pop
 
-#endif // FT_MREGION_H
+#endif // MREGION_H

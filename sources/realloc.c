@@ -14,7 +14,7 @@
 
 void    *realloc(void *ptr, size_t size)
 {
-    if (init_gmarena_once(&gmarena, NUM_INITIAL_BOUNDED_MREGIONS) == STATUS_FAILURE)
+    if (init_gmarena_once() == STATUS_FAILURE)
         return NULL;
     return NULL;
 }

@@ -22,7 +22,7 @@ void    test_macros()
     put_title(PURPLE, "Configurable macros:", STDOUT_FILENO);
     put_size_t_macro("ALIGNMENT_BOUNDARY", ALIGNMENT_BOUNDARY, "Expect => 4, 8, 16, 32...", STDOUT_FILENO);
     ft_putchar_fd('\n', STDOUT_FILENO);
-    put_size_t_macro("MIN_MCHUNKS_PER_BOUNDED_MREGION", MIN_MCHUNKS_PER_BOUNDED_MREGION, "Expect => >=100", STDOUT_FILENO);
+    put_size_t_macro("MIN_MCHUNKS_PER_BOUNDED_MREGION", MIN_MCHUNKS_PER_BOUND_MREGION, "Expect => >=100", STDOUT_FILENO);
     ft_putchar_fd('\n', STDOUT_FILENO);
     put_size_t_macro("TARGET_MCHUNK_TINY_MAX_DATA_SIZE", TARGET_MCHUNK_TINY_MAX_DATA_SIZE, "", STDOUT_FILENO);
     put_size_t_macro("TARGET_MCHUNK_SMALL_MAX_DATA_SIZE", TARGET_MCHUNK_SMALL_MAX_DATA_SIZE, "", STDOUT_FILENO);

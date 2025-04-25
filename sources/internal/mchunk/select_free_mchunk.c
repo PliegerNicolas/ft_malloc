@@ -12,6 +12,25 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief ...
+*/
+static void iterate_to_best_fit_mregion(mregion_t **mregion)
+{
+    mregion_t   *current_mregion;
+
+    if (!mregion)
+        return;
+
+    current_mregion = *mregion;
+    while (current_mregion && current_mregion->mbin == NULL)
+        current_mregion = current_mregion->next;
+    *mregion = current_mregion;
+}
+
+/**
+ * @brief ...
+*/
 mchunk_t    *select_free_mchunk(marena_t *gmarena, size_t allocation_size)
 {
     mregion_t   *mregion_head;
@@ -21,7 +40,7 @@ mchunk_t    *select_free_mchunk(marena_t *gmarena, size_t allocation_size)
     if (!gmarena)
         return STATUS_FAILURE;
     
-    mregion_head = find_best_fit_mregion_head(gmarena, allocation_size);
+    mregion_head = find_marena_best_fit_mregion_head(gmarena, allocation_size);
     if (mregion_head == STATUS_FAILURE)
         return STATUS_FAILURE;
        

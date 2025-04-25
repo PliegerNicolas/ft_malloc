@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-20 01:40:06 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-20 01:40:06 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-25 12:39:24 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-25 12:39:24 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,12 +73,12 @@ typedef void*   status_t;
  * @brief Minimum `mchunk_t`s per bounded `mregion_t`.
  * @note This greatly affects bounded `marena_t` sizes.
  */
-# define MIN_MCHUNKS_PER_BOUNDED_MREGION (size_t)124
+# define MIN_MCHUNKS_PER_BOUND_MREGION (size_t)124
 
 /**
  * @brief How much mregions should be preallocated on `ft_malloc` initialization.
 */
-# define NUM_INITIAL_BOUNDED_MREGIONS (size_t)3
+# define NUM_INITIAL_BOUND_MREGIONS_PER_CATEGORY (size_t)3
 
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */
@@ -150,12 +150,16 @@ typedef void*   status_t;
 /* Other */
 
 /**
- * @brief Represents a successful operation. It also is an invalid memory address.
+ * @brief Represents a successful operation.
+ * It also is an invalid memory address.
+ * 
  * @note Used with `status`.
 */
 # define STATUS_SUCCESS ((status_t)-1)
 /**
- * @brief Represents a failed operation. It also is an invalid memory address.
+ * @brief Represents a failed operation or a misused function.
+ * It also is an invalid memory address.
+ * 
  * @note Used with `status`.
 */
 # define STATUS_FAILURE ((status_t)-2)

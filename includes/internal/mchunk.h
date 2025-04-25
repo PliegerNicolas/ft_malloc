@@ -1,41 +1,49 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_marena.h                                        :+:      :+:    :+:   */
+/*   mchunk.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-20 21:47:40 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-20 21:47:40 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-25 12:38:31 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-25 12:38:31 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_MARENA_H
-# define FT_MARENA_H
+#ifndef MCHUNK_H
+# define MCHUNK_H
 
 /* *************************************************************************** */
 /* *                                 INCLUDES                                * */
 /* *************************************************************************** */
 
 /* Annexe headers. */
-# include "macros.h"
-# include "ft_mchunk.h"
-# include "ft_mregion.h"
+# include "internal/macros.h"
+
+/* For size_t. */
+# include <stddef.h>
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
 
 /**
- * @brief A memory management unit. It catalogues all categories of `mregion`s.
- * @param bounded_mregions A list of incrementally stored `mregion`s that only stored maximum n amount of bytes.
- * @param unbounded_mregion A list of incrementally stored `mregion`s that only stored maximum n amount of bytes.
-*/
-typedef struct s_marena
+ * @brief Represents a memory chunk within an `mregion`.
+ * This structure acts as a header, placed directly before the user-allocatable memory.
+ * 
+ * @param prev_allocation_size Size of the previous `mchunk` allocated data. in memory (metadata, padding and user-allocatable memory included). 0 If none.
+ * @param allocation_size Size of the current `mchunk` in memory (metadata, padding and user-allocatable memory included).
+ * @param next_free_mchunk Used only when chunk is considered `FREE`. Else uninitalized or set to 0.
+ * @param prev_free_mchunk Used only when chunk is considered `FREE`. Else uninitalized or set to 0.
+ */
+typedef struct s_mchunk
 {
-    mregion_t   *bounded_mregions[NUM_BOUNDED_MREGIONS_CATEGORIES];
-    mregion_t   *unbounded_mregion;
-} marena_t;
+    size_t          prev_allocation_size;
+    size_t          allocation_size;
+
+    struct s_mchunk *next_free_mchunk;
+    struct s_mchunk *prev_free_mchunk;
+} mchunk_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
@@ -44,8 +52,12 @@ typedef struct s_marena
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-status_t    init_gmarena_once(marena_t *gmarena, size_t bounded_regions);
-status_t    init_marena(marena_t *marena, size_t bounded_regions);
+void        *use_mchunk(mchunk_t *free_mchunk, size_t allocation_size);
+
+mchunk_t    *find_best_fit_free_mchunk(mchunk_t **mbin, size_t allocation_size);
+mchunk_t    *select_free_mchunk(marena_t *gmarena, size_t allocation_size);
+
+size_t  map_allocation_size_to_mchunk_size(size_t allocation_size);
 # pragma GCC visibility pop
 
-#endif // FT_MARENA_H
+#endif // MCHUNK_H

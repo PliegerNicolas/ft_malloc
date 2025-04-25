@@ -62,29 +62,34 @@ SOURCES_FILE_EXTENSION			:=	.c
 HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
-SOURCES_FILE_NAMES			:=	malloc \
-								realloc \
-								free \
-								show_alloc_mem \
+INTERNAL_SOURCE_FILE_NAMES	:=	\
+								gmarena \
 								\
-								marena/init_gmarena_once \
+								marena/init_marena_once \
 								marena/init_marena \
+								marena/find_marena_best_fit_mregion_head \
+								marena/map/map_allocation_size_to_marena_mregion_head \
 								\
 								mregion/init_mregion \
 								mregion/init_mregions \
 								mregion/append_mregion \
 								mregion/prepend_mregion \
-								mregion/find_best_fit_mregion_head \
-								mregion/iterate_to_best_fit_mregion \
-								mregion/map/map_allocation_size_to_mregion_head \
 								mregion/map/map_allocation_size_to_mregion_size \
-								mregion/map/map_bounded_mregion_category_to_mregion_size \
+								mregion/map/map_bound_mregion_category_to_mregion_size \
 								\
 								mchunk/use_mchunk \
 								mchunk/free_mchunk \
 								mchunk/find_best_fit_free_mchunk \
 								mchunk/select_free_mchunk \
 								mchunk/map/map_allocation_size_to_mchunk_size
+
+PUBLIC_SOURCES_FILE_NAMES	:=	\
+								malloc \
+								realloc \
+								free \
+								show_alloc_mem
+
+SOURCES_FILE_NAMES			:=	$(PUBLIC_SOURCES_FILE_NAMES) $(addprefix internal/, $(INTERNAL_SOURCE_FILE_NAMES))
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

@@ -12,6 +12,21 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief Initializes and/or adds a `total` amount of `mregion_t` nodes.
+ * @param marena Pointer to the `mregion_t` to initialize. `NULL` causes failure.
+ * @param mregion_size Minimal size of the `mregion_t` in bytes.
+ * @param total Total `mregion_t`s to initialize, considering the linked-list structure.
+ * 
+ * @note `mregion_t`s are prepended.
+ * Requested size is systematically rounded up to the next multiple of `PAGE_SIZE`.
+ * 
+ * @returns Operation related `status_t`.
+ * 
+ * On `STATUS_SUCCESS` the `mregion_t` is populated with one free `mchunk_t` in it's `mbin`.
+ * If `mregion_size` is `0`, it's set to NULL.
+ * On `STATUS_FAILURE` `mregion_t` is preserved as it was.
+*/
 status_t    init_mregions(mregion_t **mregion, size_t mregion_size,  size_t total)
 {
     mregion_t   *new_mregion;

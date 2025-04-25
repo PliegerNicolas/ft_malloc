@@ -12,6 +12,15 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief Wrapper for `mmap()` dedicated to memory allocation for `mregion_t`s.
+ * @param bytes Number of bytes to allocate via `mmap()`.
+ * 
+ * @note Requested size is systematically rounded up to the next multiple of `PAGE_SIZE`.
+ * Returned pointer has `READ` and `WRITE` perms, and are `PRIVATE` and `ANONYMOUS`.
+ * 
+ * @return A pointer to the allocated memory page, or `STATUS_FAILURE` if it fails.
+*/
 static void *mmap_mregion(size_t bytes)
 {
     void            *ptr;
@@ -35,6 +44,19 @@ static void *mmap_mregion(size_t bytes)
     return ptr;
 }
 
+/**
+ * @brief Initializes a given `mregion_t` node.
+ * @param marena Pointer to the `mregion_t` to initialize. `NULL` causes failure.
+ * @param mregion_size Minimal size of the `mregion_t` in bytes.
+ * 
+ * @note Requested size is systematically rounded up to the next multiple of `PAGE_SIZE`.
+ * 
+ * @returns Operation related `status_t`.
+ * 
+ * On `STATUS_SUCCESS` the `mregion_t` is populated with one free `mchunk_t` in it's `mbin`.
+ * If `mregion_size` is `0`, it's set to NULL.
+ * On `STATUS_FAILURE` `mregion_t` is preserved as it was.
+*/
 status_t    init_mregion(mregion_t **mregion, size_t mregion_size)
 {
     mregion_t    *new_mregion;
@@ -45,14 +67,14 @@ status_t    init_mregion(mregion_t **mregion, size_t mregion_size)
     if (!mregion)
         return STATUS_FAILURE;
     if (mregion_size == 0)
-        return NULL;
+        return (*mregion = NULL), STATUS_SUCCESS;
     
     mregion_padded_size = ALIGN_UP(mregion_size, PAGE_SIZE);
     mbin_padded_size = mregion_padded_size - MREGION_HEADER_PADDED_SIZE;
 
     new_mregion = mmap_mregion(mregion_padded_size);
     if (new_mregion == STATUS_FAILURE)
-    return STATUS_FAILURE;
+        return STATUS_FAILURE;
     new_mbin = GET_MREGION_MBIN_PTR(new_mregion);
 
     *new_mbin = (mchunk_t) {

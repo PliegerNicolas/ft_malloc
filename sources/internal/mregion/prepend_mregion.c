@@ -1,22 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   append_mregion.c                                   :+:      :+:    :+:   */
+/*   prepend_mregion.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-20 22:36:34 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-20 22:36:34 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-20 22:36:29 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-20 22:36:29 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void    append_mregion(mregion_t **mregion, mregion_t *new_mregion)
+/**
+ * @brief Prepends a `mregion_t` node to the start of a `mregion_t` linked list.
+ *
+ * @param mregion Head of the linked list. If `NULL`, no action is taken.
+ * @param new_mregion New node to prepend. If the list is empty, this becomes the head.
+ *
+ * @note If `mregion` is `NULL`, the function does nothing.
+ *       If `*mregion` is `NULL`, `new_mregion` becomes the head of the list.
+*/
+void    prepend_mregion(mregion_t **mregion, mregion_t *new_mregion)
 {
     mregion_t   *current_mregion;
 
-    if  (!mregion)
+    if (!mregion)
         return;
 
     if (*mregion != NULL)

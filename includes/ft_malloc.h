@@ -18,10 +18,10 @@
 /* *************************************************************************** */
 
 /* Annexe headers. */
-# include "macros.h"
-# include "ft_mchunk.h"
-# include "ft_mregion.h"
-# include "ft_marena.h"
+# include "internal/macros.h"
+# include "internal/mchunk.h"
+# include "internal/mregion.h"
+# include "internal/marena.h"
 
 /* libft_mini */
 # include "libft_mini.h"

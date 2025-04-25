@@ -1,49 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_mchunk.h                                        :+:      :+:    :+:   */
+/*   marena.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-20 21:50:53 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-20 21:50:53 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-25 12:38:26 by nicolas           #+#    #+#             */
+/*   Updated: 2025-04-25 12:38:26 by nicolas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_MCHUNK_H
-# define FT_MCHUNK_H
+#ifndef MARENA_H
+# define MARENA_H
 
 /* *************************************************************************** */
 /* *                                 INCLUDES                                * */
 /* *************************************************************************** */
 
 /* Annexe headers. */
-# include "macros.h"
-
-/* For size_t. */
-# include <stddef.h>
+# include "internal/macros.h"
+# include "internal/mchunk.h"
+# include "internal/mregion.h"
 
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
 
 /**
- * @brief Represents a memory chunk within an `mregion`.
- * This structure acts as a header, placed directly before the user-allocatable memory.
- * 
- * @param prev_allocation_size Size of the previous `mchunk` allocated data. in memory (metadata, padding and user-allocatable memory included). 0 If none.
- * @param allocation_size Size of the current `mchunk` in memory (metadata, padding and user-allocatable memory included).
- * @param next_free_mchunk Used only when chunk is considered `FREE`. Else uninitalized or set to 0.
- * @param prev_free_mchunk Used only when chunk is considered `FREE`. Else uninitalized or set to 0.
- */
-typedef struct s_mchunk
+ * @brief A memory management unit. It catalogues all categories of `mregion`s.
+ * @param bounded_mregions A list of incrementally stored `mregion`s that only stored maximum n amount of bytes.
+ * @param unbounded_mregion A list of incrementally stored `mregion`s that only stored maximum n amount of bytes.
+*/
+typedef struct s_marena
 {
-    size_t          prev_allocation_size;
-    size_t          allocation_size;
-
-    struct s_mchunk *next_free_mchunk;
-    struct s_mchunk *prev_free_mchunk;
-} mchunk_t;
+    mregion_t   *bound_mregions[NUM_BOUND_MREGIONS_CATEGORIES];
+    mregion_t   *unbound_mregion;
+} marena_t;
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
@@ -52,12 +44,14 @@ typedef struct s_mchunk
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-void        *use_mchunk(mchunk_t *free_mchunk, size_t allocation_size);
+status_t    init_gmarena_once();
 
-mchunk_t    *find_best_fit_free_mchunk(mchunk_t **mbin, size_t allocation_size);
-mchunk_t    *select_free_mchunk(marena_t *gmarena, size_t allocation_size);
+status_t    init_marena(marena_t *marena, size_t initial_mregions_per_bound_category);
+status_t    init_marena_once(marena_t *marena, size_t initial_mregions_per_bound_category);
 
-size_t  map_allocation_size_to_mchunk_size(size_t allocation_size);
+mregion_t   *find_marena_best_fit_mregion_head(marena_t *marena, size_t allocation_size);
+
+mregion_t   **map_allocation_size_to_marena_mregion_head(marena_t *marena, size_t allocation_size);
 # pragma GCC visibility pop
 
-#endif // MCHUNK_H
+#endif // MARENA_H
