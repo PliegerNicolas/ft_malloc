@@ -12,6 +12,14 @@
 
 #include "ft_malloc.h"
 
+/**
+ * @brief Find the best fitting `mchunk_t` from a `mregion_t`.
+ * Adds a new `mregion_t` to the linked-list if needed.
+ * @param allocation_size Expected amount of bytes to store in requested `mregion_t`.
+ * 
+ * @returns The best fitting `mchunk_t`.
+ * Or `STATUS_FAILURE`.
+*/
 mchunk_t    *find_mregion_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size)
 {
     mregion_t   *current_mregion, *prev_mregion;

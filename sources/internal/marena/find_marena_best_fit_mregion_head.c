@@ -20,6 +20,7 @@
  * @note If no `mregion_t` fits, it is initialized/created on the fly.
  * 
  * @returns The head of a `mregion_t` linked-list best fitted to store `allocation_size` bytes of data.
+ * Or `STATUS_FAILURE` if it fails.
 */
 mregion_t   *find_marena_best_fit_mregion_head(marena_t *marena, size_t allocation_size)
 {

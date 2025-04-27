@@ -132,7 +132,8 @@ static mchunk_t    *find_mbin_mchunk_good_enough_fit(mchunk_t **mbin, size_t all
  * 
  * @note Memory bins only store free `mchunk_t`s.
  * 
- * @returns The best fitting `mchunk_t` or NULL if not found.
+ * @returns The best fitting `mchunk_t`.
+ * Or NULL if not found.
 */
 mchunk_t    *find_mbin_best_fit_free_mchunk(mchunk_t **mbin, size_t allocation_size)
 {

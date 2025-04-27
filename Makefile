@@ -80,6 +80,7 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mregion/map/map_bound_mregion_category_to_mregion_size \
 								\
 								mchunk/find_mbin_best_fit_free_mchunk \
+								mchunk/use_mchunk \
 								mchunk/map/map_allocation_size_to_mchunk_size
 
 PUBLIC_SOURCES_FILE_NAMES	:=	\

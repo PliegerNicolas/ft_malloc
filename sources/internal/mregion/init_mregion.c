@@ -23,7 +23,8 @@
  * @note Requested size is systematically rounded up to the next multiple of `PAGE_SIZE`.
  * Returned pointer has `READ` and `WRITE` perms, and are `PRIVATE` and `ANONYMOUS`.
  * 
- * @return A pointer to the allocated memory page, or `STATUS_FAILURE` if it fails.
+ * @return A pointer to the allocated memory page.
+ * Or `STATUS_FAILURE` if it fails.
 */
 static void *mmap_mregion(size_t bytes)
 {

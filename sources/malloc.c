@@ -15,6 +15,7 @@
 void    *malloc(size_t size)
 {
     mchunk_t    *free_mchunk;
+    mchunk_t    *used_mchunk;
 
     if (init_gmarena_once() == STATUS_FAILURE)
         return NULL;
@@ -22,6 +23,9 @@ void    *malloc(size_t size)
     free_mchunk = find_marena_best_fit_free_mchunk(&gmarena, size);
     if (free_mchunk == STATUS_FAILURE)
         return NULL;
+    used_mchunk = use_mchunk(free_mchunk, size);
+    if (used_mchunk == STATUS_FAILURE)
+        return NULL;
 
-    return NULL;
+    return GET_MCHUNK_DATA_PTR(used_mchunk);
 }
