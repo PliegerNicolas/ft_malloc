@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shared.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-29 21:19:27 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-29 21:19:27 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-27 21:28:39 by nplieger          #+#    #+#             */
+/*   Updated: 2025-04-27 21:28:39 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,51 +19,48 @@ void    put_title(char *color, char *title, int fd)
     ft_putendl_fd(RESET, fd);
 }
 
-void    put_size_t_macro(char *title, size_t value, char *expectation, int fd)
+void    put_size_t_macro(char *title, size_t value, char *details, int fd)
 {
-    const char*     base = "0123456789";
-    const size_t    base_len = 10;
-
     ft_putstr_fd(title, fd);
     ft_putstr_fd(": ", fd);
-    ft_putsize_t_base_fd(value, base, base_len, fd);
-    if (ft_strlen(expectation) > 0)
+    ft_putsize_t_fd(value, fd);
+    if (ft_strlen(details) > 0)
     {
         ft_putchar_fd(' ', fd);
         ft_putchar_fd('(', fd);
-        ft_putstr_fd(expectation, fd);
+        ft_putstr_fd(details, fd);
         ft_putchar_fd(')', fd);
     };
     ft_putchar_fd('\n', fd);
 }
 
-void    put_ptr_macro(char *title, void *ptr, char *expectation, int fd)
+void    put_ptr_macro(char *title, void *ptr, char *details, int fd)
 {
     ft_putstr_fd(title, fd);
     ft_putstr_fd(": ", fd);
     ft_putptr_fd(ptr, fd);
-    if (ft_strlen(expectation) > 0)
+    if (ft_strlen(details) > 0)
     {
         ft_putchar_fd(' ', fd);
         ft_putchar_fd('(', fd);
-        ft_putstr_fd(expectation, fd);
+        ft_putstr_fd(details, fd);
         ft_putchar_fd(')', fd);
     };
     ft_putchar_fd('\n', fd);
 }
 
-void    put_macro_with_relative_ptr_addresses(char *title, void *src_ptr, void *dest_ptr, char *expectation, int fd)
+void    put_macro_with_relative_ptr_addresses(char *title, void *src_ptr, void *dest_ptr, char *details, int fd)
 {
     ft_putstr_fd(title, fd);
     ft_putstr_fd(": ", fd);
     ft_putptr_fd(src_ptr, fd);
     ft_putstr_fd(" => ", fd);
     ft_putptr_fd(dest_ptr, fd);
-    if (ft_strlen(expectation) > 0)
+    if (ft_strlen(details) > 0)
     {
         ft_putchar_fd(' ', fd);
         ft_putchar_fd('(', fd);
-        ft_putstr_fd(expectation, fd);
+        ft_putstr_fd(details, fd);
         ft_putchar_fd(')', fd);
     };
     ft_putchar_fd('\n', fd);

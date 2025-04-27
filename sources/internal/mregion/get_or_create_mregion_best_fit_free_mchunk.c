@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   show_alloc_mem.c                                   :+:      :+:    :+:   */
+/*   get_or_create_mregion_best_fit_free_mchunk.c        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:29 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:29 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-04 10:00:23 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-04 10:00:23 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,24 +16,36 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static void put_total_allocated_bytes(size_t total_allocated_bytes, int fd)
+static inline bool  has_free_mchunks(mregion_t *mregion)
 {
-    ft_putstr_fd("Total : ", fd);
-    ft_putsize_t_fd(total_allocated_bytes, fd);
-    ft_putendl_fd(" bytes", fd);
+    return mregion->mbin != NULL;
 }
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-void    show_alloc_mem()
+mchunk_t    **get_or_create_mregion_best_fit_free_mchunk(mregion_t **mregion_head, size_t allocation_size)
 {
-    size_t  total_allocated_bytes;
+    mregion_t   **current_mregion;
+    mchunk_t    **best_fit_free_mchunk;
 
-    if (init_gmarena_once() == STATUS_FAILURE)
-        return;
-    
-    total_allocated_bytes = show_alloc_mem_marena(&gmarena);
-    put_total_allocated_bytes(total_allocated_bytes, STDOUT_FILENO);
+    if (!mregion_head)
+        return STATUS_FAILURE;
+
+    current_mregion = mregion_head;
+    while (*current_mregion)
+    {
+        if (has_free_mchunks(*current_mregion))
+            if ((best_fit_free_mchunk = find_best_fit_free_mchunk(current_mregion, allocation_size)) != NULL)
+                return best_fit_free_mchunk;
+
+        current_mregion = &(*current_mregion)->next;
+    }
+
+    if (!*current_mregion && init_mregion(current_mregion, allocation_size) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+    best_fit_free_mchunk = &(*current_mregion)->mbin;
+
+    return best_fit_free_mchunk;
 }

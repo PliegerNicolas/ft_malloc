@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_ft_malloc.h                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:41:48 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:41:48 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-27 21:30:34 by nplieger          #+#    #+#             */
+/*   Updated: 2025-04-27 21:30:34 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,9 @@
 /* *************************************************************************** */
 
 void    put_title(char *color, char *title, int fd);
-void    put_size_t_macro(char *title, size_t value, char *expectation, int fd);
-void    put_ptr_macro(char *title, void *ptr, char *expectation, int fd);
-void    put_macro_with_relative_ptr_addresses(char *title, void *src_ptr, void *dest_ptr, char *expectation, int fd);
+void    put_size_t_macro(char *title, size_t value, char *details, int fd);
+void    put_ptr_macro(char *title, void *ptr, char *details, int fd);
+void    put_macro_with_relative_ptr_addresses(char *title, void *src_ptr, void *dest_ptr, char *details, int fd);
 
 void    test_malloc();
 void    test_realloc();

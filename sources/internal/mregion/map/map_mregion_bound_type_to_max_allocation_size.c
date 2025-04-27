@@ -1,30 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putptr_fd.c                                     :+:      :+:    :+:   */
+/*   map_mregion_bound_type_to_max_allocation_size.c    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:29:58 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:29:58 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-02 08:56:28 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-02 08:56:28 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft_mini.h"
+#include "ft_malloc.h"
 
-size_t  ft_putptr_fd(void *ptr, int fd)
+size_t  map_mregion_bound_type_to_max_allocation_size(bound_mregion_type_t bound_mregion_type)
 {
-    uintptr_t   addr;
-    size_t      count;
-
-    if (!ptr)
-        return ft_putstr_fd("(nil)", fd);
-
-    addr = (uintptr_t)ptr;
-    count = ft_putstr_fd("0x", fd);
-
-    if (addr == 0)
-        return count + ft_putchar_fd('0', fd);
-
-    return count + ft_putbase_fd(addr, "0123456789abcdef", 16, fd);
-};
+    switch (bound_mregion_type)
+    {
+        case TINY_MREGION_TYPE:
+            return TINY_MCHUNK_MAX_ALLOCATION_SIZE;
+        case SMALL_MREGION_TYPE:
+            return SMALL_MCHUNK_MAX_ALLOCATION_SIZE;
+        default:
+            return 0;
+    }
+}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_malloc.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:25:10 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:25:10 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-27 21:28:49 by nplieger          #+#    #+#             */
+/*   Updated: 2025-04-27 21:28:49 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@ void    test_malloc()
     int *ptr1, *ptr2;
 
     ptr1 = malloc(42);
-    ptr2 = malloc(20000);
-
     free(ptr1);
+
+    ptr2 = malloc(20000);
     free(ptr2);
 }

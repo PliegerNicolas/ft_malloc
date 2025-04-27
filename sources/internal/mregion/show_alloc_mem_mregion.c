@@ -1,21 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   realloc.c                                          :+:      :+:    :+:   */
+/*   show_alloc_mem_mregion.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:26 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:26 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-02 09:32:45 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-02 09:32:45 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void    *realloc(void *ptr, size_t size)
+size_t  show_alloc_mem_mregion(mregion_t *mregion)
 {
-    if (init_gmarena_once() == STATUS_FAILURE)
-        return NULL;
+    mregion_t   *current_mregion;
+    size_t      total_allocated_bytes;
 
-    return NULL;
+    if (!mregion)
+        return 0;
+
+    current_mregion = mregion;
+    total_allocated_bytes = 0;
+    while (current_mregion)
+    {
+        total_allocated_bytes += show_alloc_mem_mchunks(current_mregion);
+        current_mregion = current_mregion->next;
+    }
+    
+    return total_allocated_bytes;
 }

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_marena.c                                      :+:      :+:    :+:   */
+/*   show_alloc_mem_marena.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-01 17:17:34 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-01 17:17:34 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-02 09:27:07 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-02 09:27:07 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,51 +16,36 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static status_t init_marena_bound_mregions(marena_t *marena)
+static size_t   show_alloc_mem_marena_bound_mregions(marena_t *marena)
 {
-    mregion_t   **current_mregion;
-    size_t      max_allocation_size;
+    size_t  total_allocated_bytes;
 
     if (!marena)
-        return STATUS_FAILURE;
+        return 0;
 
+    total_allocated_bytes = 0;
     for (bound_mregion_type_t type = 0; type < NUM_BOUND_MREGION_TYPES; type++)
-    {
-        max_allocation_size = map_mregion_bound_type_to_max_allocation_size(type);
-        current_mregion = &(marena->bound_mregions[type]);
+        total_allocated_bytes += show_alloc_mem_mregion(marena->bound_mregions[type]);
 
-        if (init_mregions(current_mregion, max_allocation_size, INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE) == STATUS_FAILURE)
-            return STATUS_FAILURE;
-    }
-
-    return STATUS_SUCCESS;
+    return total_allocated_bytes;
 }
 
-static status_t init_marena_unbound_mregion(marena_t *marena)
+static size_t   show_alloc_mem_marena_unbound_mregion(marena_t *marena)
 {
     if (!marena)
-        return STATUS_FAILURE;
-    
-    marena->unbound_mregion = NULL;
+        return 0;
 
-    return STATUS_SUCCESS;
+    return show_alloc_mem_mregion(marena->unbound_mregion);
 }
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-status_t    init_marena(marena_t *marena)
+size_t  show_alloc_mem_marena(marena_t *marena)
 {
     if (!marena)
-        return STATUS_FAILURE;
+        return 0;
 
-    ft_bzero(marena, sizeof(*marena));
-    
-    if (init_marena_bound_mregions(marena) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-    if (init_marena_unbound_mregion(marena) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-
-    return STATUS_SUCCESS;
+    return show_alloc_mem_marena_bound_mregions(marena) + show_alloc_mem_marena_unbound_mregion(marena);
 }

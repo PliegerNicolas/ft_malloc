@@ -45,40 +45,37 @@ typedef void*   status_t;
 
 /* SYSTEM */
 
-/**
- * @brief General use-case memory memory alignment boundary in bytes.
+/** @brief Desired general use-case memory alignment boundary in bytes.
  * 
- * Alignment improves performance by adhering to architecture-specific requirements.
- * Padding can be used to ensure stored memory in set on a memory alignment boundary.
+ * Alignment improves performance by adhering to architecture specific requirements.
+ * Consider SIMD operations (SSE, AVX...).
  * 
- * @note Should be a multiple of 2. Consider frequently used SIMD operations (SSE, AVX...).
- */
-# define ALIGNMENT_BOUNDARY (size_t)16
+ * @note Will be rounded up to the nearest multiple of 2. */
+# define DESIRED_ALIGNMENT_BOUNDARY (size_t)16
 
 /* MCHUNK */
 
-/**
- * @brief Maximum number of bytes that can be stored in `mchunk_t` within a TINY `marena_t`.
- * @note This value is aligned to the selected `ALIGNMENT_BOUNDARY` for performance optimization. Use `MCHUNK_TINY_MAX_DATA_SIZE`.
- */
-# define TARGET_MCHUNK_TINY_MAX_DATA_SIZE (size_t)64
+/** @brief Desired maximum allocation_size per TINY `mchunk_t`.
+ * @note Will be rounded up to `ALIGNMENT_BOUNDARY`. */
+# define DESIRED_TINY_MCHUNK_MAX_ALLOCATION_SIZE (size_t)64
+/** @brief Maximum allocation_size per TINY `mchunk_t`.
+ * @note Will be rounded up to `ALIGNMENT_BOUNDARY`. */
+# define DESIRED_SMALL_MCHUNK_MAX_ALLOCATION_SIZE (size_t)512
 
-/**
- * @brief Maximum number of bytes that can be stored in `mchunk_t` within a SMALL `marena_t`.
- * @note This value is aligned to the selected `ALIGNMENT_BOUNDARY` for performance optimization. Use `MCHUNK_SMALL_MAX_DATA_SIZE`.
- */
-# define TARGET_MCHUNK_SMALL_MAX_DATA_SIZE (size_t)512
+/* MREGION */
 
-/**
- * @brief Minimum `mchunk_t`s per bounded `mregion_t`.
- * @note This greatly affects bounded `marena_t` sizes.
- */
-# define MIN_MCHUNKS_PER_BOUND_MREGION (size_t)124
+/** @brief Desired number of `mchunk_t` a bound `mregion_t` should hold, at least.
+ * @note Clamped to a minimum of 100. */
+# define DESIRED_MCHUNKS_PER_BOUND_MREGION (size_t)124
 
-/**
- * @brief How much mregions should be preallocated on `ft_malloc` initialization.
-*/
-# define NUM_INITIAL_BOUND_MREGIONS_PER_CATEGORY (size_t)3
+/** @brief Desired number of `mchunk_t` an unbound `mregion_t` should hold, at least.
+ * @note Clamped to a minimum of 1. */
+# define DESIRED_MCHUNKS_PER_UNBOUND_MREGION (size_t)1
+
+/* MARENA */
+
+/** @brief Desired number of initialised `mregion_t` per bound category. */
+# define DESIRED_INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE (size_t)3
 
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */
@@ -86,82 +83,78 @@ typedef void*   status_t;
 
 /* SYSTEM */
 
-/**
- * @brief System's page size in bytes.
- * @note Take into account that this declaration Can fail and be set to (size_t)-1.
- */
-# define PAGE_SIZE ((size_t)sysconf(_SC_PAGE_SIZE))
-
-/**
- * @brief Rounds a arithmetic and bitwise operations value to a given alignment boundary.
- * @param value Any type supporting arithmetic and bitwise operations (`int`, `size_t`, `uintptr_t`...).
- * @param align The alignment boundary. Should be a power of 2.
- * @returns {typeof value}
- */
+/** @brief Aligns `value` upwards to the nearest multiple of `align`. */
 # define ALIGN_UP(value, align) (((value) + (align - 1)) & ~(align - 1))
 
-/* MCHUNK */
+# define CLAMP_MIN(value, min) (((value) < (min)) ? (min) : (value))
+# define CLAMP_MAX(value, max) (((value) > (max)) ? (max) : (value))
 
-/** @brief Size of a `mchunk_t` rounded up to the nearest `ALIGNMENT_BOUNDARY` in bytes. */
-# define MCHUNK_HEADER_PADDED_SIZE ((size_t)ALIGN_UP(sizeof(mchunk_t), ALIGNMENT_BOUNDARY))
+/** @brief General use-case memory alignment boundary in bytes. */
+# define ALIGNMENT_BOUNDARY (size_t)(ALIGN_UP(DESIRED_ALIGNMENT_BOUNDARY, 2))
 
-/** @brief Maximum number of bytes that can be stored in `mchunk_t` within a TINY `marena_t`. */
-# define MCHUNK_TINY_MAX_DATA_SIZE ((size_t)ALIGN_UP(TARGET_MCHUNK_TINY_MAX_DATA_SIZE, ALIGNMENT_BOUNDARY))
-/** @brief Maximum number of bytes that can be stored in `mchunk_t` within a SMALL `marena_t`. */
-# define MCHUNK_SMALL_MAX_DATA_SIZE ((size_t)ALIGN_UP(TARGET_MCHUNK_SMALL_MAX_DATA_SIZE, ALIGNMENT_BOUNDARY))
-
-/** @returns {void*} Pointer to the start of the `mchunk_t`'s data region. */
-# define GET_MCHUNK_DATA_PTR(mchunk_ptr) ((void *)((unsigned char *)(mchunk_t *)mchunk_ptr + MCHUNK_HEADER_PADDED_SIZE))
-
-/** @brief {size_t} Get size in bytes of current `mchunk_t`, including metadata, memory alignment padding and stored data. */
-# define GET_MCHUNK_PADDED_SIZE(mchunk_ptr) ((size_t)(MCHUNK_HEADER_PADDED_SIZE + ALIGN_UP(((mchunk_t *)mchunk_ptr)->allocation_size, ALIGNMENT_BOUNDARY)))
-/** @brief {size_t} Get size in bytes of previous `mchunk_t`, including metadata, memory alignment padding and stored data. */
-# define GET_PREV_MCHUNK_PADDED_SIZE(mchunk_ptr) ((size_t)(MCHUNK_HEADER_PADDED_SIZE + ALIGN_UP(((mchunk_t *)mchunk_ptr)->prev_allocation_size, ALIGNMENT_BOUNDARY)))
-
-/**
- * @brief {mchunk_t*} Get pointer to next memory adjacent `mchunk_t*`.
- * @warning It doesn't ensure the pointer is in a valid memory space.
- * @note Returns NULL if `mchunk_ptr`->allocated_size == 0.
- */
-# define GET_NEXT_MCHUNK_PTR(mchunk_ptr) ( \
-	(((mchunk_t *)mchunk_ptr)->allocation_size != 0) \
-		? (mchunk_t *)((unsigned char *)mchunk_ptr + GET_MCHUNK_PADDED_SIZE(mchunk_ptr)) \
-		: (mchunk_t *)NULL \
-)
-/**
- * @brief {mchunk_t*} Get pointer to previous memory adjacent `mchunk_t*`.
- * @warning It doesn't ensure the pointer is in a valid memory space.
- * @note Returns NULL if `mchunk_ptr`->prev_allocated_size == 0.
- */
-# define GET_PREV_MCHUNK_PTR(mchunk_ptr) ( \
-	(((mchunk_t *)(mchunk_ptr))->prev_allocation_size != 0) \
-		? (mchunk_t *)((unsigned char *)(mchunk_ptr) - GET_PREV_MCHUNK_PADDED_SIZE(mchunk_ptr)) \
-		: NULL \
-)
+# ifndef PAGE_SIZE
+#  if defined(__linux__)
+/** @brief System's page size in bytes. */
+#   define PAGE_SIZE (size_t)(sysconf(_SC_PAGESIZE))
+#  elif defined(__APPLE__)
+/** @brief System's page size in bytes. */
+#   define PAGE_SIZE (size_t)(getpagesize())
+#  else
+#   error "Unsupported operating system."
+#  endif
+# endif
 
 /* MREGION */
 
-/** @brief Size of a `mregion_t` rounded up to the nearest `PAGE_SIZE` in bytes. */
-# define MREGION_HEADER_PADDED_SIZE ((size_t)ALIGN_UP(sizeof(mregion_t), ALIGNMENT_BOUNDARY))
+/** @brief Number of `mchunk_t` a bound `mregion_t` can hold, at least. */
+# define MCHUNKS_PER_BOUND_MREGION (CLAMP_MIN(DESIRED_MCHUNKS_PER_BOUND_MREGION, 100))
+/** @brief Number of `mchunk_t` an unbound `mregion_t` can hold, at least. */
+# define MCHUNKS_PER_UNBOUND_MREGION (CLAMP_MIN(DESIRED_MCHUNKS_PER_UNBOUND_MREGION, 1))
 
-/** @returns {mchunk_t*} Pointer to the base/initial `mchunk_t`, located directly after this `mregion_t` in memory. */
-# define GET_MREGION_MBIN_PTR(mregion_ptr) ((mchunk_t *)((unsigned char *)mregion_ptr + MREGION_HEADER_PADDED_SIZE))
+/** @brief Number of initialised `mregion_t` per bound category. */
+# define INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE (CLAMP_MIN(DESIRED_INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE, 0))
+
+/** @brief Size of a `mregion_t` header. */
+# define MREGION_HEADER_SIZE (size_t)ALIGN_UP(sizeof(mregion_t), ALIGNMENT_BOUNDARY)
+
+/** @brief Size of a tiny `mregion_t`. */
+# define TINY_MREGION_SIZE ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_BOUND_MREGION * TINY_MCHUNK_MAX_ALLOCATION_SIZE)), PAGE_SIZE)
+/** @brief Size of a small `mregion_t`. */
+# define SMALL_MREGION_SIZE ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_BOUND_MREGION * SMALL_MCHUNK_MAX_ALLOCATION_SIZE)), PAGE_SIZE)
+/** @brief Size of a large `mregion_t`, given a target `allocation_size`. */
+# define LARGE_MREGION_SIZE(allocation_size) ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_UNBOUND_MREGION * GET_MCHUNK_SIZE(allocation_size))), PAGE_SIZE)
+
+/** @brief Calculate pointer to the first `mchunk_t` of given `mregion_t`. */
+# define GET_MREGION_FIRST_MCHUNK(mregion_ptr) ((mchunk_t *)((unsigned char*)(mregion_ptr) + MREGION_HEADER_SIZE))
+
+/* MCHUNK */
+
+/** @brief Size of a `mchunk_t` header. */
+# define MCHUNK_HEADER_SIZE (size_t)(ALIGN_UP(sizeof(mchunk_t), ALIGNMENT_BOUNDARY))
+
+/** @brief Calculates size of a `mchunk_t` given a desired `allocation_size`. */
+# define GET_MCHUNK_SIZE(allocation_size) ((size_t)(MCHUNK_HEADER_SIZE + ALIGN_UP((size_t)(allocation_size), ALIGNMENT_BOUNDARY)))
+
+/** @brief Calculates pointer to the data referenced by the `mchunk_t`. */
+# define GET_MCHUNK_DATA_PTR(mchunk_ptr) ((void*)((unsigned char*)(mchunk_ptr) + MCHUNK_HEADER_SIZE))
+
+/** @brief Maximum allocation_size per TINY `mchunk_t`. */
+# define TINY_MCHUNK_MAX_ALLOCATION_SIZE (size_t)ALIGN_UP(DESIRED_TINY_MCHUNK_MAX_ALLOCATION_SIZE, ALIGNMENT_BOUNDARY)
+/** @brief Maximum allocation_size per TINY `mchunk_t`. */
+# define SMALL_MCHUNK_MAX_ALLOCATION_SIZE (size_t)ALIGN_UP(DESIRED_SMALL_MCHUNK_MAX_ALLOCATION_SIZE, ALIGNMENT_BOUNDARY)
+
+/** @returns Calculates pointer to the next `mchunk_t` in memory. */
+# define GET_NEXT_MCHUNK(mchunk_ptr) ((mchunk_t*)((unsigned char*)(mchunk_ptr) + GET_MCHUNK_SIZE(((mchunk_t*)(mchunk_ptr))->allocation_size)))
+/** @returns Calculates pointer to the previous `mchunk_t` in memory. */
+# define GET_PREV_MCHUNK(mchunk_ptr) ((mchunk_t*)((unsigned char*)(mchunk_ptr) - GET_MCHUNK_SIZE(((mchunk_t*)(mchunk_ptr))->prev_allocation_size)))
 
 /* Other */
 
-/**
- * @brief Represents a successful operation.
- * It also is an invalid memory address.
- * 
- * @note Used with `status`.
-*/
+/** @brief Represents a successful operation. It's also an invalid memory address.
+ * @note Used with `status_t`. */
 # define STATUS_SUCCESS ((status_t)-1)
-/**
- * @brief Represents a failed operation or a misused function.
- * It also is an invalid memory address.
- * 
- * @note Used with `status`.
-*/
+/** @brief Represents a failed operation or a misused function. It's also an invalid memory address.
+ * @note Used with `status_t`. */
 # define STATUS_FAILURE ((status_t)-2)
 
 #endif // MACROS_H

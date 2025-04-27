@@ -3,27 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   ft_putsize_t_fd.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-29 18:50:22 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-29 18:50:22 by nicolas          ###   ########.fr       */
+/*   Created: 2025-05-02 09:59:45 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-02 09:59:45 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_mini.h"
 
-// size_t  ft_putsize_t_fd(size_t n, int fd)
-// {
-//     if (n >= 10)
-//         return ft_putsize_t_fd(n / 10, fd) + ft_putsize_t_fd(n % 10, fd);
-//     else
-//         return ft_putchar_fd(n + '0', fd);
-// }
-
-size_t	ft_putsize_t_base_fd(size_t n, const char *base, size_t base_len, int fd)
+size_t	ft_putsize_t_fd(size_t n, int fd)
 {
-	if (base_len < 2)
-		return 0;
+    const char      *base = "0123456789";
+    const size_t    base_len = 10;
 
-	return ft_putbase_fd(n, base, base_len, fd);
+    return ft_putsize_t_base_fd(n, base, base_len, fd);
 }

@@ -1,45 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_mregion_size_by_allocation_size.c              :+:      :+:    :+:   */
+/*   map_allocation_size_to_mregion_size.c              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-21 09:50:59 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-21 09:50:59 by nicolas          ###   ########.fr       */
+/*   Created: 2025-05-02 08:12:16 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-02 08:12:16 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/**
- * @brief Map allocation size to expected `mregion_t` size.
- * 
- * @param marena Pointer to given `marena_t` to look inside of.
- * @param allocation_size Expected amount of bytes to store in requested `mregion_t`.
- * 
- * @returns Best fitting `PAGE_SIZE` aligned `mregion_t` size in bytes.
-*/
 size_t  map_allocation_size_to_mregion_size(size_t allocation_size)
 {
-    size_t  mchunk_data_size;
-    size_t  total_mchunks;
-
-    if (allocation_size <= MCHUNK_TINY_MAX_DATA_SIZE)
-    {
-        mchunk_data_size = MCHUNK_TINY_MAX_DATA_SIZE;
-        total_mchunks = MIN_MCHUNKS_PER_BOUND_MREGION;
-    }
-    else if(allocation_size <= MCHUNK_SMALL_MAX_DATA_SIZE)
-    {
-        mchunk_data_size = MCHUNK_SMALL_MAX_DATA_SIZE;
-        total_mchunks = MIN_MCHUNKS_PER_BOUND_MREGION;
-    }
+    if (allocation_size <= TINY_MCHUNK_MAX_ALLOCATION_SIZE)
+        return TINY_MREGION_SIZE;
+    else if (allocation_size <= SMALL_MCHUNK_MAX_ALLOCATION_SIZE)
+        return SMALL_MREGION_SIZE;
     else
-    {
-        mchunk_data_size = allocation_size;
-        total_mchunks = 1;
-    }
-
-    return ALIGN_UP(MREGION_HEADER_PADDED_SIZE + (total_mchunks * mchunk_data_size), PAGE_SIZE);
+        return LARGE_MREGION_SIZE(allocation_size);
 }

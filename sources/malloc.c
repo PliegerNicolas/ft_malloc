@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   malloc.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-28 15:02:35 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-28 15:02:35 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-27 21:28:23 by nplieger          #+#    #+#             */
+/*   Updated: 2025-04-27 21:28:23 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,16 @@
 
 void    *malloc(size_t size)
 {
-    mchunk_t    *free_mchunk;
+    mchunk_t    **best_fit_free_mchunk;
     mchunk_t    *used_mchunk;
 
     if (init_gmarena_once() == STATUS_FAILURE)
         return NULL;
 
-    free_mchunk = find_marena_best_fit_free_mchunk(&gmarena, size);
-    if (free_mchunk == STATUS_FAILURE)
+    if ((best_fit_free_mchunk = get_or_create_best_fit_free_mchunk(&gmarena, size)) == STATUS_FAILURE)
         return NULL;
-    used_mchunk = use_mchunk(free_mchunk, size);
-    if (used_mchunk == STATUS_FAILURE)
+
+    if ((used_mchunk = use_mchunk(best_fit_free_mchunk, size)) == STATUS_FAILURE)
         return NULL;
 
     return GET_MCHUNK_DATA_PTR(used_mchunk);

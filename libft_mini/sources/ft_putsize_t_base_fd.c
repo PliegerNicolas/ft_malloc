@@ -1,30 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putptr_fd.c                                     :+:      :+:    :+:   */
+/*   ft_putsize_t_fd.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:29:58 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:29:58 by nplieger         ###   ########.fr       */
+/*   Created: 2025-04-27 21:30:03 by nplieger          #+#    #+#             */
+/*   Updated: 2025-04-27 21:30:03 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_mini.h"
 
-size_t  ft_putptr_fd(void *ptr, int fd)
+size_t	ft_putsize_t_base_fd(size_t n, const char *base, size_t base_len, int fd)
 {
-    uintptr_t   addr;
-    size_t      count;
+	if (base_len < 2)
+		return 0;
 
-    if (!ptr)
-        return ft_putstr_fd("(nil)", fd);
-
-    addr = (uintptr_t)ptr;
-    count = ft_putstr_fd("0x", fd);
-
-    if (addr == 0)
-        return count + ft_putchar_fd('0', fd);
-
-    return count + ft_putbase_fd(addr, "0123456789abcdef", 16, fd);
-};
+	return ft_putbase_fd(n, base, base_len, fd);
+}

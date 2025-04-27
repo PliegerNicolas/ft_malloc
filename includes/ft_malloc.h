@@ -70,6 +70,8 @@ void        show_alloc_mem();
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
+status_t    init_gmarena_once();
+mchunk_t    **get_or_create_best_fit_free_mchunk(marena_t *marena, size_t allocation_size);
 # pragma GCC visibility pop
 
 #endif // FT_MALLOC_H

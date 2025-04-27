@@ -23,27 +23,44 @@
 /* For size_t. */
 # include <stddef.h>
 
+/* For bool. */
+# include <stdbool.h>
+
 /* *************************************************************************** */
 /* *                                  MODELS                                 * */
 /* *************************************************************************** */
+
+typedef enum e_usage_state
+{
+    FREE,
+    USED,
+} usage_state_t;
 
 /**
  * @brief Represents a memory chunk within an `mregion`.
  * This structure acts as a header, placed directly before the user-allocatable memory.
  * 
- * @param prev_allocation_size Size of the previous `mchunk` allocated data. in memory (metadata, padding and user-allocatable memory included). 0 If none.
- * @param allocation_size Size of the current `mchunk` in memory (metadata, padding and user-allocatable memory included).
+ * @param prev_allocation_size Size of the previous `mchunk` allocated data. in memory. 0 If none.
+ * When manipulating this, do not forget about padding/alignment.
+ * @param allocation_size Size of the current `mchunk` in memory.
+ * When manipulating this, do not forget about padding/alignment.
  * @param next_free_mchunk Used only when chunk is considered `FREE`. Else uninitalized or set to 0.
  * @param prev_free_mchunk Used only when chunk is considered `FREE`. Else uninitalized or set to 0.
  */
 typedef struct s_mchunk
 {
+    usage_state_t   state;
+
     size_t          prev_allocation_size;
     size_t          allocation_size;
 
     struct s_mchunk *next_free_mchunk;
     struct s_mchunk *prev_free_mchunk;
 } mchunk_t;
+
+/** @brief A pointer to function for finding the best `mchunk_t` from a `mregion_t`.
+ * @note Useful to specify different search strategies. */
+typedef mchunk_t **(*find_mregion_best_mchunk_fn_t)(mregion_t **mregion, size_t allocation_size);
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
@@ -52,10 +69,13 @@ typedef struct s_mchunk
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-mchunk_t    *find_mbin_best_fit_free_mchunk(mchunk_t **mbin, size_t allocation_size);
-mchunk_t    *use_mchunk(mchunk_t *free_mchunk, size_t allocation_size);
+size_t      show_alloc_mem_mchunks(mregion_t *mregion);
 
-size_t      map_allocation_size_to_mchunk_size(size_t allocation_size);
+mchunk_t    **find_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size);
+mchunk_t    *use_mchunk(mchunk_t **mchunk, size_t allocation_size);
+
+/* Mappers */
+
 # pragma GCC visibility pop
 
 #endif // MCHUNK_H

@@ -3,10 +3,10 @@
 #*                                                        :::      ::::::::   *#
 #*   Makefile                                           :+:      :+:    :+:   *#
 #*                                                    +:+ +:+         +:+     *#
-#*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        *#
+#*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        *#
 #*                                                +#+#+#+#+#+   +#+           *#
-#*   Created: 2025-03-29 15:36:36 by nicolas           #+#    #+#             *#
-#*   Updated: 2025-03-29 15:36:36 by nicolas          ###   ########.fr       *#
+#*   Created: 2025-04-27 21:29:03 by nplieger          #+#    #+#             *#
+#*   Updated: 2025-04-27 21:29:03 by nplieger         ###   ########.fr       *#
 #*                                                                            *#
 #* ************************************************************************** *#
 
@@ -63,8 +63,10 @@ SOURCES_FILE_NAMES				:=	ft_strlen \
 									ft_putchar_fd \
 									ft_putstr_fd \
 									ft_putendl_fd \
+									ft_putint_fd \
 									ft_putint_base_fd \
 									ft_putsize_t_fd \
+									ft_putsize_t_base_fd \
 									ft_putbase_fd \
 									ft_putptr_fd \
 									ft_memset \

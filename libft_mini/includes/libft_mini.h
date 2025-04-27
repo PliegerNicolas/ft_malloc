@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft_mini.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-03-29 18:20:27 by nicolas           #+#    #+#             */
-/*   Updated: 2025-03-29 18:20:27 by nicolas          ###   ########.fr       */
+/*   Created: 2025-04-27 21:30:26 by nplieger          #+#    #+#             */
+/*   Updated: 2025-04-27 21:30:26 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@
 size_t		ft_putchar_fd(char c, int fd);
 size_t		ft_putstr_fd(char *s, int fd);
 size_t		ft_putendl_fd(char *s, int fd);
-// size_t      ft_putint_fd(int n, int fd);
+size_t      ft_putint_fd(int n, int fd);
+size_t      ft_putsize_t_fd(size_t n, int fd);
 size_t      ft_putint_base_fd(int n, const char *base, int base_len, int fd);
 size_t      ft_putsize_t_base_fd(size_t n, const char *base, size_t base_len, int fd);
 size_t      ft_putbase_fd(size_t n, const char *base, size_t base_len, int fd);
