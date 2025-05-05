@@ -1,21 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_free.c                                        :+:      :+:    :+:   */
+/*   get_max_allocation_size.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:42 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:42 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-05 12:03:16 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-05 12:03:16 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "test_ft_malloc.h"
+#include "ft_malloc.h"
 
-void    test_free(void *ptrs[PTRS])
+size_t  get_max_allocation_size(size_t allocation_size)
 {
-    put_title(YELLOW, "૰ test_free()", STDOUT_FILENO);
+    static size_t   max_allocation_size;
 
-    for (size_t i = 0; i < PTRS; i++)
-        free(ptrs[i]);
+    if (allocation_size > max_allocation_size)
+        max_allocation_size = allocation_size;
+
+    return max_allocation_size;
 }

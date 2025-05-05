@@ -66,6 +66,10 @@
 # define BOLD_BG_CYAN   "\033[1;46m"
 # define BOLD_BG_WHITE  "\033[1;47m"
 
+
+
+# define PTRS 8
+
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
@@ -75,10 +79,10 @@ void    put_size_t_macro(char *title, size_t value, char *details, int fd);
 void    put_ptr_macro(char *title, void *ptr, char *details, int fd);
 void    put_macro_with_relative_ptr_addresses(char *title, void *src_ptr, void *dest_ptr, char *details, int fd);
 
-void    test_malloc();
-void    test_realloc();
-void    test_free();
 void    test_macros();
+void    test_malloc(void *ptrs[PTRS]);
+void    test_realloc(void *ptrs[PTRS]);
+void    test_free(void *ptrs[PTRS]);
 void    test_show_alloc_mem();
 
 #endif

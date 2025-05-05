@@ -12,13 +12,18 @@
 
 #include "test_ft_malloc.h"
 
-void    test_malloc()
+void    test_malloc(void *ptrs[PTRS])
 {
-    int *ptr1, *ptr2;
+    put_title(YELLOW, "૰ test_malloc()", STDOUT_FILENO);
 
-    ptr1 = malloc(42);
-    free(ptr1);
+    ptrs[0] = malloc(0);
+    ptrs[1] = malloc(1);
+    ptrs[2] = malloc(42);
 
-    ptr2 = malloc(20000);
-    free(ptr2);
+    ptrs[3] = malloc(124);
+    ptrs[4] = malloc(442);
+
+    ptrs[5] = malloc(600);
+    ptrs[6] = malloc(1024);
+    ptrs[7] = malloc(2000);
 }

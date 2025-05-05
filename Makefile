@@ -65,11 +65,13 @@ HEADERS_FILE_EXTENSION			:=	.h
 INTERNAL_SOURCE_FILE_NAMES	:=	\
 								gmarena \
 								get_or_create_best_fit_free_mchunk \
+								get_max_mregion_size \
+								get_max_allocation_size \
 								\
 								marena/init_marena_once \
 								marena/init_marena \
-								marena/show_alloc_mem_marena \
 								marena/get_or_create_marena_best_fit_mregion_head \
+								marena/show_alloc_mem_marena \
 								marena/map/map_allocation_size_to_marena_mregion_head \
 								\
 								mregion/mmap_mregion \
@@ -84,6 +86,9 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								\
 								mchunk/find_best_fit_free_mchunk \
 								mchunk/use_mchunk \
+								mchunk/free_mchunk \
+								mchunk/mchunk_find_corresponding_mregion \
+								mchunk/mchunk_has_aberrant_values \
 								mchunk/show_alloc_mem_mchunks
 
 PUBLIC_SOURCES_FILE_NAMES	:=	\

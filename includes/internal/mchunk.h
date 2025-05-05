@@ -34,6 +34,7 @@ typedef enum e_usage_state
 {
     FREE,
     USED,
+    NUM_USAGE_STATES,
 } usage_state_t;
 
 /**
@@ -74,6 +75,10 @@ size_t      show_alloc_mem_mchunks(mregion_t *mregion);
 mchunk_t    **find_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size);
 mchunk_t    *use_mchunk(mchunk_t **mchunk, size_t allocation_size);
 
+bool        mchunk_has_aberrant_values(mchunk_t *mchunk);
+mregion_t   *mchunk_find_corresponding_mregion(marena_t *marena, mchunk_t *mchunk);
+
+status_t    free_mchunk(mregion_t *mregion, mchunk_t *mchunk);
 /* Mappers */
 
 # pragma GCC visibility pop

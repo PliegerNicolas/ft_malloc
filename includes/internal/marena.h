@@ -50,8 +50,8 @@ status_t    init_marena(marena_t *marena);
 mregion_t   **get_or_create_marena_fit_mregion_head(marena_t *marena, size_t allocation_size);
 
 size_t      show_alloc_mem_marena(marena_t *marena);
-/* Mappers */
 
+/* Mappers */
 mregion_t   **map_allocation_size_to_marena_mregion_head(marena_t *marena, size_t allocation_size);
 # pragma GCC visibility pop
 

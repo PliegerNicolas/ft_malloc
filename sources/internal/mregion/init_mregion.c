@@ -36,6 +36,7 @@ static void init_mregion_mbin(mregion_t *mregion, size_t mregion_size)
     };
 
     mregion->mbin = mbin;
+    (void)get_max_allocation_size(mbin->allocation_size);
 }
 
 /* *************************************************************************** */

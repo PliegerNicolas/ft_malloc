@@ -44,6 +44,9 @@
 /* For all functions available in the library. */
 # include <pthread.h>
 
+/** For errno, ENOMEM... */
+# include <errno.h>
+
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
@@ -71,6 +74,9 @@ void        show_alloc_mem();
 
 # pragma GCC visibility push(hidden)
 status_t    init_gmarena_once();
+size_t      get_max_mregion_size();
+size_t      get_max_allocation_size(size_t allocation_size);
+
 mchunk_t    **get_or_create_best_fit_free_mchunk(marena_t *marena, size_t allocation_size);
 # pragma GCC visibility pop
 

@@ -92,6 +92,10 @@ typedef void*   status_t;
 /** @brief General use-case memory alignment boundary in bytes. */
 # define ALIGNMENT_BOUNDARY (size_t)(ALIGN_UP(DESIRED_ALIGNMENT_BOUNDARY, 2))
 
+/** @brief Checks if a value or pointer is aligned given an alignment boundary. */
+# define IS_ALIGNED(val, align) ((bool)(((uintptr_t)(val) % (uintptr_t)(align)) == 0))
+
+
 # ifndef PAGE_SIZE
 #  if defined(__linux__)
 /** @brief System's page size in bytes. */
@@ -137,6 +141,8 @@ typedef void*   status_t;
 
 /** @brief Calculates pointer to the data referenced by the `mchunk_t`. */
 # define GET_MCHUNK_DATA_PTR(mchunk_ptr) ((void*)((unsigned char*)(mchunk_ptr) + MCHUNK_HEADER_SIZE))
+/** @brief Given a `void` pointer, calculates the address of the supposed affiliated `mchunk_t`. */
+# define GET_MCHUNK_PTR(data_ptr) ((mchunk_t *)((unsigned char *)data_ptr - MCHUNK_HEADER_SIZE))
 
 /** @brief Maximum allocation_size per TINY `mchunk_t`. */
 # define TINY_MCHUNK_MAX_ALLOCATION_SIZE (size_t)ALIGN_UP(DESIRED_TINY_MCHUNK_MAX_ALLOCATION_SIZE, ALIGNMENT_BOUNDARY)

@@ -88,12 +88,16 @@ static void test_macros_mchunk()
         .prev_free_mchunk = NULL,
     };
 
+    void    *mchunk_data_ptr = GET_MCHUNK_DATA_PTR(&mchunk);
+
     ft_putchar_fd('\n', STDOUT_FILENO);
-    put_macro_with_relative_ptr_addresses("GET_MCHUNK_DATA_PTR(mchunk_ptr)", &mchunk, GET_MCHUNK_DATA_PTR(&mchunk), "expect => +0x30 offset (48 bytes)", STDOUT_FILENO);
+    put_macro_with_relative_ptr_addresses("GET_MCHUNK_DATA_PTR(mchunk_ptr)", &mchunk, mchunk_data_ptr, "expect => +0x30 offset (48 bytes)", STDOUT_FILENO);
 
     ft_putchar_fd('\n', STDOUT_FILENO);
     put_macro_with_relative_ptr_addresses("GET_NEXT_MCHUNK(mchunk_ptr)", &mchunk, GET_NEXT_MCHUNK(&mchunk), "expect => +0x60 offset (96 bytes)", STDOUT_FILENO);
     put_macro_with_relative_ptr_addresses("GET_PREV_MCHUNK(mchunk_ptr)", &mchunk, GET_PREV_MCHUNK(&mchunk), "expect => -0x30 offset (-48 bytes)", STDOUT_FILENO);
+
+    put_macro_with_relative_ptr_addresses("GET_MCHUNK_PTR(mchunk_data_ptr)", mchunk_data_ptr, GET_MCHUNK_PTR(mchunk_data_ptr), "expect => -0x30 offset (-48 bytes)", STDOUT_FILENO);
 }
 
 void    test_macros()

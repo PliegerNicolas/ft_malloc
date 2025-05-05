@@ -44,36 +44,36 @@ static mchunk_t **find_mbin_mchunk_first_fit(mregion_t **mregion, size_t allocat
     return NULL;
 }
 
-static mchunk_t **find_mbin_mchunk_first_good_enough_fit(mregion_t **mregion, size_t allocation_size)
-{
-    mchunk_t    **curr_mchunk;
-    size_t      alloc_size;
-    size_t      desired_free_mchunk_size;
-    size_t      good_enough_size_threshold;
+// static mchunk_t **find_mbin_mchunk_first_good_enough_fit(mregion_t **mregion, size_t allocation_size)
+// {
+//     mchunk_t    **curr_mchunk;
+//     size_t      alloc_size;
+//     size_t      desired_free_mchunk_size;
+//     size_t      good_enough_size_threshold;
 
-    if (!mregion || !*mregion)
-        return NULL;
+//     if (!mregion || !*mregion)
+//         return NULL;
 
-    desired_free_mchunk_size = GET_MCHUNK_SIZE(allocation_size);
-    good_enough_size_threshold = desired_free_mchunk_size * 1.15;
+//     desired_free_mchunk_size = GET_MCHUNK_SIZE(allocation_size);
+//     good_enough_size_threshold = desired_free_mchunk_size * 1.15;
 
-    curr_mchunk = &(*mregion)->mbin;
-    while (*curr_mchunk)
-    {
-        alloc_size = (*curr_mchunk)->allocation_size;
+//     curr_mchunk = &(*mregion)->mbin;
+//     while (*curr_mchunk)
+//     {
+//         alloc_size = (*curr_mchunk)->allocation_size;
 
-        if (alloc_size == allocation_size)
-            return curr_mchunk;
+//         if (alloc_size == allocation_size)
+//             return curr_mchunk;
 
-        if (alloc_size >= desired_free_mchunk_size &&
-            alloc_size <= good_enough_size_threshold)
-            return curr_mchunk;
+//         if (alloc_size >= desired_free_mchunk_size &&
+//             alloc_size <= good_enough_size_threshold)
+//             return curr_mchunk;
 
-        curr_mchunk = &(*curr_mchunk)->next_free_mchunk;
-    }
+//         curr_mchunk = &(*curr_mchunk)->next_free_mchunk;
+//     }
 
-    return NULL;
-}
+//     return NULL;
+// }
 
 static mchunk_t **find_mbin_mchunk_best_fit(mregion_t **mregion, size_t allocation_size)
 {
@@ -119,8 +119,8 @@ mchunk_t    **find_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_s
 
     if (allocation_size <= TINY_MCHUNK_MAX_ALLOCATION_SIZE)
         fn = find_mbin_mchunk_first_fit;
-    else if (allocation_size <= SMALL_MCHUNK_MAX_ALLOCATION_SIZE)
-        fn = find_mbin_mchunk_first_good_enough_fit;
+    // else if (allocation_size <= SMALL_MCHUNK_MAX_ALLOCATION_SIZE)
+    //     fn = find_mbin_mchunk_first_good_enough_fit;
     else
         fn = find_mbin_mchunk_best_fit;
 

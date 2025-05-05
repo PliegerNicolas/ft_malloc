@@ -1,21 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test_free.c                                        :+:      :+:    :+:   */
+/*   get_max_mregion_size.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:42 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:42 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-05 12:06:06 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-05 12:06:06 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "test_ft_malloc.h"
+#include "ft_malloc.h"
 
-void    test_free(void *ptrs[PTRS])
+size_t  get_max_mregion_size()
 {
-    put_title(YELLOW, "૰ test_free()", STDOUT_FILENO);
-
-    for (size_t i = 0; i < PTRS; i++)
-        free(ptrs[i]);
+    return MREGION_HEADER_SIZE + get_max_allocation_size(0);
 }
