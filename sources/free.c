@@ -14,7 +14,7 @@
 
 void    free(void *ptr)
 {
-    mregion_t   *mregion;
+    mregion_t   **mregion;
     mchunk_t    *mchunk;
 
     if (!ptr)
@@ -30,8 +30,10 @@ void    free(void *ptr)
     if ((mregion = mchunk_find_corresponding_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
         return;
 
-    if (free_mchunk(mregion, mchunk) == STATUS_FAILURE)
+    if (free_mchunk(*mregion, mchunk) == STATUS_FAILURE)
         return;
+    (*mregion)->used_mchunks -= 1;
 
-    // Coalesce if possible ? Maybe inside free_mchunk() ?
+    if (free_mregion(mregion) == STATUS_FAILURE)
+        return;
 }

@@ -48,7 +48,9 @@ typedef enum e_bound_mregion_type
  * @param size Size of the `mregion_t` (metadata included). In other words, the size requested to mmap().
  * @param mbin A collection of free `mchunk`s in the current `mregion_t`. For quicker lookups.
  * We do not keep the list of used `mchunk`s. Those pointers are in the hands of the user and will be returned to use later on.
+ * @param used_mchunks Total used `mchunk_t`s.
  * @param next Next `mregion_t` in the linked list.
+ * @param prev Previous `mregion_t` in the linked list.
  * 
  * @note The pointer returned by `mmap()` should be casted into a `mregion_t` struct.
 */
@@ -56,7 +58,10 @@ typedef struct s_mregion
 {
     size_t              size;
     mchunk_t            *mbin;
+    size_t              used_mchunks;
+
     struct s_mregion    *next;
+    struct s_mregion    *prev;
 } mregion_t;
 
 /* *************************************************************************** */
@@ -75,6 +80,7 @@ void        append_mregion(mregion_t **mregion, mregion_t *new_mregion);
 void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
 
 mchunk_t    **get_or_create_mregion_best_fit_free_mchunk(mregion_t **mregion_head, size_t allocation_size);
+status_t    free_mregion(mregion_t **mregion);
 
 size_t      show_alloc_mem_mregion(mregion_t *mregion, const char *mregion_name);
 /* Mappers */

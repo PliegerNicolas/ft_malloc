@@ -50,7 +50,7 @@ status_t    init_mregion(mregion_t **mregion, size_t allocation_size)
     if (!mregion || *mregion)
         return STATUS_FAILURE;
 
-    if (allocation_size == 0 || allocation_size < MREGION_HEADER_SIZE)
+    if (allocation_size == 0)
         return (*mregion = NULL), STATUS_SUCCESS;
 
     mregion_size = map_allocation_size_to_mregion_size(allocation_size);
@@ -62,7 +62,9 @@ status_t    init_mregion(mregion_t **mregion, size_t allocation_size)
     **mregion = (mregion_t) {
         .size = mregion_size,
         .mbin = NULL,
+        .used_mchunks = 0,
         .next = NULL,
+        .prev = NULL,
     };
 
     init_mregion_mbin(*mregion, mregion_size);

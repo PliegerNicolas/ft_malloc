@@ -14,17 +14,22 @@
 
 void    *malloc(size_t size)
 {
-    mchunk_t    **best_fit_free_mchunk;
+    mregion_t   **mregion;
+    mchunk_t    **free_mchunk;
     mchunk_t    *used_mchunk;
 
     if (init_gmarena_once() == STATUS_FAILURE)
         return NULL;
 
-    if ((best_fit_free_mchunk = get_or_create_best_fit_free_mchunk(&gmarena, size)) == STATUS_FAILURE)
+    if ((free_mchunk = get_or_create_best_fit_free_mchunk(&gmarena, size)) == STATUS_FAILURE)
         return NULL;
 
-    if ((used_mchunk = use_mchunk(best_fit_free_mchunk, size)) == STATUS_FAILURE)
+    if ((used_mchunk = use_mchunk(free_mchunk, size)) == STATUS_FAILURE)
         return NULL;
+
+    if ((mregion = mchunk_find_corresponding_mregion(&gmarena, used_mchunk)) == STATUS_FAILURE)
+        return NULL;
+    (*mregion)->used_mchunks += 1;
 
     return GET_MCHUNK_DATA_PTR(used_mchunk);
 }

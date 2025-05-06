@@ -25,6 +25,7 @@ void    append_mregion(mregion_t **mregion, mregion_t *new_mregion)
         while (current_mregion->next)
             current_mregion = current_mregion->next;
         current_mregion->next = new_mregion;
+        new_mregion->prev = current_mregion;
     }
     else
         *mregion = new_mregion;

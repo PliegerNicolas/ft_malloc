@@ -14,17 +14,15 @@
 
 void    prepend_mregion(mregion_t **mregion, mregion_t *new_mregion)
 {
-    mregion_t   *current_mregion;
-
     if (!mregion)
         return;
 
     if (*mregion != NULL)
     {
-        current_mregion = *mregion;
-        while (current_mregion->next)
-            current_mregion = current_mregion->next;
-        current_mregion->next = new_mregion;
+        new_mregion->next = *mregion;
+        new_mregion->prev = NULL;
+        (*mregion)->prev = new_mregion;
+        *mregion = new_mregion;
     }
     else
         *mregion = new_mregion;

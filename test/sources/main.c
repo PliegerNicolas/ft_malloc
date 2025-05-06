@@ -17,5 +17,5 @@ int main() {
     test_malloc();
     test_realloc();
 
-    return (0);
+    return 0;
 }
