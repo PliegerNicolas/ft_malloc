@@ -12,7 +12,7 @@
 
 #include "test_ft_malloc.h"
 
-void    put_title(char *color, char *title, int fd)
+void    put_colored(char *color, char *title, int fd)
 {
     ft_putstr_fd(color, fd);
     ft_putstr_fd(title, fd);

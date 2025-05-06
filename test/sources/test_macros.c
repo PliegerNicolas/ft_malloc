@@ -14,7 +14,7 @@
 
 static void test_macros_system()
 {
-    put_title(CYAN, "System macros", STDOUT_FILENO);
+    put_colored(CYAN, "॰ system macros", STDOUT_FILENO);
 
     put_size_t_macro("DESIRED_ALIGNMENT_BOUNDARY", DESIRED_ALIGNMENT_BOUNDARY, "expect => 16", STDOUT_FILENO);
     put_size_t_macro("ALIGNMENT_BOUNDARY", ALIGNMENT_BOUNDARY, "expect => 16", STDOUT_FILENO);
@@ -37,7 +37,7 @@ static void test_macros_system()
 
 static void test_macros_mregion()
 {
-    put_title(CYAN, "Mregion macros", STDOUT_FILENO);
+    put_colored(CYAN, "॰ mregion macros", STDOUT_FILENO);
 
     put_size_t_macro("DESIRED_MCHUNKS_PER_BOUND_MREGION", DESIRED_MCHUNKS_PER_BOUND_MREGION, "expect => 124", STDOUT_FILENO);
     put_size_t_macro("DESIRED_MCHUNKS_PER_UNBOUND_MREGION", DESIRED_MCHUNKS_PER_UNBOUND_MREGION, "expect => 1", STDOUT_FILENO);
@@ -68,7 +68,7 @@ static void test_macros_mregion()
 
 static void test_macros_mchunk()
 {
-    put_title(CYAN, "Mchunk macros", STDOUT_FILENO);
+    put_colored(CYAN, "॰ mchunk macros", STDOUT_FILENO);
 
     put_size_t_macro("MCHUNK_HEADER_SIZE", MCHUNK_HEADER_SIZE, "expect => 48", STDOUT_FILENO);
 
@@ -102,7 +102,7 @@ static void test_macros_mchunk()
 
 void    test_macros()
 {
-    put_title(YELLOW, "॰ test_macros()", STDOUT_FILENO);
+    put_colored(YELLOW, "TEST_MACROS", STDOUT_FILENO);
 
     test_macros_system();
     test_macros_mregion();

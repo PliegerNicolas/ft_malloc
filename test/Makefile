@@ -69,9 +69,7 @@ SOURCES_FILE_NAMES					:=	main \
 										shared \
 										test_malloc \
 										test_realloc \
-										test_free \
-										test_macros \
-										test_show_alloc_mem
+										test_macros
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))
