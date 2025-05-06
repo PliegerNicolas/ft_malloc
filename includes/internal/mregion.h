@@ -76,11 +76,12 @@ void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
 
 mchunk_t    **get_or_create_mregion_best_fit_free_mchunk(mregion_t **mregion_head, size_t allocation_size);
 
-size_t      show_alloc_mem_mregion(mregion_t *mregion);
+size_t      show_alloc_mem_mregion(mregion_t *mregion, const char *mregion_name);
 /* Mappers */
 
 size_t      map_allocation_size_to_mregion_size(size_t allocation_size);
 size_t      map_mregion_bound_type_to_max_allocation_size(bound_mregion_type_t bound_mregion_type);
+const char  *map_mregion_bound_type_to_name(bound_mregion_type_t mregion_type);
 # pragma GCC visibility pop
 
 #endif // MREGION_H

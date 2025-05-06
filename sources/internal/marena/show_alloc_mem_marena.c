@@ -25,7 +25,7 @@ static size_t   show_alloc_mem_marena_bound_mregions(marena_t *marena)
 
     total_allocated_bytes = 0;
     for (bound_mregion_type_t type = 0; type < NUM_BOUND_MREGION_TYPES; type++)
-        total_allocated_bytes += show_alloc_mem_mregion(marena->bound_mregions[type]);
+        total_allocated_bytes += show_alloc_mem_mregion(marena->bound_mregions[type], map_mregion_bound_type_to_name(type));
 
     return total_allocated_bytes;
 }
@@ -35,7 +35,7 @@ static size_t   show_alloc_mem_marena_unbound_mregion(marena_t *marena)
     if (!marena)
         return 0;
 
-    return show_alloc_mem_mregion(marena->unbound_mregion);
+    return show_alloc_mem_mregion(marena->unbound_mregion, "LARGE");
 }
 
 /* *************************************************************************** */

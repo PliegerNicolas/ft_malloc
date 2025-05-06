@@ -83,6 +83,7 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mregion/show_alloc_mem_mregion \
 								mregion/map/map_allocation_size_to_mregion_size \
 								mregion/map/map_mregion_bound_type_to_max_allocation_size \
+								mregion/map/map_mregion_bound_type_to_name \
 								\
 								mchunk/find_best_fit_free_mchunk \
 								mchunk/use_mchunk \
