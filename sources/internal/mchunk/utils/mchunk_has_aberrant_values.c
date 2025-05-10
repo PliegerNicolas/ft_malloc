@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-05 12:29:21 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-05 12:29:21 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:49:04 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:49:04 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,22 @@
 
 bool    mchunk_has_aberrant_values(mchunk_t *mchunk)
 {
-    size_t  max_allocation_size;
+    size_t  max_allocation_size = get_max_allocation_size(0);
 
-    max_allocation_size = get_max_allocation_size(0);
+    if (!mchunk)
+        return false;
 
     if (!IS_ALIGNED(mchunk, ALIGNMENT_BOUNDARY))
-        return true;
+        return printerr("mchunk_has_aberrant_values()", "misaligned mchunk detected", mchunk), true;
 
-    if (mchunk->allocation_size > max_allocation_size)
-        return true;
+    // TODO: Handle double free.
+    // return printerr("mchunk_has_aberrant_values()", "double free or corrupted mchunk", mchunk), true;
 
-    if (mchunk->prev_allocation_size > max_allocation_size)
-        return true;
+    if (mchunk->allocation_size > max_allocation_size || mchunk->prev_allocation_size > max_allocation_size)
+        return printerr("mchunk_has_aberrant_values()", "corrupted mchunk", mchunk), true;
 
     if (!(mchunk->state >= 0 && mchunk->state < NUM_USAGE_STATES))
-        return true;
+        return printerr("mchunk_has_aberrant_values()", "corrupted mchunk", mchunk), true;
 
     return false;
 }

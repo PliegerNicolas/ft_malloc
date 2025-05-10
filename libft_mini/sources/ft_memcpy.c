@@ -1,29 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   prepend_mregion.c                                  :+:      :+:    :+:   */
+/*   ft_memcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:27:26 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:27:26 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-10 00:02:15 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-10 00:02:15 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_malloc.h"
+#include "libft_mini.h"
 
-void    prepend_mregion(mregion_t **mregion, mregion_t *new_mregion)
+void    *ft_memcpy(void *dest, const void *src, size_t n)
 {
-    if (!mregion)
-        return;
+	size_t	i;
 
-    if (*mregion != NULL)
-    {
-        new_mregion->next = *mregion;
-        new_mregion->prev = NULL;
-        (*mregion)->prev = new_mregion;
-        *mregion = new_mregion;
-    }
-    else
-        *mregion = new_mregion;
+	if (!dest && !src)
+		return NULL;
+
+	i = 0;
+	while (i < n)
+	{
+		*(unsigned char *)(dest + i) = *(unsigned char *)(src + i);
+		i++;
+	};
+
+	return dest;
 }

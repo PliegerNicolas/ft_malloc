@@ -15,6 +15,7 @@
 void    test_malloc()
 {
     void *ptrs[8];
+
     ft_bzero(ptrs, sizeof(ptrs));
 
     put_colored(YELLOW, "TEST MALLOC", STDOUT_FILENO);
@@ -36,7 +37,7 @@ void    test_malloc()
     put_colored(CYAN, "॰ show allocated memory after allocation", STDOUT_FILENO);
     show_alloc_mem();
 
-    for (size_t i = 0; i < PTRS; i++)
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
         free(ptrs[i]);
 
     put_colored(CYAN, "॰ show allocated memory after free", STDOUT_FILENO);

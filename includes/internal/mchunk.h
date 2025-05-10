@@ -59,10 +59,6 @@ typedef struct s_mchunk
     struct s_mchunk *prev_free_mchunk;
 } mchunk_t;
 
-/** @brief A pointer to function for finding the best `mchunk_t` from a `mregion_t`.
- * @note Useful to specify different search strategies. */
-typedef mchunk_t **(*find_mregion_best_mchunk_fn_t)(mregion_t **mregion, size_t allocation_size);
-
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
@@ -70,17 +66,24 @@ typedef mchunk_t **(*find_mregion_best_mchunk_fn_t)(mregion_t **mregion, size_t 
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-size_t      show_alloc_mem_mchunks(mregion_t *mregion);
+/* . */
+mchunk_t    *select_best_fit_mbin_mchunk(mchunk_t *mbin, size_t allocation_size);
 
-mchunk_t    **find_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size);
-mchunk_t    *use_mchunk(mchunk_t **mchunk, size_t allocation_size);
+status_t    insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *free_mchunk);
+mchunk_t    *migrate_mchunk_to_new_mregion(marena_t *marena, mchunk_t *original_mchunk, size_t reallocation_size);
 
+mchunk_t    *use_mchunk(mregion_t *mregion, mchunk_t *free_mchunk, size_t allocation_size);
+mchunk_t    *free_mchunk(mregion_t *mregion, mchunk_t *used_mchunk);
+
+mchunk_t    *partition_mchunk(mchunk_t **original_mchunk, size_t allocation_size);
+mchunk_t    *grow_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size);
+mchunk_t    *shrink_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size);
+/* coalesce */
+void        try_coalesce_with_next_free_mchunk(mregion_t *mregion, mchunk_t **mchunk);
+void        try_coalesce_with_neighboring_free_mchunks(mregion_t *mregion, mchunk_t **mchunk);
+bool        try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchunk_t **mchunk, size_t target_size);
+/* utils */
 bool        mchunk_has_aberrant_values(mchunk_t *mchunk);
-mregion_t   **mchunk_find_corresponding_mregion(marena_t *marena, mchunk_t *mchunk);
-
-status_t    free_mchunk(mregion_t *mregion, mchunk_t *mchunk);
-/* Mappers */
-
 # pragma GCC visibility pop
 
 #endif // MCHUNK_H

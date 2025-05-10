@@ -39,7 +39,7 @@ SYM_LINK_NAME		:=	$(NAME)$(LIB_FILE_EXTENSION)
 #* *************************************************************************** *#
 
 ifeq (debug, $(filter debug, $(MAKECMDGOALS)))
-	CFLAGS				+=	-g3
+	CFLAGS				+=	-g3 -D MALLOC_DEBUG=1
 endif
 
 ifeq (optimize, $(filter optimize, $(MAKECMDGOALS)))
@@ -64,34 +64,46 @@ HEADERS_FILE_EXTENSION			:=	.h
 # Files
 INTERNAL_SOURCE_FILE_NAMES	:=	\
 								gmarena \
-								get_or_create_best_fit_free_mchunk \
-								get_max_mregion_size \
-								get_max_allocation_size \
+								alloc_mchunk \
+								realloc_mchunk \
+								free_mchunk_or_mregion \
+								print_marena \
 								\
-								marena/init_marena_once \
 								marena/init_marena \
-								marena/get_or_create_marena_best_fit_mregion_head \
-								marena/show_alloc_mem_marena \
-								marena/map/map_allocation_size_to_marena_mregion_head \
+								marena/init_marena_once \
 								\
-								mregion/mmap_mregion \
 								mregion/init_mregion \
 								mregion/init_mregions \
-								mregion/append_mregion \
-								mregion/prepend_mregion \
-								mregion/get_or_create_mregion_best_fit_free_mchunk \
-								mregion/show_alloc_mem_mregion \
 								mregion/free_mregion \
-								mregion/map/map_allocation_size_to_mregion_size \
-								mregion/map/map_mregion_bound_type_to_max_allocation_size \
-								mregion/map/map_mregion_bound_type_to_name \
+								mregion/get_mregion_by_mchunk \
+								mregion/utils/mmap_mregion \
+								mregion/utils/append_mregion \
+								mregion/utils/prepend_mregion \
+								mregion/utils/is_on_mregion_boundary \
+								mregion/utils/does_mregion_contain_mchunk \
 								\
-								mchunk/find_best_fit_free_mchunk \
 								mchunk/use_mchunk \
 								mchunk/free_mchunk \
-								mchunk/mchunk_find_corresponding_mregion \
-								mchunk/mchunk_has_aberrant_values \
-								mchunk/show_alloc_mem_mchunks
+								mchunk/select_best_fit_mbin_mchunk \
+								mchunk/insert_free_mchunk_in_mbin \
+								mchunk/migrate_mchunk_to_new_mregion \
+								mchunk/partition_mchunk \
+								mchunk/grow_mchunk \
+								mchunk/shrink_mchunk \
+								mchunk/coalesce/try_coalesce_with_next_free_mchunk \
+								mchunk/coalesce/try_coalesce_with_neighboring_free_mchunks \
+								mchunk/coalesce/try_coalesce_until_allocation_size_reached \
+								mchunk/utils/mchunk_has_aberrant_values \
+								\
+								limits/get_max_allocation_size \
+								limits/get_max_mregion_size \
+								\
+								mappings/map_allocation_size_to_marena_mregion_head \
+								mappings/map_mregion_bound_type_to_max_allocation_size \
+								mappings/map_allocation_size_to_mregion_size \
+								mappings/map_mregion_bound_type_to_name \
+								\
+								errors/printerr
 
 PUBLIC_SOURCES_FILE_NAMES	:=	\
 								malloc \

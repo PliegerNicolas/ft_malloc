@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_mregions.c                                    :+:      :+:    :+:   */
+/*   init_mregion.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-01 21:39:07 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-01 21:39:07 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-01 17:30:32 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-01 17:30:32 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ status_t    init_mregions(mregion_t **mregion, size_t allocation_size, size_t mr
     mregion_t   *new_mregion;
 
     if (!mregion)
-        return STATUS_FAILURE;
+        return printerr("init_mregions()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     for (size_t i = 0; i< mregions_count; i++)
     {

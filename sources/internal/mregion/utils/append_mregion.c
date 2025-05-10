@@ -1,26 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_mregion_bound_type_to_max_allocation_size.c    :+:      :+:    :+:   */
+/*   append_mregion.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-02 08:56:28 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-02 08:56:28 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:37:23 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:37:23 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-size_t  map_mregion_bound_type_to_max_allocation_size(bound_mregion_type_t bound_mregion_type)
+void    append_mregion(mregion_t **mregion, mregion_t *new_mregion)
 {
-    switch (bound_mregion_type)
+    mregion_t   *current_mregion;
+
+    if  (!mregion)
+        return;
+
+    if (*mregion != NULL)
     {
-        case TINY_MREGION_TYPE:
-            return TINY_MCHUNK_MAX_ALLOCATION_SIZE;
-        case SMALL_MREGION_TYPE:
-            return SMALL_MCHUNK_MAX_ALLOCATION_SIZE;
-        default:
-            return 0;
+        current_mregion = *mregion;
+        while (current_mregion->next)
+            current_mregion = current_mregion->next;
+        current_mregion->next = new_mregion;
+        new_mregion->prev = current_mregion;
     }
+    else
+        *mregion = new_mregion;
 }

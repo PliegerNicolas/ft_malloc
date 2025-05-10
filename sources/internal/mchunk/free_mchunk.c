@@ -5,88 +5,30 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-05 15:19:25 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-05 15:19:25 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 03:44:54 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 03:44:54 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/* *************************************************************************** */
-/* *                                 STATIC                                  * */
-/* *************************************************************************** */
-
-static void coalesce_free_mchunks(mchunk_t *mchunk, mchunk_t *next_mchunk)
+mchunk_t    *free_mchunk(mregion_t *mregion, mchunk_t *used_mchunk)
 {
-    size_t  merged_allocation_size;
+    mchunk_t    *free_mchunk;
 
-    if (!mchunk || !next_mchunk)
-        return;
+    if (!mregion || !used_mchunk)
+        return printerr("free_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
+    if (!does_mregion_contain_mchunk(mregion, used_mchunk) || used_mchunk->state != USED)
+        return printerr("free_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
 
-    if (mchunk->state != FREE || next_mchunk->state != FREE)
-        return;
+    free_mchunk = used_mchunk;
+    free_mchunk->state = FREE;
+    free_mchunk->allocation_size = ALIGN_UP(free_mchunk->allocation_size, ALIGNMENT_BOUNDARY);
 
-    if (GET_NEXT_MCHUNK(mchunk) != next_mchunk)
-        return;
-    
-    /* Equivalence of:
-    * ALIGN_UP(mchunk->allocation_size, ALIGNMENT_BOUNDARY) + (MCHUNK_HEADER_SIZE + next_mchunk->allocation_size) */
-    merged_allocation_size = GET_MCHUNK_SIZE(mchunk->allocation_size) + next_mchunk->allocation_size;
-    
-    // Relink mchunks.
-    if (next_mchunk->next_free_mchunk)
-    {
-        next_mchunk->next_free_mchunk->prev_free_mchunk = mchunk;
-        next_mchunk->next_free_mchunk->prev_allocation_size = merged_allocation_size;
-    }
-    mchunk->next_free_mchunk = next_mchunk->next_free_mchunk;
-    mchunk->allocation_size = merged_allocation_size;
-        
-}
-
-static status_t insert_mchunk_in_mbin(mregion_t *mregion, mchunk_t *mchunk)
-{
-    mchunk_t    **insertion_pos;
-
-    if (!mregion || !mchunk)
+    if ((insert_free_mchunk_in_mregion_mbin(mregion, free_mchunk)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
-    if (mchunk->state != FREE)
-        return STATUS_FAILURE;
+    try_coalesce_with_neighboring_free_mchunks(mregion, &free_mchunk);
 
-    insertion_pos = &mregion->mbin;
-    while (*insertion_pos && *insertion_pos < mchunk)
-        insertion_pos = &(*insertion_pos)->next_free_mchunk;
-
-    mchunk->prev_free_mchunk = (*insertion_pos)->prev_free_mchunk;
-    if (*insertion_pos)
-        (*insertion_pos)->prev_free_mchunk = mchunk;
-    mchunk->next_free_mchunk = *insertion_pos;
-
-    *insertion_pos = mchunk;
-
-    return STATUS_SUCCESS;
-}
-
-/* *************************************************************************** */
-/* *                                 LINKED                                  * */
-/* *************************************************************************** */
-
-status_t    free_mchunk(mregion_t *mregion, mchunk_t *mchunk)
-{
-    if (!mregion || !mchunk)
-        return STATUS_FAILURE;
-
-    if (mchunk->state != USED)
-        return STATUS_FAILURE;
-
-    mchunk->state = FREE;
-
-    if (insert_mchunk_in_mbin(mregion, mchunk) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-
-    coalesce_free_mchunks(mchunk, mchunk->next_free_mchunk);
-    coalesce_free_mchunks(mchunk->prev_free_mchunk, mchunk);
-
-    return STATUS_SUCCESS;
+    return (mregion->used_mchunks -= 1), free_mchunk;
 }

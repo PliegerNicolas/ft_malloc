@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-01 17:17:34 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-01 17:17:34 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:18:26 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:18:26 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static status_t init_marena_unbound_mregion(marena_t *marena)
 status_t    init_marena(marena_t *marena)
 {
     if (!marena)
-        return STATUS_FAILURE;
+        return printerr("init_marena()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     ft_bzero(marena, sizeof(*marena));
     
@@ -62,5 +62,5 @@ status_t    init_marena(marena_t *marena)
     if (init_marena_unbound_mregion(marena) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
-    return STATUS_SUCCESS;
+    return (marena->initialized = true), STATUS_SUCCESS;
 }

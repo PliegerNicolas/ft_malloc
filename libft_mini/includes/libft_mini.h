@@ -31,8 +31,8 @@
 /* *************************************************************************** */
 
 size_t		ft_putchar_fd(char c, int fd);
-size_t		ft_putstr_fd(char *s, int fd);
-size_t		ft_putendl_fd(char *s, int fd);
+size_t		ft_putstr_fd(const char *s, int fd);
+size_t		ft_putendl_fd(const char *s, int fd);
 size_t      ft_putint_fd(int n, int fd);
 size_t      ft_putsize_t_fd(size_t n, int fd);
 size_t      ft_putint_base_fd(int n, const char *base, int base_len, int fd);
@@ -42,7 +42,8 @@ size_t      ft_putptr_fd(void *ptr, int fd);
 
 size_t		ft_strlen(const char *s);
 
-void        *ft_memset(void *s, int c, size_t n);
 void        ft_bzero(void *s, size_t n);
+void        *ft_memset(void *s, int c, size_t n);
+void        *ft_memcpy(void *dest, const void *src, size_t n);
 
 #endif

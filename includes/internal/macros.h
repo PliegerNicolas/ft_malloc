@@ -43,6 +43,13 @@ typedef void*   status_t;
 /* *                           CONFIGURABLE MACROS                           * */
 /* *************************************************************************** */
 
+/* DEBUG */
+
+/** @brief Adds some extra information on usage. */
+# ifndef MALLOC_DEBUG
+#  define MALLOC_DEBUG 0
+# endif
+
 /* SYSTEM */
 
 /** @brief Desired general use-case memory alignment boundary in bytes.
@@ -153,6 +160,9 @@ typedef void*   status_t;
 # define GET_NEXT_MCHUNK(mchunk_ptr) ((mchunk_t*)((unsigned char*)(mchunk_ptr) + GET_MCHUNK_SIZE(((mchunk_t*)(mchunk_ptr))->allocation_size)))
 /** @returns Calculates pointer to the previous `mchunk_t` in memory. */
 # define GET_PREV_MCHUNK(mchunk_ptr) ((mchunk_t*)((unsigned char*)(mchunk_ptr) - GET_MCHUNK_SIZE(((mchunk_t*)(mchunk_ptr))->prev_allocation_size)))
+
+/** @returns True if the allocation_size fits within a bound mregion (cf. `bound_mregion_type_t`). */
+# define IS_BOUND_MREGION(allocation_size) ((bool)((size_t)allocation_size <= SMALL_MREGION_SIZE))
 
 /* Other */
 

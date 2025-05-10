@@ -1,21 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   gmarena.c                                          :+:      :+:    :+:   */
+/*   get_max_allocation_size.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-11 02:16:54 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-11 02:16:54 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:21:57 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:21:57 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/** @brief Global `marena_t` instance. */
-marena_t    gmarena;
-
-marena_t    *init_gmarena_once()
+size_t  get_max_allocation_size(size_t allocation_size)
 {
-    return init_marena_once(&gmarena);
+    static size_t   max_allocation_size;
+
+    if (allocation_size > max_allocation_size)
+        max_allocation_size = allocation_size;
+
+    return max_allocation_size;
 }

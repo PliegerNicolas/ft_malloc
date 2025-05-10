@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-01 17:30:32 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-01 17:30:32 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-12 20:08:18 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-12 20:08:18 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,16 +47,15 @@ status_t    init_mregion(mregion_t **mregion, size_t allocation_size)
 {
     size_t  mregion_size;
 
-    if (!mregion || *mregion)
-        return STATUS_FAILURE;
+    if (!mregion || *mregion != NULL)
+        return printerr("init_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     if (allocation_size == 0)
         return (*mregion = NULL), STATUS_SUCCESS;
 
     mregion_size = map_allocation_size_to_mregion_size(allocation_size);
 
-    *mregion = mmap_mregion(mregion_size);
-    if (*mregion == STATUS_FAILURE)
+    if ((*mregion = mmap_mregion(mregion_size)) == STATUS_FAILURE)
         return (*mregion = NULL), STATUS_FAILURE;
 
     **mregion = (mregion_t) {

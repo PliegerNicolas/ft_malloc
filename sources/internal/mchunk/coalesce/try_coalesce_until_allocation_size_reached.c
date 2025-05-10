@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_or_create_mregion_best_fit_free_mchunk.c        :+:      :+:    :+:   */
+/*   try_coalesce_until_allocation_size_reached.c       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-04 10:00:23 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-04 10:00:23 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-12 21:28:32 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-12 21:28:32 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,36 +16,37 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static inline bool  has_free_mchunks(mregion_t *mregion)
+static inline bool  has_mchunk_grown(mchunk_t *mchunk, size_t prev_allocation_size)
 {
-    return mregion->mbin != NULL;
+    return mchunk->allocation_size > prev_allocation_size;
+}
+
+static inline bool  has_mchunk_reached_target_size(mchunk_t *mchunk, size_t target_size)
+{
+    return mchunk->allocation_size >= target_size;
 }
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    **get_or_create_mregion_best_fit_free_mchunk(mregion_t **mregion_head, size_t allocation_size)
+
+bool    try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchunk_t **mchunk, size_t target_size)
 {
-    mregion_t   **current_mregion;
-    mchunk_t    **best_fit_free_mchunk;
+    size_t  prev_mchunk_allocation_size;
 
-    if (!mregion_head)
-        return STATUS_FAILURE;
+    if (!mregion || !mchunk || !*mchunk)
+        return false;
 
-    current_mregion = mregion_head;
-    while (*current_mregion)
+    if (has_mchunk_reached_target_size(*mchunk, target_size))
+        return true;
+
+    do
     {
-        if (has_free_mchunks(*current_mregion))
-            if ((best_fit_free_mchunk = find_best_fit_free_mchunk(current_mregion, allocation_size)) != NULL)
-                return best_fit_free_mchunk;
-
-        current_mregion = &(*current_mregion)->next;
+        prev_mchunk_allocation_size = (*mchunk)->allocation_size;
+        try_coalesce_with_next_free_mchunk(mregion, mchunk);
     }
+    while (has_mchunk_grown(*mchunk, prev_mchunk_allocation_size) && has_mchunk_reached_target_size(*mchunk, target_size));
 
-    if (!*current_mregion && init_mregion(current_mregion, allocation_size) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-    best_fit_free_mchunk = &(*current_mregion)->mbin;
-
-    return best_fit_free_mchunk;
+    return true;
 }

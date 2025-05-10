@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:26 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:26 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:24:17 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:24:17 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,24 @@
 
 void    *realloc(void *ptr, size_t size)
 {
-    if (init_gmarena_once() == STATUS_FAILURE)
+    marena_t    *marena;
+    mchunk_t    *mchunk;
+    mchunk_t    *reallocated_mchunk;
+
+    if (!ptr)
+        return malloc(size);
+    else if (size == 0)
+        return free(ptr), NULL;
+
+    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
         return NULL;
 
-    return NULL;
+    mchunk = GET_MCHUNK_PTR(ptr);
+    if (!mchunk || mchunk_has_aberrant_values(mchunk) || mchunk->state != USED)
+        return NULL;
+
+    if ((reallocated_mchunk = realloc_mchunk(&gmarena, mchunk, size)) == STATUS_FAILURE)
+        return NULL;
+
+    return GET_MCHUNK_DATA_PTR(reallocated_mchunk);
 }

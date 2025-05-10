@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   show_alloc_mem_mregion.c                           :+:      :+:    :+:   */
+/*   migrate_mchunk_to_new_mregion.c                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-02 09:32:45 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-02 09:32:45 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-12 20:07:11 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-12 20:07:11 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,32 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static void put_mregion_title(mregion_t *mregion, const char *mregion_name, int fd)
+static void *copy_data_between_mchunks(mchunk_t *dest, mchunk_t *src)
 {
-    ft_putstr_fd((char *)mregion_name, fd);
-    ft_putstr_fd(" : ", fd);
-    ft_putptr_fd(mregion, fd);
-    ft_putchar_fd('\n', fd);
+    size_t  bytes_to_move;
+
+    bytes_to_move = (dest->allocation_size > src->allocation_size) ? (src->allocation_size) : (dest->allocation_size);
+    return ft_memcpy(GET_MCHUNK_DATA_PTR(dest), GET_MCHUNK_DATA_PTR(src), bytes_to_move);
 }
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-size_t  show_alloc_mem_mregion(mregion_t *mregion, const char *mregion_name)
+mchunk_t    *migrate_mchunk_to_new_mregion(marena_t *marena, mchunk_t *original_mchunk, size_t reallocation_size)
 {
-    mregion_t   *current_mregion;
-    size_t      total_allocated_bytes;
-    
-    if (!mregion)
-        return 0;
-    
-    current_mregion = mregion;
-    total_allocated_bytes = 0;
-    while (current_mregion)
-    {
-        put_mregion_title(current_mregion, mregion_name, STDOUT_FILENO);
-        total_allocated_bytes += show_alloc_mem_mchunks(current_mregion);
-        current_mregion = current_mregion->next;
-    }
-    
-    return total_allocated_bytes;
+    mchunk_t    *relocated_mchunk;
+
+    if (!original_mchunk)
+        return printerr("migrate_mchunk_to_new_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
+
+    if ((relocated_mchunk = alloc_mchunk(marena, reallocation_size)) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    copy_data_between_mchunks(relocated_mchunk, original_mchunk);
+
+    if (free_mchunk_or_mregion(marena, original_mchunk) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    return relocated_mchunk;
 }

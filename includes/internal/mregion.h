@@ -71,23 +71,21 @@ typedef struct s_mregion
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-void        *mmap_mregion(size_t bytes);
-
+/* . */
 status_t    init_mregion(mregion_t **mregion, size_t allocation_size);
 status_t    init_mregions(mregion_t **mregion, size_t allocation_size, size_t mregions_count);
+
+status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion);
+mregion_t   **get_mregion_by_mchunk(marena_t *marena, mchunk_t *mchunk, size_t allocation_size);
+/* utils */
+void        *mmap_mregion(size_t bytes);
+status_t    munmap_mregion(mregion_t **mregion);
 
 void        append_mregion(mregion_t **mregion, mregion_t *new_mregion);
 void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
 
-mchunk_t    **get_or_create_mregion_best_fit_free_mchunk(mregion_t **mregion_head, size_t allocation_size);
-status_t    free_mregion(mregion_t **mregion);
-
-size_t      show_alloc_mem_mregion(mregion_t *mregion, const char *mregion_name);
-/* Mappers */
-
-size_t      map_allocation_size_to_mregion_size(size_t allocation_size);
-size_t      map_mregion_bound_type_to_max_allocation_size(bound_mregion_type_t bound_mregion_type);
-const char  *map_mregion_bound_type_to_name(bound_mregion_type_t mregion_type);
+bool        is_on_mregion_boundary(mregion_t *mregion, mchunk_t *mchunk);
+bool        does_mregion_contain_mchunk(mregion_t *mregion, mchunk_t *mchunk);
 # pragma GCC visibility pop
 
 #endif // MREGION_H

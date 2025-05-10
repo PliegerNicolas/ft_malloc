@@ -1,0 +1,35 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   free_mchunk_or_mregion.c                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-05-11 13:12:52 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 13:12:52 by nplieger         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "ft_malloc.h"
+
+mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *used_mchunk)
+{
+    mregion_t   **mregion;
+    mchunk_t    *freed_mchunk;
+
+    if (!used_mchunk || used_mchunk->state != USED)
+        return printerr("free_mchunk_or_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
+
+    if ((mregion = get_mregion_by_mchunk(marena, used_mchunk, used_mchunk->allocation_size)) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    if ((freed_mchunk = free_mchunk(*mregion, used_mchunk)) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    try_coalesce_with_neighboring_free_mchunks(*mregion, &freed_mchunk);
+
+    if ((*mregion)->used_mchunks == 0 && free_mregion(mregion, IS_BOUND_MREGION(used_mchunk->allocation_size)) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+    
+    return freed_mchunk;
+}

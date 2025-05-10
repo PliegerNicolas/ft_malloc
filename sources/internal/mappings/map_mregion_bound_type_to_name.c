@@ -1,27 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_or_create_marena_best_fit_mregion_head.c        :+:      :+:    :+:   */
+/*   map_mregion_bound_type_to_name.c                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-04 09:59:04 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-04 09:59:04 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 12:23:20 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 12:23:20 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-mregion_t   **get_or_create_marena_fit_mregion_head(marena_t *marena, size_t allocation_size)
+const char  *map_mregion_bound_type_to_name(bound_mregion_type_t mregion_type)
 {
-    mregion_t   **mregion_head;
-
-    if (!marena)
-        return STATUS_FAILURE;
-
-    mregion_head = map_allocation_size_to_marena_mregion_head(marena, allocation_size);
-    if (mregion_head == NULL && init_mregion(mregion_head, allocation_size) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-        
-    return mregion_head;
+    switch (mregion_type)
+    {
+        case TINY_MREGION_TYPE:
+            return "TINY";
+        case SMALL_MREGION_TYPE:
+            return "SMALL";
+        default: 
+            return "UNDEFINED";
+    }
 }

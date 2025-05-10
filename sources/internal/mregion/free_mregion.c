@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-06 17:28:12 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-06 17:28:12 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 13:32:42 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 13:32:42 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,70 +16,43 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-// static bool is_mregion_used(mregion_t *mregion)
-// {
-//     mchunk_t        *current_mchunk;
-//     mchunk_t        *current_free_mchunk;
-//     unsigned char   *mregion_right_data_boundary;
-
-//     if (!mregion)
-//         return false;
-
-//     mregion_right_data_boundary = (unsigned char *)mregion + mregion->size;
-
-//     current_mchunk = GET_MREGION_FIRST_MCHUNK(mregion);
-//     current_free_mchunk = mregion->mbin;
-
-//     while (current_mchunk && (unsigned char *)current_mchunk < mregion_right_data_boundary)
-//     {
-//         if (current_mchunk != current_free_mchunk)
-//             return true;
-
-//         current_mchunk = GET_NEXT_MCHUNK(current_mchunk);
-//         current_free_mchunk = current_free_mchunk->next_free_mchunk;
-//     }
-
-//     return false;
-// }
-
 static inline bool  is_mregion_used(mregion_t *mregion)
 {
-    return mregion->used_mchunks != 0;
+    return mregion->used_mchunks > 0;
+}
+
+static inline bool  should_keep_mregion(mregion_t *mregion, bool is_bound_mregion)
+{
+    if (!mregion || is_bound_mregion)
+        return false;
+
+    return !mregion->next && !mregion->prev;
 }
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-status_t    free_mregion(mregion_t **mregion)
+status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion)
 {
-    mregion_t   *next_mregion;
-    mregion_t   *current_mregion;
-    mregion_t   *prev_mregion;
+    mregion_t   *curr_mregion;
 
     if (!mregion || !*mregion)
-        return STATUS_FAILURE;
-
-    if (is_mregion_used(*mregion))
+        return printerr("free_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
+    
+    if (is_mregion_used(*mregion) || should_keep_mregion(*mregion, is_bound_mregion))
         return STATUS_SUCCESS;
 
-    current_mregion = *mregion;
-    next_mregion = current_mregion->next;
-    prev_mregion = current_mregion->prev;
+    curr_mregion = *mregion;
 
-    if (next_mregion)
-        next_mregion->prev = prev_mregion;
+    if (curr_mregion->next)
+        curr_mregion->next->prev = curr_mregion->prev;
+    if (curr_mregion->prev)
+        curr_mregion->prev = curr_mregion->next;
 
-    if (prev_mregion)
-    {
-        prev_mregion->next = next_mregion;
-        *mregion = prev_mregion;
-    }
-    else
-        *mregion = next_mregion;
+    *mregion = curr_mregion->prev ? curr_mregion->prev : curr_mregion->next;
 
-
-    if (munmap(current_mregion, current_mregion->size) == -1)
+    if (munmap_mregion(&curr_mregion) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
     return STATUS_SUCCESS;
