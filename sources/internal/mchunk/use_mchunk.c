@@ -82,16 +82,13 @@ mchunk_t    *use_mchunk(mchunk_t **free_mchunk, size_t allocation_size)
 {
     mchunk_t    *used_mchunk;
 
-    if (!free_mchunk || !*free_mchunk || (*free_mchunk)->state == USED)
+    if (!free_mchunk || !*free_mchunk || (*free_mchunk)->state != FREE)
         return STATUS_FAILURE;
 
     if ((*free_mchunk)->allocation_size == allocation_size)
-        used_mchunk = use_mchunk_on_exact_match(free_mchunk, allocation_size);
+        return use_mchunk_on_exact_match(free_mchunk, allocation_size);
     else
-        used_mchunk = use_mchunk_through_partitioning(free_mchunk, allocation_size);
-
-    if (used_mchunk == STATUS_FAILURE)
-        return STATUS_FAILURE;
-
-    return used_mchunk;
+        return use_mchunk_through_partitioning(free_mchunk, allocation_size);
 }
+
+// TODO: check si le partitionning est correct ici.

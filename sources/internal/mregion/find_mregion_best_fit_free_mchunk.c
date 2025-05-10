@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   find_best_fit_free_mchunk.c                        :+:      :+:    :+:   */
+/*   find_mregion_best_fit_free_mchunk.c                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-04 20:41:33 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-04 20:41:33 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-10 17:08:25 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-10 17:08:25 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ static mchunk_t **find_mbin_mchunk_best_fit(mregion_t **mregion, size_t allocati
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    **find_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size)
+mchunk_t    **find_mregion_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size)
 {
     find_mregion_best_mchunk_fn_t   fn;
 

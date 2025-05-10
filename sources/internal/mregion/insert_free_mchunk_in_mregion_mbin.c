@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   insert_mchunk_in_mbin.c                            :+:      :+:    :+:   */
+/*   insert_free_mchunk_in_mregion_mbin.c               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-10 00:33:41 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-10 00:33:41 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-10 17:14:13 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-10 17:14:13 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void    insert_mchunk_in_mbin(mregion_t *mregion, mchunk_t *mchunk)
+void    insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *mchunk)
 {
     mchunk_t    **insertion_pos;
 

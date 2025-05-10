@@ -17,22 +17,16 @@ void    free(void *ptr)
     mregion_t   **mregion;
     mchunk_t    *mchunk;
 
+    if (init_gmarena_once() == STATUS_FAILURE)
+        return;
+
     if (!ptr)
         return;
 
     mchunk = GET_MCHUNK_PTR(ptr);
-    if (!mchunk || mchunk_has_aberrant_values(mchunk) || mchunk->state != USED)
+    if (mchunk_has_aberrant_values(mchunk) || mchunk->state != USED)
         return;
 
-    if ((mregion = mchunk_find_corresponding_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
-        return;
-
-    free_mchunk(*mregion, mchunk);
-    (*mregion)->used_mchunks -= 1;
-
-    coalesce_free_mchunks(mchunk->prev_free_mchunk, mchunk);
-    coalesce_free_mchunks(mchunk, mchunk->next_free_mchunk);
-    
-    if (free_mregion(mregion) == STATUS_FAILURE)
+    if (free_mchunk(GET_MCHUNK_PTR(ptr)) == STATUS_FAILURE)
         return;
 }

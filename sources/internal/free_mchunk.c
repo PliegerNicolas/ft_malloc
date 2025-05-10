@@ -5,21 +5,32 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-05 15:19:25 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-05 15:19:25 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-10 16:30:08 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-10 16:30:08 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void    free_mchunk(mregion_t *mregion, mchunk_t *mchunk)
+status_t    free_mchunk(mchunk_t *mchunk)
 {
-    if (!mregion || !mchunk)
-        return;
+    mregion_t   **mregion;
 
-    if (mchunk->state != USED)
-        return;
+    if (!mchunk || mchunk->state != USED)
+        return STATUS_FAILURE;
 
+    if ((mregion = mchunk_find_corresponding_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+    
     mchunk->state = FREE;
-    insert_mchunk_in_mbin(mregion, mchunk);
+    insert_free_mchunk_in_mregion_mbin(*mregion, mchunk);
+    (*mregion)->used_mchunks -= 1;
+
+    coalesce_with_next_free_mchunks(mchunk, mchunk->next_free_mchunk);
+    coalesce_with_prev_free_mchunks(&mchunk, mchunk->prev_free_mchunk);
+
+    if (free_mregion(mregion) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    return STATUS_SUCCESS;
 }

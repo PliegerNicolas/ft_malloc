@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_or_create_mregion_best_fit_free_mchunk.c        :+:      :+:    :+:   */
+/*   move_mchunk_to_new_mregion.c                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-04 10:00:23 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-04 10:00:23 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-10 21:35:54 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-10 21:35:54 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,37 +16,32 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static inline bool  has_free_mchunks(mregion_t *mregion)
+static void *copy_data_between_mchunks(mchunk_t *dest, mchunk_t *src)
 {
-    return mregion->mbin != NULL;
-}
+    size_t  bytes_to_move;
 
+    bytes_to_move = (dest->allocation_size > src->allocation_size) ? (src->allocation_size) : (dest->allocation_size);
+    return ft_memcpy(GET_MCHUNK_DATA_PTR(dest), GET_MCHUNK_DATA_PTR(src), bytes_to_move);
+}
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    **get_or_create_mregion_best_fit_free_mchunk(mregion_t **mregion_head, size_t allocation_size)
+mchunk_t    *move_mchunk_to_new_mregion(mchunk_t *original_mchunk, size_t new_allocation_size)
 {
-    mregion_t   **current_mregion;
-    mchunk_t    **best_fit_free_mchunk;
+    mchunk_t    *relocated_mchunk;
 
-    if (!mregion_head)
+    if (!original_mchunk)
         return STATUS_FAILURE;
 
-    current_mregion = mregion_head;
-    while (*current_mregion)
-    {
-        if (has_free_mchunks(*current_mregion))
-            if ((best_fit_free_mchunk = find_mregion_best_fit_free_mchunk(current_mregion, allocation_size)) != NULL)
-                return best_fit_free_mchunk;
-
-        current_mregion = &(*current_mregion)->next;
-    }
-
-    if (!*current_mregion && init_mregion(current_mregion, allocation_size) == STATUS_FAILURE)
+    if ((relocated_mchunk = alloc_mchunk(new_allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
-    best_fit_free_mchunk = &(*current_mregion)->mbin;
 
-    return best_fit_free_mchunk;
+    copy_data_between_mchunks(relocated_mchunk, original_mchunk);
+
+    if (free_mchunk(original_mchunk) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    return relocated_mchunk;
 }

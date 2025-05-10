@@ -16,8 +16,6 @@ mregion_t   **mchunk_find_corresponding_mregion(marena_t *marena, mchunk_t *mchu
 {
     mregion_t       **mregion_head;
     mregion_t       **current_mregion;
-    unsigned char   *mregion_left_data_boundary;
-    unsigned char   *mregion_right_data_boundary;
 
     if (!mchunk)
         return STATUS_FAILURE;
@@ -29,13 +27,8 @@ mregion_t   **mchunk_find_corresponding_mregion(marena_t *marena, mchunk_t *mchu
     current_mregion = mregion_head;
     while (*current_mregion)
     {
-        mregion_left_data_boundary = (unsigned char *)(*current_mregion) + MREGION_HEADER_SIZE;
-        mregion_right_data_boundary = (unsigned char *)(*current_mregion) + (*current_mregion)->size;
-
-        if ((unsigned char *)mchunk >= mregion_left_data_boundary &&
-            (unsigned char*)mchunk < mregion_right_data_boundary)
+        if (is_mchunk_in_mregion_boundary(*current_mregion, mchunk))
             return current_mregion;
-
         current_mregion = &(*current_mregion)->next;
     }
 

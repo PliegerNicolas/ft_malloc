@@ -16,71 +16,52 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static inline bool  has_enough_space(mchunk_t *mchunk, size_t new_allocation_size)
+static inline bool  has_enough_space_to_shrink_in_place(mchunk_t *mchunk, size_t new_allocation_size)
 {
     return mchunk->allocation_size >= GET_MCHUNK_SIZE(new_allocation_size);
 }
 
-static mchunk_t *move_mchunk(mregion_t *mregion, mchunk_t *original_mchunk, size_t new_allocation_size)
+mchunk_t    *shrink_mchunk_by_partitioning(mchunk_t *mchunk, size_t new_allocation_size)
 {
-    mchunk_t    *new_mchunk;
+    mregion_t   **mregion;
+    size_t      remaining_allocation_size;
+    mchunk_t    *remaining_free_mchunk;
 
-    if (!original_mchunk)
+    if (!mchunk || mchunk->allocation_size < GET_MCHUNK_SIZE(new_allocation_size))
         return STATUS_FAILURE;
 
-    if ((new_mchunk = malloc(new_allocation_size)) == STATUS_FAILURE)
+    if ((mregion = mchunk_find_corresponding_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
-    ft_memcpy(GET_MCHUNK_DATA_PTR(new_mchunk), GET_MCHUNK_DATA_PTR(original_mchunk), new_allocation_size);
-    free_mchunk(mregion, original_mchunk);
+    remaining_allocation_size = mchunk->allocation_size - GET_MCHUNK_SIZE(new_allocation_size);
+    mchunk->allocation_size = new_allocation_size;
 
-    return new_mchunk;
-}
-
-static void split_mchunk(mregion_t *mregion, mchunk_t *mchunk, size_t new_allocation_size)
-{
-    size_t      left_mchunk_allocation_size;
-    size_t      right_mchunk_allocation_size;
-    mchunk_t    *new_free_mchunk;
-
-    if (!mchunk)
-        return;
-
-    right_mchunk_allocation_size = new_allocation_size;
-    left_mchunk_allocation_size = mchunk->allocation_size - GET_MCHUNK_SIZE(right_mchunk_allocation_size);
-    
-    mchunk->allocation_size = left_mchunk_allocation_size;
-
-    new_free_mchunk = mchunk + GET_MCHUNK_SIZE(mchunk->allocation_size);
-    *new_free_mchunk = (mchunk_t) {
+    remaining_free_mchunk = GET_NEXT_MCHUNK(mchunk);
+    *remaining_free_mchunk = (mchunk_t) {
         .state = FREE,
-        .allocation_size = right_mchunk_allocation_size,
-        .prev_allocation_size = left_mchunk_allocation_size,
+        .allocation_size = remaining_allocation_size,
+        .prev_allocation_size = mchunk->allocation_size,
         .next_free_mchunk = NULL,
         .prev_free_mchunk = NULL,
     };
-    
-    insert_mchunk_in_mbin(mregion, new_free_mchunk);
+
+    insert_free_mchunk_in_mregion_mbin(*mregion, remaining_free_mchunk);
+    coalesce_with_next_free_mchunks(remaining_free_mchunk, remaining_free_mchunk->next_free_mchunk);
+
+    return mchunk;
 }
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    *shrink_mchunk(mregion_t *mregion, mchunk_t *mchunk, size_t new_allocation_size)
+mchunk_t    *shrink_mchunk(mchunk_t *original_mchunk, size_t new_allocation_size)
 {
-    mchunk_t    *new_mchunk;
-
-    if (!mchunk)
+    if (!original_mchunk || new_allocation_size >= original_mchunk->allocation_size)
         return STATUS_FAILURE;
 
-    if (!has_enough_space(mchunk, new_allocation_size))
-    {
-        if ((new_mchunk = move_mchunk(mregion, mchunk, new_allocation_size)) == STATUS_FAILURE)
-            return STATUS_FAILURE;
-        return new_mchunk;
-    }
+    if (!has_enough_space_to_shrink_in_place(original_mchunk, new_allocation_size))
+        return move_mchunk_to_new_mregion(original_mchunk, new_allocation_size);
 
-    split_mchunk(mregion, mchunk, new_allocation_size);
-    return mchunk;
+    return shrink_mchunk_by_partitioning(original_mchunk, new_allocation_size);
 }

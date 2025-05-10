@@ -72,18 +72,17 @@ typedef mchunk_t **(*find_mregion_best_mchunk_fn_t)(mregion_t **mregion, size_t 
 # pragma GCC visibility push(hidden)
 size_t      show_alloc_mem_mchunks(mregion_t *mregion);
 
-mchunk_t    **find_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size);
 mchunk_t    *use_mchunk(mchunk_t **mchunk, size_t allocation_size);
 
 bool        mchunk_has_aberrant_values(mchunk_t *mchunk);
 mregion_t   **mchunk_find_corresponding_mregion(marena_t *marena, mchunk_t *mchunk);
-void        insert_mchunk_in_mbin(mregion_t *mregion, mchunk_t *mchunk);
+mchunk_t    *move_mchunk_to_new_mregion(mchunk_t *original_mchunk, size_t new_allocation_size);
 
-void        free_mchunk(mregion_t *mregion, mchunk_t *mchunk);
+void        coalesce_with_next_free_mchunks(mchunk_t *mchunk, mchunk_t *next_mchunk);
+void        coalesce_with_prev_free_mchunks(mchunk_t **mchunk, mchunk_t *prev_mchunk);
 
-void        coalesce_free_mchunks(mchunk_t *mchunk, mchunk_t *next_mchunk);
-mchunk_t    *grow_mchunk(mregion_t *mregion, mchunk_t *mchunk, size_t new_allocation_size);
-mchunk_t    *shrink_mchunk(mregion_t *mregion, mchunk_t *mchunk, size_t new_allocation_size);
+mchunk_t    *grow_mchunk(mchunk_t *mchunk, size_t new_allocation_size);
+mchunk_t    *shrink_mchunk(mchunk_t *mchunk, size_t new_allocation_size);
 /* Mappers */
 
 # pragma GCC visibility pop

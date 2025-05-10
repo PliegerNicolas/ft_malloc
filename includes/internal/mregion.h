@@ -79,7 +79,12 @@ status_t    init_mregions(mregion_t **mregion, size_t allocation_size, size_t mr
 void        append_mregion(mregion_t **mregion, mregion_t *new_mregion);
 void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
 
+bool        is_mchunk_in_mregion_boundary(mregion_t *mregion, mchunk_t *mchunk);
+
+mchunk_t    **find_mregion_best_fit_free_mchunk(mregion_t **mregion, size_t allocation_size);
 mchunk_t    **get_or_create_mregion_best_fit_free_mchunk(mregion_t **mregion_head, size_t allocation_size);
+
+void        insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *mchunk);
 status_t    free_mregion(mregion_t **mregion);
 
 size_t      show_alloc_mem_mregion(mregion_t *mregion, const char *mregion_name);

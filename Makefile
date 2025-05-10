@@ -64,37 +64,41 @@ HEADERS_FILE_EXTENSION			:=	.h
 # Files
 INTERNAL_SOURCE_FILE_NAMES	:=	\
 								gmarena \
-								get_or_create_best_fit_free_mchunk \
 								get_max_mregion_size \
 								get_max_allocation_size \
+								alloc_mchunk \
+								realloc_mchunk \
+								free_mchunk \
 								\
 								marena/init_marena_once \
 								marena/init_marena \
 								marena/get_or_create_marena_best_fit_mregion_head \
+								marena/get_or_create_marena_best_fit_free_mchunk \
 								marena/show_alloc_mem_marena \
 								marena/map/map_allocation_size_to_marena_mregion_head \
 								\
-								mregion/mmap_mregion \
 								mregion/init_mregion \
 								mregion/init_mregions \
-								mregion/append_mregion \
-								mregion/prepend_mregion \
+								mregion/find_mregion_best_fit_free_mchunk \
 								mregion/get_or_create_mregion_best_fit_free_mchunk \
-								mregion/show_alloc_mem_mregion \
 								mregion/free_mregion \
+								mregion/insert_free_mchunk_in_mregion_mbin \
+								mregion/show_alloc_mem_mregion \
+								mregion/utils/is_mchunk_in_mregion_boundary \
+								mregion/utils/mmap_mregion \
+								mregion/utils/append_mregion \
+								mregion/utils/prepend_mregion \
 								mregion/map/map_allocation_size_to_mregion_size \
 								mregion/map/map_mregion_bound_type_to_max_allocation_size \
 								mregion/map/map_mregion_bound_type_to_name \
 								\
-								mchunk/find_best_fit_free_mchunk \
 								mchunk/use_mchunk \
-								mchunk/free_mchunk \
 								mchunk/coalesce_free_mchunks \
-								mchunk/insert_mchunk_in_mbin \
 								mchunk/shrink_mchunk \
 								mchunk/grow_mchunk \
 								mchunk/mchunk_find_corresponding_mregion \
 								mchunk/mchunk_has_aberrant_values \
+								mchunk/move_mchunk_to_new_mregion \
 								mchunk/show_alloc_mem_mchunks
 
 PUBLIC_SOURCES_FILE_NAMES	:=	\

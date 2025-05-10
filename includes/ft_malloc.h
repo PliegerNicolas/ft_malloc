@@ -77,7 +77,9 @@ status_t    init_gmarena_once();
 size_t      get_max_mregion_size();
 size_t      get_max_allocation_size(size_t allocation_size);
 
-mchunk_t    **get_or_create_best_fit_free_mchunk(marena_t *marena, size_t allocation_size);
+mchunk_t    *alloc_mchunk(size_t size);
+mchunk_t    *realloc_mchunk(mchunk_t *original_mchunk, size_t new_allocation_size);
+status_t    free_mchunk(mchunk_t *mchunk);
 # pragma GCC visibility pop
 
 #endif // FT_MALLOC_H
