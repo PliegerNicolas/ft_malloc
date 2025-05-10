@@ -14,30 +14,24 @@
 
 void    test_realloc()
 {
-    void *ptrs[8];
+    void *ptrs[1];
     ft_bzero(ptrs, sizeof(ptrs));
 
     put_colored(YELLOW, "TEST REALLOC", STDOUT_FILENO);
 
+    ptrs[0] = malloc(42);
+
     put_colored(CYAN, "॰ show allocated memory before allocation", STDOUT_FILENO);
     show_alloc_mem();
 
-    // ptrs[0] = malloc(0);
-    // ptrs[1] = malloc(1);
-    // ptrs[2] = malloc(42);
-
-    // ptrs[3] = malloc(124);
-    // ptrs[4] = malloc(442);
-
-    // ptrs[5] = malloc(600);
-    // ptrs[6] = malloc(1024);
-    // ptrs[7] = malloc(2000);
+    ptrs[0] = realloc(ptrs[0], 24);
+    ptrs[0] = realloc(ptrs[0], 42);
 
     put_colored(CYAN, "॰ show allocated memory after allocation", STDOUT_FILENO);
     show_alloc_mem();
 
-    // for (size_t i = 0; i < PTRS; i++)
-    //     free(ptrs[i]);
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        free(ptrs[i]);
 
     put_colored(CYAN, "॰ show allocated memory after free", STDOUT_FILENO);
     show_alloc_mem();

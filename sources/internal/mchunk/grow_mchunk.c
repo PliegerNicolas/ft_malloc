@@ -1,25 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_mchunk.c                                      :+:      :+:    :+:   */
+/*   grow_mchunk.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-05 15:19:25 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-05 15:19:25 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-09 21:06:25 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-09 21:06:25 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void    free_mchunk(mregion_t *mregion, mchunk_t *mchunk)
+mchunk_t    *grow_mchunk(mregion_t *mregion, mchunk_t *mchunk, size_t new_allocation_size)
 {
-    if (!mregion || !mchunk)
-        return;
+    if (!mchunk)
+        return STATUS_FAILURE;
 
-    if (mchunk->state != USED)
-        return;
+    if (mchunk->allocation_size <= new_allocation_size)
+        return STATUS_FAILURE;
 
-    mchunk->state = FREE;
-    insert_mchunk_in_mbin(mregion, mchunk);
+    return mchunk;
 }

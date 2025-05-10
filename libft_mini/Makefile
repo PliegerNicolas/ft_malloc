@@ -70,6 +70,7 @@ SOURCES_FILE_NAMES				:=	ft_strlen \
 									ft_putbase_fd \
 									ft_putptr_fd \
 									ft_memset \
+									ft_memcpy \
 									ft_bzero
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))

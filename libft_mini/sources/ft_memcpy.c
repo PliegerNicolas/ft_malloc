@@ -1,25 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_mchunk.c                                      :+:      :+:    :+:   */
+/*   ft_memcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-05 15:19:25 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-05 15:19:25 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-10 00:02:15 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-10 00:02:15 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_malloc.h"
+#include "libft_mini.h"
 
-void    free_mchunk(mregion_t *mregion, mchunk_t *mchunk)
+void    *ft_memcpy(void *dest, const void *src, size_t n)
 {
-    if (!mregion || !mchunk)
-        return;
+	size_t	i;
 
-    if (mchunk->state != USED)
-        return;
+	if (!dest && !src)
+		return NULL;
 
-    mchunk->state = FREE;
-    insert_mchunk_in_mbin(mregion, mchunk);
+	i = 0;
+	while (i < n)
+	{
+		*(unsigned char *)(dest + i) = *(unsigned char *)(src + i);
+		i++;
+	};
+
+	return dest;
 }

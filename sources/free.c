@@ -21,19 +21,18 @@ void    free(void *ptr)
         return;
 
     mchunk = GET_MCHUNK_PTR(ptr);
-    if (!mchunk || mchunk_has_aberrant_values(mchunk))
-        return;
-
-    if (mchunk->state != USED)
+    if (!mchunk || mchunk_has_aberrant_values(mchunk) || mchunk->state != USED)
         return;
 
     if ((mregion = mchunk_find_corresponding_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
         return;
 
-    if (free_mchunk(*mregion, mchunk) == STATUS_FAILURE)
-        return;
+    free_mchunk(*mregion, mchunk);
     (*mregion)->used_mchunks -= 1;
 
+    coalesce_free_mchunks(mchunk->prev_free_mchunk, mchunk);
+    coalesce_free_mchunks(mchunk, mchunk->next_free_mchunk);
+    
     if (free_mregion(mregion) == STATUS_FAILURE)
         return;
 }

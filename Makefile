@@ -89,6 +89,10 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mchunk/find_best_fit_free_mchunk \
 								mchunk/use_mchunk \
 								mchunk/free_mchunk \
+								mchunk/coalesce_free_mchunks \
+								mchunk/insert_mchunk_in_mbin \
+								mchunk/shrink_mchunk \
+								mchunk/grow_mchunk \
 								mchunk/mchunk_find_corresponding_mregion \
 								mchunk/mchunk_has_aberrant_values \
 								mchunk/show_alloc_mem_mchunks

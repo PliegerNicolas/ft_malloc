@@ -77,8 +77,13 @@ mchunk_t    *use_mchunk(mchunk_t **mchunk, size_t allocation_size);
 
 bool        mchunk_has_aberrant_values(mchunk_t *mchunk);
 mregion_t   **mchunk_find_corresponding_mregion(marena_t *marena, mchunk_t *mchunk);
+void        insert_mchunk_in_mbin(mregion_t *mregion, mchunk_t *mchunk);
 
-status_t    free_mchunk(mregion_t *mregion, mchunk_t *mchunk);
+void        free_mchunk(mregion_t *mregion, mchunk_t *mchunk);
+
+void        coalesce_free_mchunks(mchunk_t *mchunk, mchunk_t *next_mchunk);
+mchunk_t    *grow_mchunk(mregion_t *mregion, mchunk_t *mchunk, size_t new_allocation_size);
+mchunk_t    *shrink_mchunk(mregion_t *mregion, mchunk_t *mchunk, size_t new_allocation_size);
 /* Mappers */
 
 # pragma GCC visibility pop

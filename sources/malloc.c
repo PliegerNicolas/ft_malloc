@@ -24,6 +24,9 @@ void    *malloc(size_t size)
     if ((free_mchunk = get_or_create_best_fit_free_mchunk(&gmarena, size)) == STATUS_FAILURE)
         return NULL;
 
+    coalesce_free_mchunks((*free_mchunk)->prev_free_mchunk, *free_mchunk);
+    coalesce_free_mchunks(*free_mchunk, (*free_mchunk)->next_free_mchunk);
+
     if ((used_mchunk = use_mchunk(free_mchunk, size)) == STATUS_FAILURE)
         return NULL;
 
