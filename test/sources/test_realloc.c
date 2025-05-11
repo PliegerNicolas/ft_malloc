@@ -14,23 +14,22 @@
 
 void    test_realloc()
 {
-    void *ptrs[1];
+    void    *ptrs[2];
+    void    *ptr = NULL; // To prevent gcc from replacing realloc by malloc through optimization.
+
     ft_bzero(ptrs, sizeof(ptrs));
 
     put_colored(YELLOW, "TEST REALLOC", STDOUT_FILENO);
 
-    ptrs[0] = malloc(142);
-    ptrs[1] = malloc(100);
-    // ft_memset(ptrs[0], 'a', 127);
-    // ((char *)ptrs[0])[127] = '\0';
-    // ft_putendl_fd(ptrs[0], STDOUT_FILENO);
-
     put_colored(CYAN, "॰ show allocated memory before allocation", STDOUT_FILENO);
     show_alloc_mem();
 
-    // ptrs[0] = realloc(ptrs[0], 1000);
-    free(ptrs[0]);
-    ptrs[1] = realloc(ptrs[1], 500);
+    ptrs[0] = realloc(ptr, 42);
+    // ptrs[1] = realloc(ptrs[0], 24);
+    // ptrs[0] = malloc(42);
+    // ptrs[1] = realloc(ptrs[0], 24);
+    // ptrs[0] = realloc(NULL, 42);
+    // ptrs[0] = realloc(NULL, 24);
 
     put_colored(CYAN, "॰ show allocated memory after allocation", STDOUT_FILENO);
     show_alloc_mem();

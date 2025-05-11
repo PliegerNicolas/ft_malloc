@@ -77,7 +77,7 @@ void        show_alloc_mem();
 status_t    init_gmarena_once();
 
 mchunk_t    *alloc_mchunk(marena_t *marena, size_t allocation_size);
-mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size);
+mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *used_mchunk, size_t reallocation_size);
 mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *mchunk);
 size_t      print_marena(marena_t *marena, int fd, bool print_free);
 

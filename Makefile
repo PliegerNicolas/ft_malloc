@@ -69,8 +69,6 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								free_mchunk_or_mregion \
 								print_marena \
 								\
-								errors/printerr \
-								\
 								marena/init_marena \
 								\
 								mregion/init_mregions \
@@ -87,6 +85,7 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mchunk/coalesce_mchunks \
 								mchunk/select_best_fit_mbin_mchunk \
 								mchunk/insert_free_mchunk_in_mbin \
+								mchunk/move_mchunk_to_new_mregion \
 								mchunk/utils/mchunk_has_aberrant_values \
 								\
 								limits/get_max_allocation_size \
@@ -95,7 +94,9 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mappings/map_allocation_size_to_marena_mregion_head \
 								mappings/map_mregion_bound_type_to_max_allocation_size \
 								mappings/map_allocation_size_to_mregion_size \
-								mappings/map_mregion_bound_type_to_name
+								mappings/map_mregion_bound_type_to_name \
+								\
+								errors/printerr
 
 PUBLIC_SOURCES_FILE_NAMES	:=	\
 								malloc \

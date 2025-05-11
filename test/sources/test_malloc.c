@@ -15,6 +15,7 @@
 void    test_malloc()
 {
     void *ptrs[8];
+
     ft_bzero(ptrs, sizeof(ptrs));
 
     put_colored(YELLOW, "TEST MALLOC", STDOUT_FILENO);
