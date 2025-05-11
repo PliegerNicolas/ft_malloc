@@ -5,35 +5,19 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:29 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:29 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:24:52 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:24:52 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/* *************************************************************************** */
-/* *                                 STATIC                                  * */
-/* *************************************************************************** */
-
-static void put_total_allocated_bytes(size_t total_allocated_bytes, int fd)
-{
-    ft_putstr_fd("Total : ", fd);
-    ft_putsize_t_fd(total_allocated_bytes, fd);
-    ft_putendl_fd(" bytes", fd);
-}
-
-/* *************************************************************************** */
-/* *                                 LINKED                                  * */
-/* *************************************************************************** */
-
 void    show_alloc_mem()
 {
-    size_t  total_allocated_bytes;
+    size_t  allocated_bytes;
 
     if (init_gmarena_once() == STATUS_FAILURE)
         return;
-    
-    total_allocated_bytes = show_alloc_mem_marena(&gmarena);
-    put_total_allocated_bytes(total_allocated_bytes, STDOUT_FILENO);
+
+    allocated_bytes = print_marena(&gmarena, STDOUT_FILENO, MALLOC_DEBUG);    
 }

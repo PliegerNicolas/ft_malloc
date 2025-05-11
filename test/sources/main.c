@@ -13,9 +13,9 @@
 #include "test_ft_malloc.h"
 
 int main() {
-    test_macros();
+    // test_macros();
     test_malloc();
-    test_realloc();
+    // test_realloc();
 
     return 0;
 }

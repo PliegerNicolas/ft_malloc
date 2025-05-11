@@ -1,26 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_mregion_bound_type_to_max_allocation_size.c    :+:      :+:    :+:   */
+/*   print_err.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-02 08:56:28 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-02 08:56:28 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 03:13:12 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 03:13:12 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-size_t  map_mregion_bound_type_to_max_allocation_size(bound_mregion_type_t bound_mregion_type)
+void    printerr(const char *caller, const char *err, void *ptr)
 {
-    switch (bound_mregion_type)
+    int fd;
+
+    if (!err)
+        return;
+
+    fd = STDERR_FILENO;
+    ft_putstr_fd("** ", fd);
+
+    if (caller)
     {
-        case TINY_MREGION_TYPE:
-            return TINY_MCHUNK_MAX_ALLOCATION_SIZE;
-        case SMALL_MREGION_TYPE:
-            return SMALL_MCHUNK_MAX_ALLOCATION_SIZE;
-        default:
-            return 0;
+        ft_putstr_fd(caller, fd);
+        ft_putstr_fd(": ", fd);
     }
+
+    ft_putstr_fd(err, fd);
+
+    if (ptr)
+    {
+        ft_putstr_fd(": ", fd);
+        ft_putptr_fd(ptr, fd);
+    }
+
+    ft_putendl_fd(" **", fd);
 }

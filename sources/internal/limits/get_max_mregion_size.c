@@ -1,29 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_marena_once.c                                 :+:      :+:    :+:   */
+/*   get_max_mregion_size.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-02 08:10:06 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-02 08:10:06 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:22:20 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:22:20 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-status_t    init_marena_once(marena_t *marena)
+size_t  get_max_mregion_size()
 {
-    static marena_t *prev_marena = NULL;
-    
-    if (!marena)
-        return STATUS_FAILURE;
-
-    if (prev_marena)
-        return prev_marena == marena ? STATUS_SUCCESS : STATUS_FAILURE;
-
-    if (init_marena(marena) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-
-    return (prev_marena = marena), STATUS_SUCCESS;
+    return MREGION_HEADER_SIZE + get_max_allocation_size(0);
 }

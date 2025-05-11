@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:23 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:23 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:23:36 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:23:36 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void    *malloc(size_t size)
     if (init_gmarena_once() == STATUS_FAILURE)
         return NULL;
 
-    if ((allocated_mchunk = alloc_mchunk(size)) == STATUS_FAILURE)
+    if ((allocated_mchunk = alloc_mchunk(&gmarena, size)) == STATUS_FAILURE)
         return NULL;
 
     return GET_MCHUNK_DATA_PTR(allocated_mchunk);

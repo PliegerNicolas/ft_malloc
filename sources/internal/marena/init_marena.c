@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-01 17:17:34 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-01 17:17:34 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 02:18:26 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 02:18:26 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,17 @@ status_t    init_marena(marena_t *marena)
         return STATUS_FAILURE;
 
     return STATUS_SUCCESS;
+}
+
+status_t    init_marena_once(marena_t *marena)
+{
+    static marena_t *prev_marena = NULL;
+
+    if (prev_marena)
+        return prev_marena == marena ? STATUS_SUCCESS : STATUS_FAILURE;
+
+    if (init_marena(marena) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    return (prev_marena = marena), STATUS_SUCCESS;
 }

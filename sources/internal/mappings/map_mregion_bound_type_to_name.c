@@ -1,23 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_max_allocation_size.c                          :+:      :+:    :+:   */
+/*   map_mregion_bound_type_to_name.c                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-05 12:03:16 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-05 12:03:16 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 12:23:20 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 12:23:20 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-size_t  get_max_allocation_size(size_t allocation_size)
+const char  *map_mregion_bound_type_to_name(bound_mregion_type_t mregion_type)
 {
-    static size_t   max_allocation_size;
-
-    if (allocation_size > max_allocation_size)
-        max_allocation_size = allocation_size;
-
-    return max_allocation_size;
+    switch (mregion_type)
+    {
+        case TINY_MREGION_TYPE:
+            return "TINY";
+        case SMALL_MREGION_TYPE:
+            return "SMALL";
+        default: 
+            return "UNDEFINED";
+    }
 }

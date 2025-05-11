@@ -5,32 +5,30 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-10 16:30:08 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-10 16:30:08 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-11 03:44:54 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-11 03:44:54 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-status_t    free_mchunk(mchunk_t *mchunk)
+mchunk_t    *free_mchunk(mregion_t *mregion, mchunk_t *used_mchunk)
 {
-    mregion_t   **mregion;
+    mchunk_t    *free_mchunk;
 
-    if (!mchunk || mchunk->state != USED)
+    if (!mregion || !used_mchunk)
+        return STATUS_FAILURE;
+    if (!does_mregion_contain_mchunk(mregion, used_mchunk) || used_mchunk->state != USED)
         return STATUS_FAILURE;
 
-    if ((mregion = mchunk_find_corresponding_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-    
-    mchunk->state = FREE;
-    insert_free_mchunk_in_mregion_mbin(*mregion, mchunk);
-    (*mregion)->used_mchunks -= 1;
+    free_mchunk = used_mchunk;
+    free_mchunk->state = FREE;
+    free_mchunk->allocation_size = ALIGN_UP(free_mchunk->allocation_size, ALIGNMENT_BOUNDARY);
 
-    coalesce_with_next_free_mchunks(mchunk, mchunk->next_free_mchunk);
-    coalesce_with_prev_free_mchunks(&mchunk, mchunk->prev_free_mchunk);
-
-    if (free_mregion(mregion) == STATUS_FAILURE)
+    if ((insert_free_mchunk_in_mregion_mbin(mregion, free_mchunk)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
-    return STATUS_SUCCESS;
+    // coalesce ?
+
+    return (mregion->used_mchunks -= 1), free_mchunk;
 }

@@ -44,16 +44,9 @@ typedef struct s_marena
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
+/* init_marena.c */
 status_t    init_marena_once(marena_t *marena);
 status_t    init_marena(marena_t *marena);
-
-mregion_t   **get_or_create_marena_fit_mregion_head(marena_t *marena, size_t allocation_size);
-mchunk_t    **get_or_create_marena_best_fit_free_mchunk(marena_t *marena, size_t allocation_size);
-
-size_t      show_alloc_mem_marena(marena_t *marena);
-
-/* Mappers */
-mregion_t   **map_allocation_size_to_marena_mregion_head(marena_t *marena, size_t allocation_size);
 # pragma GCC visibility pop
 
 #endif // MARENA_H

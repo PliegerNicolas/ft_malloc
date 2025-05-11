@@ -73,13 +73,26 @@ void        show_alloc_mem();
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
+/* gmarena.c */
 status_t    init_gmarena_once();
+
+mchunk_t    *alloc_mchunk(marena_t *marena, size_t allocation_size);
+mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size);
+mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *mchunk);
+size_t      print_marena(marena_t *marena, int fd, bool print_free);
+
+/* errors/ */
+void        printerr(const char *caller, const char *err, void *ptr);
+
+/* limits/ */
 size_t      get_max_mregion_size();
 size_t      get_max_allocation_size(size_t allocation_size);
 
-mchunk_t    *alloc_mchunk(size_t size);
-mchunk_t    *realloc_mchunk(mchunk_t *original_mchunk, size_t new_allocation_size);
-status_t    free_mchunk(mchunk_t *mchunk);
+/* mappings/ */
+mregion_t   **map_allocation_size_to_marena_mregion_head(marena_t *marena, size_t allocation_size);
+size_t      map_mregion_bound_type_to_max_allocation_size(bound_mregion_type_t bound_mregion_type);
+size_t      map_allocation_size_to_mregion_size(size_t allocation_size);
+const char  *map_mregion_bound_type_to_name(bound_mregion_type_t mregion_type);
 # pragma GCC visibility pop
 
 #endif // FT_MALLOC_H
