@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   move_mchunk_to_new_mregion.c                       :+:      :+:    :+:   */
+/*   migrate_mchunk_to_new_mregion.c                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-11 20:18:09 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-11 20:18:09 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-12 20:07:11 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-12 20:07:11 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,12 @@ static void *copy_data_between_mchunks(mchunk_t *dest, mchunk_t *src)
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    *move_mchunk_to_new_mregion(marena_t *marena, mchunk_t *original_mchunk, size_t reallocation_size)
+mchunk_t    *migrate_mchunk_to_new_mregion(marena_t *marena, mchunk_t *original_mchunk, size_t reallocation_size)
 {
     mchunk_t    *relocated_mchunk;
 
     if (!original_mchunk)
-        return STATUS_FAILURE;
+        return printerr("migrate_mchunk_to_new_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     if ((relocated_mchunk = alloc_mchunk(marena, reallocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;

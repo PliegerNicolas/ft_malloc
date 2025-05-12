@@ -14,9 +14,10 @@
 
 void    printerr(const char *caller, const char *err, void *ptr)
 {
+    static bool error_already_printed;
     int fd;
 
-    if (!err)
+    if (!err || error_already_printed)
         return;
 
     fd = STDERR_FILENO;
@@ -37,4 +38,5 @@ void    printerr(const char *caller, const char *err, void *ptr)
     }
 
     ft_putendl_fd(" **", fd);
+    error_already_printed = true;
 }

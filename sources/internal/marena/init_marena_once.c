@@ -1,21 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   gmarena.c                                          :+:      :+:    :+:   */
+/*   init_marena_once.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-11 02:16:54 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-11 02:16:54 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-12 19:41:51 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-12 19:41:51 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-/** @brief Global `marena_t` instance. */
-marena_t    gmarena;
-
-marena_t    *init_gmarena_once()
+marena_t    *init_marena_once(marena_t *marena)
 {
-    return init_marena_once(&gmarena);
+    if (!marena)
+        return printerr("init_marena_once()", "Wrong parameters", NULL), STATUS_FAILURE;
+
+    if (marena->initialized)
+        return marena;
+
+    if (init_marena(marena) == STATUS_FAILURE)
+        return STATUS_FAILURE;
+
+    return marena;
 }

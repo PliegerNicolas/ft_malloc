@@ -38,7 +38,7 @@ void    *mmap_mregion(size_t bytes)
 status_t    munmap_mregion(mregion_t **mregion)
 {
     if (!mregion || !*mregion)
-        return STATUS_FAILURE;
+        return printerr("munmap_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     if (munmap(*mregion, (*mregion)->size) == -1)
         return STATUS_FAILURE;

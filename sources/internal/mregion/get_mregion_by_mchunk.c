@@ -18,9 +18,10 @@ mregion_t   **get_mregion_by_mchunk(marena_t *marena, mchunk_t *mchunk, size_t a
     mregion_t   **current_mregion;
 
     if (!marena || !mchunk)
-        return STATUS_FAILURE;
+        return printerr("get_mregion_by_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
 
-    mregion_head = map_allocation_size_to_marena_mregion_head(marena, allocation_size);
+    if ((mregion_head = map_allocation_size_to_marena_mregion_head(marena, allocation_size)) == STATUS_FAILURE)
+        return STATUS_FAILURE;
 
     current_mregion = mregion_head;
     while (*current_mregion)

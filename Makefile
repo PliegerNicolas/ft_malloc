@@ -70,7 +70,9 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								print_marena \
 								\
 								marena/init_marena \
+								marena/init_marena_once \
 								\
+								mregion/init_mregion \
 								mregion/init_mregions \
 								mregion/free_mregion \
 								mregion/get_mregion_by_mchunk \
@@ -82,10 +84,15 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								\
 								mchunk/use_mchunk \
 								mchunk/free_mchunk \
-								mchunk/coalesce_mchunks \
 								mchunk/select_best_fit_mbin_mchunk \
 								mchunk/insert_free_mchunk_in_mbin \
-								mchunk/move_mchunk_to_new_mregion \
+								mchunk/migrate_mchunk_to_new_mregion \
+								mchunk/partition_mchunk \
+								mchunk/grow_mchunk \
+								mchunk/shrink_mchunk \
+								mchunk/coalesce/try_coalesce_with_next_free_mchunk \
+								mchunk/coalesce/try_coalesce_with_neighboring_free_mchunks \
+								mchunk/coalesce/try_coalesce_until_allocation_size_reached \
 								mchunk/utils/mchunk_has_aberrant_values \
 								\
 								limits/get_max_allocation_size \

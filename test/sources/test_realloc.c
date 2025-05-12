@@ -14,8 +14,7 @@
 
 void    test_realloc()
 {
-    void    *ptrs[2];
-    void    *ptr = NULL; // To prevent gcc from replacing realloc by malloc through optimization.
+    void    *ptrs[4];
 
     ft_bzero(ptrs, sizeof(ptrs));
 
@@ -24,7 +23,29 @@ void    test_realloc()
     put_colored(CYAN, "॰ show allocated memory before allocation", STDOUT_FILENO);
     show_alloc_mem();
 
-    ptrs[0] = realloc(ptr, 42);
+    // Need to handle double frees.
+
+    ptrs[0] = realloc(NULL, 500);
+    ptrs[1] = realloc(ptrs[0], 200);
+    // ptrs[0] = NULL;
+    // ft_putendl_fd("-----------", STDOUT_FILENO);
+    // show_alloc_mem();
+    // ptrs[2] = realloc(NULL, 500);
+    // ptrs[3] = realloc(ptrs[2], 499);
+    // ptrs[2] = NULL;
+    // ft_putendl_fd("----------", STDOUT_FILENO);
+    // show_alloc_mem();
+    // ptrs[1] = realloc(ptrs[0], 200);
+    // ptrs[0] = NULL;
+    // ptrs[0] = realloc(NULL, 84);
+    // ft_putendl_fd("---", STDOUT_FILENO);
+    // show_alloc_mem();
+    // ptrs[1] = realloc(ptrs[0], 60);
+    // ft_putendl_fd("---", STDOUT_FILENO);
+    // show_alloc_mem();
+    // ptrs[0] = NULL;
+    // ptrs[0] = NULL;
+    // ptrs[2] = realloc(ptrs[1], 1);
     // ptrs[1] = realloc(ptrs[0], 24);
     // ptrs[0] = malloc(42);
     // ptrs[1] = realloc(ptrs[0], 24);
@@ -34,8 +55,10 @@ void    test_realloc()
     put_colored(CYAN, "॰ show allocated memory after allocation", STDOUT_FILENO);
     show_alloc_mem();
 
-    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
-        free(ptrs[i]);
+    free(ptrs[0]);
+    free(ptrs[1]);
+    // for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+    //     free(ptrs[i]);
 
     put_colored(CYAN, "॰ show allocated memory after free", STDOUT_FILENO);
     show_alloc_mem();

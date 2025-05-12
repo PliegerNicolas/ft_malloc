@@ -71,16 +71,19 @@ typedef struct s_mregion
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-/* init_mregions.c */
+/* . */
 status_t    init_mregion(mregion_t **mregion, size_t allocation_size);
 status_t    init_mregions(mregion_t **mregion, size_t allocation_size, size_t mregions_count);
+
 status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion);
 mregion_t   **get_mregion_by_mchunk(marena_t *marena, mchunk_t *mchunk, size_t allocation_size);
-/* utils/ */
+/* utils */
 void        *mmap_mregion(size_t bytes);
 status_t    munmap_mregion(mregion_t **mregion);
+
 void        append_mregion(mregion_t **mregion, mregion_t *new_mregion);
 void        prepend_mregion(mregion_t **mregion, mregion_t *new_mregion);
+
 bool        is_on_mregion_boundary(mregion_t *mregion, mchunk_t *mchunk);
 bool        does_mregion_contain_mchunk(mregion_t *mregion, mchunk_t *mchunk);
 # pragma GCC visibility pop

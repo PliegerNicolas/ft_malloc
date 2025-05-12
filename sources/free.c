@@ -14,10 +14,10 @@
 
 void    free(void *ptr)
 {
-    mchunk_t    *mchunk;
-    mchunk_t    *freed_mchunk;
+    marena_t    *marena;
+    mchunk_t    *mchunk, *freed_mchunk;
 
-    if (init_gmarena_once() == STATUS_FAILURE)
+    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
         return;
 
     if (!ptr)

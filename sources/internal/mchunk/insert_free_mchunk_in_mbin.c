@@ -17,10 +17,10 @@ status_t    insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *fre
     mchunk_t    **insertion_pos;
 
     if (!mregion || !free_mchunk)
-        return STATUS_FAILURE;
+        return printerr("insert_free_mchunk_in_mregion_mbin()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     if (!does_mregion_contain_mchunk(mregion, free_mchunk) || free_mchunk->state != FREE)
-        return STATUS_FAILURE;
+        return printerr("insert_free_mchunk_in_mregion_mbin()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     insertion_pos = &mregion->mbin;
     while (*insertion_pos && *insertion_pos < free_mchunk)

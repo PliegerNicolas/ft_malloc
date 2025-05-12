@@ -38,7 +38,7 @@ status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion)
     mregion_t   *curr_mregion;
 
     if (!mregion || !*mregion)
-        return STATUS_FAILURE;
+        return printerr("free_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
     
     if (is_mregion_used(*mregion) || should_keep_mregion(*mregion, is_bound_mregion))
         return STATUS_SUCCESS;

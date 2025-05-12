@@ -53,7 +53,7 @@ static status_t init_marena_unbound_mregion(marena_t *marena)
 status_t    init_marena(marena_t *marena)
 {
     if (!marena)
-        return STATUS_FAILURE;
+        return printerr("init_marena()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     ft_bzero(marena, sizeof(*marena));
     
@@ -62,18 +62,5 @@ status_t    init_marena(marena_t *marena)
     if (init_marena_unbound_mregion(marena) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
-    return STATUS_SUCCESS;
-}
-
-status_t    init_marena_once(marena_t *marena)
-{
-    static marena_t *prev_marena = NULL;
-
-    if (prev_marena)
-        return prev_marena == marena ? STATUS_SUCCESS : STATUS_FAILURE;
-
-    if (init_marena(marena) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-
-    return (prev_marena = marena), STATUS_SUCCESS;
+    return (marena->initialized = true), STATUS_SUCCESS;
 }

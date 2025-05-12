@@ -152,7 +152,7 @@ endef
 all: build_ft_malloc $(ARTEFACT_NAME)
 
 build_ft_malloc:
-	@make -C $(LIBFT_MALLOC_PATH) $(MAKECMDGOALS)
+	@make -C $(LIBFT_MALLOC_PATH) $(filter-out std,$(MAKECMDGOALS))
 
 # Rule to build the final executable/shared object/...
 $(ARTEFACT_NAME): $(OBJECTS)

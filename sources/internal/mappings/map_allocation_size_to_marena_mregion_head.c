@@ -15,7 +15,7 @@
 mregion_t   **map_allocation_size_to_marena_mregion_head(marena_t *marena, size_t allocation_size)
 {
     if (!marena)
-        return NULL;
+        return printerr("map_allocation_size_to_marena_mregion_head()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     if (allocation_size <= TINY_MCHUNK_MAX_ALLOCATION_SIZE)
         return &(marena->bound_mregions[TINY_MREGION_TYPE]);

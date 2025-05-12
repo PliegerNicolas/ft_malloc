@@ -35,6 +35,8 @@ typedef struct s_marena
 {
     mregion_t   *bound_mregions[NUM_BOUND_MREGION_TYPES];
     mregion_t   *unbound_mregion;
+
+    bool        initialized;
 } marena_t;
 
 /* *************************************************************************** */
@@ -44,8 +46,8 @@ typedef struct s_marena
 /* Internal functions */
 
 # pragma GCC visibility push(hidden)
-/* init_marena.c */
-status_t    init_marena_once(marena_t *marena);
+/* . */
+marena_t    *init_marena_once(marena_t *marena);
 status_t    init_marena(marena_t *marena);
 # pragma GCC visibility pop
 

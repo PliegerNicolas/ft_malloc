@@ -17,9 +17,9 @@ mchunk_t    *free_mchunk(mregion_t *mregion, mchunk_t *used_mchunk)
     mchunk_t    *free_mchunk;
 
     if (!mregion || !used_mchunk)
-        return STATUS_FAILURE;
+        return printerr("free_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
     if (!does_mregion_contain_mchunk(mregion, used_mchunk) || used_mchunk->state != USED)
-        return STATUS_FAILURE;
+        return printerr("free_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     free_mchunk = used_mchunk;
     free_mchunk->state = FREE;
@@ -28,7 +28,7 @@ mchunk_t    *free_mchunk(mregion_t *mregion, mchunk_t *used_mchunk)
     if ((insert_free_mchunk_in_mregion_mbin(mregion, free_mchunk)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
-    // coalesce ?
+    try_coalesce_with_neighboring_free_mchunks(mregion, &free_mchunk);
 
     return (mregion->used_mchunks -= 1), free_mchunk;
 }

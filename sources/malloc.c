@@ -14,12 +14,13 @@
 
 void    *malloc(size_t size)
 {
+    marena_t    *marena;
     mchunk_t    *allocated_mchunk;
 
-    if (init_gmarena_once() == STATUS_FAILURE)
+    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
         return NULL;
 
-    if ((allocated_mchunk = alloc_mchunk(&gmarena, size)) == STATUS_FAILURE)
+    if ((allocated_mchunk = alloc_mchunk(marena, size)) == STATUS_FAILURE)
         return NULL;
 
     return GET_MCHUNK_DATA_PTR(allocated_mchunk);

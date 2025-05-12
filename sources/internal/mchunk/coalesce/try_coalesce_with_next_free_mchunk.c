@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   coalesce_mchunks.c                                 :+:      :+:    :+:   */
+/*   try_coalesce_with_next_free_mchunk.c               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-11 13:43:38 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-11 13:43:38 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-12 22:24:49 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-12 22:24:49 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,50 +55,27 @@ static void merge_free_with_free_mchunk(mchunk_t *mchunk, mchunk_t *neighbor)
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    *try_coalesce_with_next_mchunk(mregion_t *mregion, mchunk_t *mchunk)
+void    try_coalesce_with_next_free_mchunk(mregion_t *mregion, mchunk_t **mchunk)
 {
     mchunk_t    *neighbor;
 
-    if (!mregion)
-        return STATUS_FAILURE;
+    if (!mregion || !mchunk || !*mchunk)
+        return;
 
-    if (!mchunk)
-        return mchunk;
-    if (!does_mregion_contain_mchunk(mregion, mchunk))
-        return STATUS_FAILURE;
+    if (!does_mregion_contain_mchunk(mregion, *mchunk))
+        return;
 
-    neighbor = GET_NEXT_MCHUNK(mchunk);
+    neighbor = GET_NEXT_MCHUNK(*mchunk);
     if (is_on_mregion_boundary(mregion, neighbor))
-        return mchunk;
+        return;
     else if (!neighbor || !does_mregion_contain_mchunk(mregion, neighbor))
-        return STATUS_FAILURE;
+        return;
 
     if (neighbor->state != FREE)
-        return mchunk;
+        return;
 
-    if (mchunk->state == USED && neighbor->next_free_mchunk)
-        merge_used_with_free_mchunk(mchunk, neighbor);
+    if ((*mchunk)->state == USED && neighbor->next_free_mchunk)
+        merge_used_with_free_mchunk(*mchunk, neighbor);
     else
-        merge_free_with_free_mchunk(mchunk, neighbor);
-
-    return mchunk;
-}
-
-mchunk_t    *try_coalesce_with_neighbors(mregion_t *mregion, mchunk_t *mchunk)
-{
-    mchunk_t    *prev_mchunk;
-    if (!mregion)
-        return STATUS_FAILURE;
-
-    if (!mchunk)
-        return mchunk;
-
-    if ((mchunk = try_coalesce_with_next_mchunk(mregion, mchunk)) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-
-    prev_mchunk = mchunk->prev_free_mchunk;
-    if ((prev_mchunk = try_coalesce_with_next_mchunk(mregion, mchunk->prev_free_mchunk)) == STATUS_FAILURE)
-        return STATUS_FAILURE;
-
-    return prev_mchunk ? prev_mchunk : mchunk;
+        merge_free_with_free_mchunk(*mchunk, neighbor);
 }
