@@ -93,7 +93,9 @@ typedef void*   status_t;
 /** @brief Aligns `value` upwards to the nearest multiple of `align`. */
 # define ALIGN_UP(value, align) (((value) + (align - 1)) & ~(align - 1))
 
+/** @returns The highest value between `value` and `min` */
 # define CLAMP_MIN(value, min) (((value) < (min)) ? (min) : (value))
+/** @returns The smallest value between `value` and `max` */
 # define CLAMP_MAX(value, max) (((value) > (max)) ? (max) : (value))
 
 /** @brief General use-case memory alignment boundary in bytes. */
@@ -162,7 +164,7 @@ typedef void*   status_t;
 # define GET_PREV_MCHUNK(mchunk_ptr) ((mchunk_t*)((unsigned char*)(mchunk_ptr) - GET_MCHUNK_SIZE(((mchunk_t*)(mchunk_ptr))->prev_allocation_size)))
 
 /** @returns True if the allocation_size fits within a bound mregion (cf. `bound_mregion_type_t`). */
-# define IS_BOUND_MREGION(allocation_size) ((bool)((size_t)allocation_size <= SMALL_MREGION_SIZE))
+# define IS_BOUND_MREGION(allocation_size) ((bool)((size_t)allocation_size <= SMALL_MCHUNK_MAX_ALLOCATION_SIZE))
 
 /* Other */
 

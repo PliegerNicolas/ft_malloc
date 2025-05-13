@@ -37,8 +37,11 @@ ARTEFACT_NAME		:=	$(NAME)
 #* *************************************************************************** *#
 
 ifneq (std, $(filter std, $(MAKECMDGOALS)))
+	CFLAGS				+=	-D STD_MALLOC=0
 	LD_FLAGS			+=	-L$(LIBFT_MALLOC_PATH) -lft_malloc
 	RPATH_FLAGS			+=	-Wl,-rpath,$(LIBFT_MALLOC_PATH)
+else
+	CFLAGS				+=	-D STD_MALLOC=1
 endif
 
 ifeq (debug, $(filter debug, $(MAKECMDGOALS)))
@@ -67,8 +70,10 @@ HEADERS_FILE_EXTENSION			:=	.h
 # Files
 SOURCES_FILE_NAMES					:=	main \
 										shared \
+										please_show_alloc_mem \
 										test_malloc \
 										test_realloc \
+										test_free \
 										test_macros
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))

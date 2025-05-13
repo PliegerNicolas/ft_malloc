@@ -1,25 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   please_show_alloc_mem.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-27 21:28:35 by nplieger          #+#    #+#             */
-/*   Updated: 2025-04-27 21:28:35 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-13 21:06:40 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-13 21:06:40 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "test_ft_malloc.h"
 
-int main() {
-    int fd = STDOUT_FILENO;
-
-    test_macros(fd);
-
-    test_free(fd);
-    test_malloc(fd);
-    test_realloc(fd);
-
-    return 0;
+void    please_show_alloc_mem()
+{
+    #if STD_MALLOC == 0
+    show_alloc_mem();
+    #endif
 }

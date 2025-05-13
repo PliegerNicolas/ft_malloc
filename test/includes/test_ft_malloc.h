@@ -13,12 +13,24 @@
 #ifndef TEST_FT_MALLOC_H
 # define TEST_FT_MALLOC_H
 
+# ifndef STD_MALLOC
+#  define STD_MALLOC 0
+# endif
+
 /* *************************************************************************** */
 /* *                                 INCLUDES                                * */
 /* *************************************************************************** */
 
+/* For size_t */
+# include <stddef.h>
+
+/* libft_mini */
+# include "libft_mini.h"
+
 // For our custom malloc implementation.
-# include "ft_malloc.h"
+# if STD_MALLOC == 0
+#  include "ft_malloc.h"
+# endif
 
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */
@@ -26,8 +38,12 @@
 
 # define RESET          "\033[0m"
 # define BOLD           "\033[1m"
+# define DIM            "\033[2m"
 # define ITALIC         "\033[3m"
 # define UNDERLINE      "\033[4m"
+# define BLINK          "\033[5m"
+# define REVERSE        "\033[7m"
+# define HIDDEN         "\033[8m"
 # define STRIKETHROUGH  "\033[9m"
 
 # define BLACK          "\033[0;30m"
@@ -39,6 +55,15 @@
 # define CYAN           "\033[0;36m"
 # define WHITE          "\033[0;37m"
 
+# define BRIGHT_BLACK   "\033[90m"
+# define BRIGHT_RED     "\033[91m"
+# define BRIGHT_GREEN   "\033[92m"
+# define BRIGHT_YELLOW  "\033[93m"
+# define BRIGHT_BLUE    "\033[94m"
+# define BRIGHT_PURPLE  "\033[95m"
+# define BRIGHT_CYAN    "\033[96m"
+# define BRIGHT_WHITE   "\033[97m"
+
 # define BOLD_BLACK     "\033[1;30m"
 # define BOLD_RED       "\033[1;31m"
 # define BOLD_GREEN     "\033[1;32m"
@@ -48,35 +73,48 @@
 # define BOLD_CYAN      "\033[1;36m"
 # define BOLD_WHITE     "\033[1;37m"
 
-# define BG_BLACK       "\033[0;40m"
-# define BG_RED         "\033[0;41m"
-# define BG_GREEN       "\033[0;42m"
-# define BG_YELLOW      "\033[0;43m"
-# define BG_BLUE        "\033[0;44m"
-# define BG_PURPLE      "\033[0;45m"
-# define BG_CYAN        "\033[0;46m"
-# define BG_WHITE       "\033[0;47m"
+# define BG_BLACK       "\033[40m"
+# define BG_RED         "\033[41m"
+# define BG_GREEN       "\033[42m"
+# define BG_YELLOW      "\033[43m"
+# define BG_BLUE        "\033[44m"
+# define BG_PURPLE      "\033[45m"
+# define BG_CYAN        "\033[46m"
+# define BG_WHITE       "\033[47m"
 
-# define BOLD_BG_BLACK  "\033[1;40m"
-# define BOLD_BG_RED    "\033[1;41m"
-# define BOLD_BG_GREEN  "\033[1;42m"
-# define BOLD_BG_YELLOW "\033[1;43m"
-# define BOLD_BG_BLUE   "\033[1;44m"
-# define BOLD_BG_PURPLE "\033[1;45m"
-# define BOLD_BG_CYAN   "\033[1;46m"
-# define BOLD_BG_WHITE  "\033[1;47m"
+# define BG_BRIGHT_BLACK    "\033[100m"
+# define BG_BRIGHT_RED      "\033[101m"
+# define BG_BRIGHT_GREEN    "\033[102m"
+# define BG_BRIGHT_YELLOW   "\033[103m"
+# define BG_BRIGHT_BLUE     "\033[104m"
+# define BG_BRIGHT_PURPLE   "\033[105m"
+# define BG_BRIGHT_CYAN     "\033[106m"
+# define BG_BRIGHT_WHITE    "\033[107m"
+
+# define BG_BOLD_BLACK  "\033[1;40m"
+# define BG_BOLD_RED    "\033[1;41m"
+# define BG_BOLD_GREEN  "\033[1;42m"
+# define BG_BOLD_YELLOW "\033[1;43m"
+# define BG_BOLD_BLUE   "\033[1;44m"
+# define BG_BOLD_PURPLE "\033[1;45m"
+# define BG_BOLD_CYAN   "\033[1;46m"
+# define BG_BOLD_WHITE  "\033[1;47m"
 
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-void    put_colored(char *color, char *title, int fd);
-void    put_size_t_macro(char *title, size_t value, char *details, int fd);
-void    put_ptr_macro(char *title, void *ptr, char *details, int fd);
-void    put_macro_with_relative_ptr_addresses(char *title, void *src_ptr, void *dest_ptr, char *details, int fd);
+void    put_colored(char *color, char *title, bool newline, int fd);
 
-void    test_macros();
-void    test_malloc();
-void    test_realloc();
+void    put_size_t(size_t n, const char *expected_value, int fd);
+void    put_ptr(void *ptr, const char *expected_value, int fd);
+void    put_relative_ptrs(void *ptr1, void *ptr2s, const char *expected_value, int fd);
+
+void    please_show_alloc_mem();
+
+void    test_free(int fd);
+void    test_malloc(int fd);
+void    test_realloc(int fd);
+void    test_macros(int fd);
 
 #endif
