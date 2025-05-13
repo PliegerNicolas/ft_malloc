@@ -20,6 +20,9 @@ void    *malloc(size_t size)
     if ((marena = init_gmarena_once()) == STATUS_FAILURE)
         return NULL;
 
+    if (has_allocation_size_aberrant_value(size))
+        return NULL;
+
     if ((allocated_mchunk = alloc_mchunk(marena, size)) == STATUS_FAILURE)
         return NULL;
 

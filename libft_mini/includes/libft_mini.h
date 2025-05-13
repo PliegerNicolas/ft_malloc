@@ -41,9 +41,17 @@ size_t      ft_putbase_fd(size_t n, const char *base, size_t base_len, int fd);
 size_t      ft_putptr_fd(void *ptr, int fd);
 
 size_t		ft_strlen(const char *s);
+int         ft_strncmp(const char *s1, const char *s2, size_t n);
+
+int         ft_tolower(int c);
+int         ft_toupper(int c);
+char        *ft_tolower_str(char *str);
+char        *ft_toupper_str(char *str);
 
 void        ft_bzero(void *s, size_t n);
 void        *ft_memset(void *s, int c, size_t n);
 void        *ft_memcpy(void *dest, const void *src, size_t n);
+
+int         ft_clz_size_t(size_t n);
 
 #endif

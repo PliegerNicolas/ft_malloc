@@ -12,70 +12,34 @@
 
 #include "ft_malloc.h"
 
-/* *************************************************************************** */
-/* *                                 STATIC                                  * */
-/* *************************************************************************** */
-
-static void merge_used_with_free_mchunk(mchunk_t *mchunk, mchunk_t *neighbor)
+void    try_coalesce_with_next_free_mchunk(mregion_t *mregion, mchunk_t *mchunk)
 {
-    size_t      coalesced_allocation_size;
+    mchunk_t    *next_mchunk;
 
-    if (!mchunk || !neighbor)
+    if (!mregion || !mchunk)
         return;
 
-    if (!neighbor->next_free_mchunk)
+    if (!does_mregion_contain_mchunk(mregion, mchunk))
         return;
 
-    coalesced_allocation_size = mchunk->allocation_size + GET_MCHUNK_SIZE(neighbor->allocation_size);
-
-    neighbor->next_free_mchunk->prev_free_mchunk = mchunk;
-    neighbor->next_free_mchunk->prev_allocation_size = coalesced_allocation_size;
-    mchunk->allocation_size = coalesced_allocation_size;
-}
-
-static void merge_free_with_free_mchunk(mchunk_t *mchunk, mchunk_t *neighbor)
-{
-    size_t      coalesced_allocation_size;
-
-    if (!mchunk || !neighbor)
+    next_mchunk = GET_NEXT_MCHUNK(mchunk);
+    if (!next_mchunk || !does_mregion_contain_mchunk(mregion, next_mchunk) || is_on_mregion_boundary(mregion, next_mchunk))
         return;
 
-    coalesced_allocation_size = mchunk->allocation_size + GET_MCHUNK_SIZE(neighbor->allocation_size);
+    if (next_mchunk->state != FREE)
+        return;
 
-    if (neighbor->next_free_mchunk)
+    mchunk->allocation_size += GET_MCHUNK_SIZE(next_mchunk->allocation_size);
+
+    if (next_mchunk->next_free_mchunk)
     {
-        neighbor->next_free_mchunk->prev_free_mchunk = neighbor->prev_free_mchunk;
-        neighbor->next_free_mchunk->prev_allocation_size = coalesced_allocation_size;
+        next_mchunk->next_free_mchunk->prev_free_mchunk = next_mchunk->prev_free_mchunk;
+        next_mchunk->next_free_mchunk->prev_allocation_size = mchunk->allocation_size;
     }
-    mchunk->next_free_mchunk = neighbor->next_free_mchunk;
-    mchunk->allocation_size = coalesced_allocation_size;
-}
 
-/* *************************************************************************** */
-/* *                                 LINKED                                  * */
-/* *************************************************************************** */
+    if (next_mchunk->prev_free_mchunk)
+        next_mchunk->prev_free_mchunk->next_free_mchunk = next_mchunk->next_free_mchunk;
 
-void    try_coalesce_with_next_free_mchunk(mregion_t *mregion, mchunk_t **mchunk)
-{
-    mchunk_t    *neighbor;
-
-    if (!mregion || !mchunk || !*mchunk)
-        return;
-
-    if (!does_mregion_contain_mchunk(mregion, *mchunk))
-        return;
-
-    neighbor = GET_NEXT_MCHUNK(*mchunk);
-    if (is_on_mregion_boundary(mregion, neighbor))
-        return;
-    else if (!neighbor || !does_mregion_contain_mchunk(mregion, neighbor))
-        return;
-
-    if (neighbor->state != FREE)
-        return;
-
-    if ((*mchunk)->state == USED && neighbor->next_free_mchunk)
-        merge_used_with_free_mchunk(*mchunk, neighbor);
-    else
-        merge_free_with_free_mchunk(*mchunk, neighbor);
+    if (mregion->mbin == next_mchunk)
+        mregion->mbin = next_mchunk->next_free_mchunk;
 }

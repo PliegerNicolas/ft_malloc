@@ -26,8 +26,11 @@ void    *realloc(void *ptr, size_t size)
     if ((marena = init_gmarena_once()) == STATUS_FAILURE)
         return NULL;
 
+    if (has_allocation_size_aberrant_value(size))
+        return NULL;
+
     mchunk = GET_MCHUNK_PTR(ptr);
-    if (!mchunk || mchunk_has_aberrant_values(mchunk) || mchunk->state != USED)
+    if (!mchunk || has_mchunk_aberrant_values(mchunk) || mchunk->state != USED)
         return NULL;
 
     if ((reallocated_mchunk = realloc_mchunk(&gmarena, mchunk, size)) == STATUS_FAILURE)

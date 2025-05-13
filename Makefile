@@ -43,7 +43,7 @@ ifeq (debug, $(filter debug, $(MAKECMDGOALS)))
 endif
 
 ifeq (optimize, $(filter optimize, $(MAKECMDGOALS)))
-	CFLAGS				+=	-O3
+	CFLAGS				+=	-O2
 endif
 
 #* *************************************************************************** *#
@@ -64,6 +64,7 @@ HEADERS_FILE_EXTENSION			:=	.h
 # Files
 INTERNAL_SOURCE_FILE_NAMES	:=	\
 								gmarena \
+								gmutex \
 								alloc_mchunk \
 								realloc_mchunk \
 								free_mchunk_or_mregion \
@@ -93,7 +94,9 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mchunk/coalesce/try_coalesce_with_next_free_mchunk \
 								mchunk/coalesce/try_coalesce_with_neighboring_free_mchunks \
 								mchunk/coalesce/try_coalesce_until_allocation_size_reached \
-								mchunk/utils/mchunk_has_aberrant_values \
+								mchunk/utils/has_mchunk_aberrant_values \
+								mchunk/utils/has_allocation_size_aberrant_value \
+								mchunk/utils/is_mchunk_in_marena \
 								\
 								limits/get_max_allocation_size \
 								limits/get_max_mregion_size \

@@ -14,11 +14,12 @@
 
 void    printerr(const char *caller, const char *err, void *ptr)
 {
-    static bool error_already_printed;
     int fd;
 
-    if (!err || error_already_printed)
+    if (!err)
         return;
+
+    gmutex_lock();
 
     fd = STDERR_FILENO;
     ft_putstr_fd("** ", fd);
@@ -38,5 +39,6 @@ void    printerr(const char *caller, const char *err, void *ptr)
     }
 
     ft_putendl_fd(" **", fd);
-    error_already_printed = true;
+
+    gmutex_unlock();
 }

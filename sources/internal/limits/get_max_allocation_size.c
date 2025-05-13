@@ -14,7 +14,7 @@
 
 size_t  get_max_allocation_size(size_t allocation_size)
 {
-    static size_t   max_allocation_size;
+    static __thread size_t  max_allocation_size;
 
     if (allocation_size > max_allocation_size)
         max_allocation_size = allocation_size;

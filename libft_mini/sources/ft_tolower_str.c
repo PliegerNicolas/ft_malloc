@@ -1,21 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   gmarena.c                                          :+:      :+:    :+:   */
+/*   ft_tolower_str.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-11 02:16:54 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-11 02:16:54 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-18 14:25:02 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-18 14:25:02 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_malloc.h"
+#include "libft_mini.h"
 
-/** @brief Global `marena_t` instance. */
-_Thread_local marena_t  gmarena;
-
-marena_t    *init_gmarena_once()
+char    *ft_tolower_str(char *str)
 {
-    return init_marena_once(&gmarena);
+    char    *s;
+
+    s = str;
+    while (*s)
+    {
+        *s = ft_tolower((unsigned char)*s);
+        ++s;
+    }
+
+    return str;
 }

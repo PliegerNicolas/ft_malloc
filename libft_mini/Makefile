@@ -60,6 +60,7 @@ HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
 SOURCES_FILE_NAMES				:=	ft_strlen \
+									ft_strncmp \
 									ft_putchar_fd \
 									ft_putstr_fd \
 									ft_putendl_fd \
@@ -71,7 +72,12 @@ SOURCES_FILE_NAMES				:=	ft_strlen \
 									ft_putptr_fd \
 									ft_memset \
 									ft_memcpy \
-									ft_bzero
+									ft_bzero \
+									ft_tolower \
+									ft_toupper \
+									ft_tolower_str \
+									ft_toupper_str \
+									ft_clz_size_t
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

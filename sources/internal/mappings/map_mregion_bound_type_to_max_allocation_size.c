@@ -21,6 +21,6 @@ size_t  map_mregion_bound_type_to_max_allocation_size(bound_mregion_type_t bound
         case SMALL_MREGION_TYPE:
             return SMALL_MCHUNK_MAX_ALLOCATION_SIZE;
         default:
-            return 0;
+            return 0; // MAX_ALLOCATION_SIZE;
     }
 }

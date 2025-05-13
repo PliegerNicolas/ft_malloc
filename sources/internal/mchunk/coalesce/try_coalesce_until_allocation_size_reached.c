@@ -30,23 +30,22 @@ static inline bool  has_mchunk_reached_target_size(mchunk_t *mchunk, size_t targ
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-
-bool    try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchunk_t **mchunk, size_t target_size)
+bool    try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchunk_t *mchunk, size_t target_size)
 {
     size_t  prev_mchunk_allocation_size;
 
-    if (!mregion || !mchunk || !*mchunk)
+    if (!mregion || !mchunk)
         return false;
 
-    if (has_mchunk_reached_target_size(*mchunk, target_size))
+    if (has_mchunk_reached_target_size(mchunk, target_size))
         return true;
 
     do
     {
-        prev_mchunk_allocation_size = (*mchunk)->allocation_size;
+        prev_mchunk_allocation_size = mchunk->allocation_size;
         try_coalesce_with_next_free_mchunk(mregion, mchunk);
     }
-    while (has_mchunk_grown(*mchunk, prev_mchunk_allocation_size) && has_mchunk_reached_target_size(*mchunk, target_size));
+    while (has_mchunk_grown(mchunk, prev_mchunk_allocation_size) && !has_mchunk_reached_target_size(mchunk, target_size));
 
-    return true;
+    return has_mchunk_reached_target_size(mchunk, target_size);
 }

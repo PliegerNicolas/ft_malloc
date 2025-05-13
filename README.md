@@ -15,8 +15,10 @@ The operating system provides mechanisms to allocate memory from the heap using 
 - Uses a page-based allocation strategy, making it inefficient for small memory allocations.
 - System calls introduce overhead, making them "slow".
 
-## **Objective of ft_malloc**
-Our goal with **ft_malloc** is to minimize **memory fragmentation** and enhance **performance**, albeit at the cost of **memory pre-allocation** thus additional **overhead**.
+## **Intent of ft_malloc**
+Our goal is to enhance **performance** by reducing the amount of **system calls**, albeit at the cost of **memory pre-allocation**, **memory fragmentation**. In other words: additional **overhead**.
+
+Ideally **fragmentation** is kept minial.
 
 ### **Gains:**
 - Fewer system calls through pre-allocation, enabling more efficient memory distribution via pointer arithmetic.
@@ -35,11 +37,12 @@ With our **malloc** implementation, we aim to optimize memory allocation while b
 
 ## libft_mini
 
-I create **libft_mini** because I am not satisfied with my original one. It can easily be replace by the real one.
-This one is more minimal and follows a more modern approach, now that I know C better.
+I was not satisfied by my original [libft](https://github.com/PliegerNicolas/libft).
+I decided to recreate one that answers my needs while using a more modern approach, now that I know C better.
 
 ## Usage
 
 If you want to use this malloc implementation instead of the libc's one inside existing programs you have to:
-- Prepend the path where `libft_malloc.so` is located in `LD_LIBRARY_PATH` environment variable. Ensure our *.so file is read first and has precedence.
+- Prepend the path where `libft_malloc.so` is located in `LD_LIBRARY_PATH` environment variable. Ensure our *.so file is read first and has precedence.  
+Please see how it's been done in my `tester`'s `Makefile`.
 - Ensure the existing program only uses functions that are present in the header file of libc's malloc and ours.

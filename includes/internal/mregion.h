@@ -75,8 +75,9 @@ typedef struct s_mregion
 status_t    init_mregion(mregion_t **mregion, size_t allocation_size);
 status_t    init_mregions(mregion_t **mregion, size_t allocation_size, size_t mregions_count);
 
-status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion);
+status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion, size_t free_bound_mregion_threshold);
 mregion_t   **get_mregion_by_mchunk(marena_t *marena, mchunk_t *mchunk, size_t allocation_size);
+
 /* utils */
 void        *mmap_mregion(size_t bytes);
 status_t    munmap_mregion(mregion_t **mregion);

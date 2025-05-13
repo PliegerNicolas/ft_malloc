@@ -1,21 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   gmarena.c                                          :+:      :+:    :+:   */
+/*   please.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-11 02:16:54 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-11 02:16:54 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-21 20:59:48 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-21 20:59:48 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_malloc.h"
+#include "test_ft_malloc.h"
 
-/** @brief Global `marena_t` instance. */
-_Thread_local marena_t  gmarena;
+// These functions wrap around functions that do only exist in my malloc implementation.
+// This helps comparing tests with glibc malloc (cf. make std).
 
-marena_t    *init_gmarena_once()
+void    please_show_alloc_mem()
 {
-    return init_marena_once(&gmarena);
+    #if STD_MALLOC == 0
+    show_alloc_mem();
+    #endif
 }

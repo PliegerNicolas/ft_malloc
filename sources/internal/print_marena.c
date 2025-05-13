@@ -41,14 +41,28 @@ static size_t   print_mchunk(mchunk_t *mchunk, bool endl, int fd)
     return mchunk->allocation_size;
 }
 
-static size_t   print_mregion_mchunks(mregion_t *mregion, int fd, bool print_free)
+static void print_mregion_title(const char *mregion_type_name, mregion_t *mregion, int fd)
+{
+    if (!mregion_type_name)
+        return;
+
+    ft_putstr_fd(mregion_type_name, fd);
+    ft_putstr_fd(": ", fd);
+    if (mregion)
+        ft_putptr_fd(mregion, fd);
+    ft_putchar_fd('\n', fd);
+}
+
+static size_t   print_mregion_mchunks(const char *mregion_type_name, mregion_t *mregion, int fd, bool print_free)
 {
     size_t          allocated_bytes;
     mchunk_t        *mchunk;
     unsigned char   *mregion_right_data_bound;
 
-    if (!mregion)
+    if (!mregion_type_name || !mregion)
         return 0;
+
+    print_mregion_title(mregion_type_name, mregion, fd);
 
     mregion_right_data_bound = (unsigned char *)mregion + mregion->size;
 
@@ -72,13 +86,16 @@ static size_t   print_mregion_mchunks(mregion_t *mregion, int fd, bool print_fre
     return allocated_bytes;
 }
 
-static size_t   print_mregion(mregion_t *mregion, int fd, bool print_free)
+static size_t   print_mregion(const char *mregion_type_name, mregion_t *mregion, int fd, bool print_free)
 {
     size_t  allocated_bytes;
 
+    if (!mregion_type_name || !mregion)
+        return 0;
+
     allocated_bytes = 0;
     for(mregion_t *curr_mregion = mregion; curr_mregion; curr_mregion = curr_mregion->next)
-        allocated_bytes += print_mregion_mchunks(curr_mregion, fd, print_free);
+        allocated_bytes += print_mregion_mchunks(mregion_type_name, curr_mregion, fd, print_free);
 
     return allocated_bytes;
 }
@@ -94,16 +111,16 @@ size_t  print_marena(marena_t *marena, int fd, bool print_free)
     if (!marena)
         return 0;
     
+    if (gmutex_lock() == STATUS_FAILURE)
+        return 0;
+
     allocated_bytes = 0;
     for (bound_mregion_type_t type = 0; type < NUM_BOUND_MREGION_TYPES; type++)
-    {
-        ft_putstr_fd(map_mregion_bound_type_to_name(type), fd);
-        ft_putendl_fd(":", fd);
-        allocated_bytes += print_mregion(marena->bound_mregions[type], fd, print_free);
-    }
+        allocated_bytes += print_mregion(map_mregion_bound_type_to_name(type), marena->bound_mregions[type], fd, print_free);
+    allocated_bytes += print_mregion("LARGE", marena->unbound_mregion, fd, print_free);
 
-    ft_putendl_fd("LARGE:", fd);
-    allocated_bytes += print_mregion(marena->unbound_mregion, fd, print_free);
+    if (gmutex_unlock() == STATUS_FAILURE)
+        return allocated_bytes;
 
     return allocated_bytes;  
 }

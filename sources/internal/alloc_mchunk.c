@@ -18,7 +18,22 @@
 
 static inline bool  is_mregion_full(mregion_t *mregion)
 {
+    if (!mregion)
+        return true;
+
     return mregion->mbin == NULL;
+}
+
+// Because we want unbound mregions to have a high in-place growth space availability.
+static inline bool  is_mregion_full_enough(mregion_t *mregion, size_t allocation_size)
+{
+    if (!mregion)
+        return true;
+
+    if (IS_BOUND_MREGION(allocation_size))
+        return false;
+
+    return mregion->used_mchunks >= MCHUNKS_PER_UNBOUND_MREGION;
 }
 
 static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t allocation_size)
@@ -31,11 +46,11 @@ static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t 
         return STATUS_FAILURE;
     if (!*mregion_head && (init_mregion(mregion_head, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
-    
+
     current_mregion = mregion_head;
     while (*current_mregion)
     {
-        if (!is_mregion_full(*current_mregion))
+        if (!is_mregion_full(*current_mregion) && !is_mregion_full_enough(*current_mregion, allocation_size))
         {
             best_fit_free_mchunk = select_best_fit_mbin_mchunk((*current_mregion)->mbin, allocation_size);
             if (best_fit_free_mchunk)
@@ -63,16 +78,14 @@ mchunk_t    *alloc_mchunk(marena_t *marena, size_t allocation_size)
 
     if (!marena)
         return printerr("alloc_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
-    
+
     if ((free_mchunk = find_or_generate_best_fit_free_mchunk(marena, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
     if ((mregion = get_mregion_by_mchunk(marena, free_mchunk, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
-
-    try_coalesce_with_neighboring_free_mchunks(*mregion, &free_mchunk);
     
-    if ((used_mchunk = use_mchunk(*mregion, free_mchunk, allocation_size)) == STATUS_FAILURE)
+    if ((used_mchunk = use_mchunk(mregion, free_mchunk, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
     return used_mchunk;
