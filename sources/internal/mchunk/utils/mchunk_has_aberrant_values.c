@@ -22,9 +22,6 @@ bool    mchunk_has_aberrant_values(mchunk_t *mchunk)
     if (!IS_ALIGNED(mchunk, ALIGNMENT_BOUNDARY))
         return printerr("mchunk_has_aberrant_values()", "misaligned mchunk detected", mchunk), true;
 
-    // TODO: Handle double free.
-    // return printerr("mchunk_has_aberrant_values()", "double free or corrupted mchunk", mchunk), true;
-
     if (mchunk->allocation_size > max_allocation_size || mchunk->prev_allocation_size > max_allocation_size)
         return printerr("mchunk_has_aberrant_values()", "corrupted mchunk", mchunk), true;
 

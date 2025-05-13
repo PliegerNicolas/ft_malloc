@@ -30,7 +30,6 @@ static inline bool  has_mchunk_reached_target_size(mchunk_t *mchunk, size_t targ
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-
 bool    try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchunk_t **mchunk, size_t target_size)
 {
     size_t  prev_mchunk_allocation_size;

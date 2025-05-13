@@ -16,6 +16,7 @@ mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *used_mchunk)
 {
     mregion_t   **mregion;
     mchunk_t    *freed_mchunk;
+    size_t      free_bound_mregion_threshold;
 
     if (!used_mchunk || used_mchunk->state != USED)
         return printerr("free_mchunk_or_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
@@ -28,7 +29,8 @@ mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *used_mchunk)
 
     try_coalesce_with_neighboring_free_mchunks(*mregion, &freed_mchunk);
 
-    if ((*mregion)->used_mchunks == 0 && free_mregion(mregion, IS_BOUND_MREGION(used_mchunk->allocation_size)) == STATUS_FAILURE)
+    free_bound_mregion_threshold = INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE;
+    if (free_mregion(mregion, IS_BOUND_MREGION(used_mchunk->allocation_size), free_bound_mregion_threshold) == STATUS_FAILURE)
         return STATUS_FAILURE;
     
     return freed_mchunk;

@@ -24,6 +24,9 @@ void    free(void *ptr)
         return;
 
     mchunk = GET_MCHUNK_PTR(ptr);
+    if (!mchunk || !is_mchunk_is_marena(marena, mchunk))
+        return printerr("free()", "double free or corruption", mchunk);
+
     if (!mchunk || mchunk_has_aberrant_values(mchunk) || mchunk->state != USED)
         return;
 
