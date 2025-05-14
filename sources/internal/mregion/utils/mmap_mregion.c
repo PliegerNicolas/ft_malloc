@@ -20,17 +20,23 @@ void    *mmap_mregion(size_t bytes)
     if (bytes == 0)
         return STATUS_FAILURE;
 
-    // getrlimit should almost never fail.
-    if (getrlimit(RLIMIT_AS, &rlimit) == -1)
-        return STATUS_FAILURE; // getrlimit sets errno.
+    // // getrlimit should almost never fail.
+    // if (getrlimit(RLIMIT_AS, &rlimit) == -1)
+    //     return STATUS_FAILURE; // getrlimit sets errno.
 
-    // Exists for potential more precise error handling.
-    if (rlimit.rlim_cur != RLIM_INFINITY && bytes > rlimit.rlim_cur)
-        return (errno = ENOMEM), STATUS_FAILURE;
+    // // Exists for potential more precise error handling.
+    // if (rlimit.rlim_cur != RLIM_INFINITY && bytes > rlimit.rlim_cur)
+    //     return (errno = ENOMEM), STATUS_FAILURE;
 
     ptr = mmap(NULL, ALIGN_UP(bytes, PAGE_SIZE), (PROT_READ | PROT_WRITE), (MAP_PRIVATE | MAP_ANONYMOUS), -1, 0);
     if (ptr == MAP_FAILED)
-        return STATUS_FAILURE; //mmap sets errno
+    {
+        if (errno == ENOMEM)
+            printerr("mmap_mregion()", "Not enough memory (ENOMEM)", NULL);
+        else
+            printerr("mmap_mregion()", "Failed retrieving memory from OS for unexpected reasons", NULL);
+        return STATUS_FAILURE;
+    }
 
     return ptr;
 }

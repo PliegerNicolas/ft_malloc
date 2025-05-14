@@ -17,8 +17,8 @@ int main() {
 
     test_macros(fd);
 
-    test_free(fd);
     test_malloc(fd);
+    test_free(fd);
     test_realloc(fd);
 
     return 0;
