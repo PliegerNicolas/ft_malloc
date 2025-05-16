@@ -42,6 +42,8 @@ mchunk_t    *grow_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation
     if ((mregion = get_mregion_by_mchunk(marena, mchunk, mchunk->allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
+    // TODO: prevent to validate if more than desired mchunks per mregion for large mregion.
+
     if (!try_coalesce_until_allocation_size_reached(*mregion, &mchunk, reallocation_size))
         return migrate_mchunk_to_new_mregion(marena, mchunk, reallocation_size);
 

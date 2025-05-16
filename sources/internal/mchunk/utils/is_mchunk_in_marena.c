@@ -12,7 +12,7 @@
 
 #include "ft_malloc.h"
 
-bool    is_mchunk_is_marena(marena_t *marena, mchunk_t *mchunk)
+bool    is_mchunk_in_marena(marena_t *marena, mchunk_t *mchunk)
 {
     if (!marena)
         return false;

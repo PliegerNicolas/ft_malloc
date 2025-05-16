@@ -48,14 +48,25 @@ static void    test_system_macros(int fd)
 
     put_colored(BOLD_CYAN, "ALIGN_UP(17, 16): ", false, fd);
     put_size_t(ALIGN_UP(17, 16), "32", fd);
-    put_colored(BOLD_CYAN, "ALIGN_UP(0, 10): ", false, fd);
-    put_size_t(ALIGN_UP(0, 10), "0", fd);
+    put_colored(BOLD_CYAN, "ALIGN_UP(0, 8): ", false, fd);
+    put_size_t(ALIGN_UP(0, 8), "0", fd);
     put_colored(BOLD_CYAN, "ALIGN_UP(4, 7): ", false, fd);
-    put_size_t(ALIGN_UP(4, 9), "UB => align must be a power of 2", fd);
+    put_size_t(ALIGN_UP(4, 7), "UB => {align} must be a power of 2", fd);
     put_colored(BOLD_CYAN, "ALIGN_UP(8, -42): ", false, fd);
-    put_size_t(ALIGN_UP(8, -42), "UB => align must be a power of 2", fd);
-    put_colored(BOLD_CYAN, "ALIGN_UP(-5, 16): ", false, fd);
-    put_size_t(ALIGN_UP(-42, 16), "UB => value must be positive", fd);
+    put_size_t(ALIGN_UP(8, -42), "UB => {align} must be a power of 2", fd);
+    put_colored(BOLD_CYAN, "ALIGN_UP(-42, 16): ", false, fd);
+    put_size_t(ALIGN_UP(-42, 16), "UB => {value} must be positive", fd);
+
+    put_colored(BOLD_CYAN, "ALIGN_DOWN(35, 16): ", false, fd);
+    put_size_t(ALIGN_DOWN(35, 16), "32", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN(0, 10): ", false, fd);
+    put_size_t(ALIGN_DOWN(0, 0), "0", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN(4, 7): ", false, fd);
+    put_size_t(ALIGN_DOWN(4, 7), "UB => {align} must be a power of 2", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN(8, -42): ", false, fd);
+    put_size_t(ALIGN_DOWN(8, -42), "UB => {align} must be a power of 2", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN(-42, 16): ", false, fd);
+    put_size_t(ALIGN_DOWN(-42, 16), "UB => {value} must be positive", fd);
 
     put_colored(BOLD_CYAN, "CLAMP_MIN(10, 15): ", false, fd);
     put_size_t(CLAMP_MIN(10, 15), "at least 15 => 15", fd);
@@ -75,9 +86,9 @@ static void    test_system_macros(int fd)
     put_colored(BOLD_CYAN, "IS_ALIGNED(32, 16): ", false, fd);
     put_size_t(IS_ALIGNED(32, 16), "1 <=> true", fd);
     put_colored(BOLD_CYAN, "IS_ALIGNED(-32, 16): ", false, fd);
-    put_size_t(IS_ALIGNED(-32, 16), "UB => value must be positive", fd);
+    put_size_t(IS_ALIGNED(-32, 16), "UB => {value} must be positive", fd);
     put_colored(BOLD_CYAN, "IS_ALIGNED(32, -16): ", false, fd);
-    put_size_t(IS_ALIGNED(32, -16), "UB => align must be a power of 2", fd);
+    put_size_t(IS_ALIGNED(32, -16), "UB => {align} must be a power of 2", fd);
 
     put_colored(BOLD_CYAN, "PAGE_SIZE: ", false, fd);
     put_size_t(PAGE_SIZE, "a power of 2, typically 4096 bytes", fd);
@@ -166,6 +177,12 @@ static void test_mchunk_macros(int fd)
 static void test_other_macros(int fd)
 {
     put_colored(UNDERLINE, "Other macros:", true, fd);
+
+    put_colored(BOLD_CYAN, "PAGE_ALIGNED_SIZE_MAX: ", false, fd);
+    put_size_t(PAGE_ALIGNED_SIZE_MAX, "a value close to SIZE_MAX", fd);
+
+    put_colored(BOLD_CYAN, "MAX_ALLOCATION_SIZE: ", false, fd);
+    put_size_t(MAX_ALLOCATION_SIZE, "a big value, I guess", fd);
 
     put_colored(BOLD_CYAN, "STATUS_SUCCESS: ", false, fd);
     put_ptr(STATUS_SUCCESS, "0xffffffffffffffff", fd);

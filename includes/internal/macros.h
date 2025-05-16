@@ -92,6 +92,10 @@ typedef void*   status_t;
 
 /** @brief Aligns `value` upwards to the nearest multiple of `align`. */
 # define ALIGN_UP(value, align) (((value) + (align - 1)) & ~(align - 1))
+/** @brief Aligns `value` downwards to the nearest multiple of `align`. */
+# define ALIGN_DOWN(value, align) ((value) & ~((align) - 1))
+
+
 
 /** @returns The highest value between `value` and `min` */
 # define CLAMP_MIN(value, min) (((value) < (min)) ? (min) : (value))
@@ -131,9 +135,9 @@ typedef void*   status_t;
 # define MREGION_HEADER_SIZE (size_t)ALIGN_UP(sizeof(mregion_t), ALIGNMENT_BOUNDARY)
 
 /** @brief Size of a tiny `mregion_t`. */
-# define TINY_MREGION_SIZE ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_BOUND_MREGION * TINY_MCHUNK_MAX_ALLOCATION_SIZE)), PAGE_SIZE)
+# define TINY_MREGION_SIZE ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_BOUND_MREGION * GET_MCHUNK_SIZE(TINY_MCHUNK_MAX_ALLOCATION_SIZE))), PAGE_SIZE)
 /** @brief Size of a small `mregion_t`. */
-# define SMALL_MREGION_SIZE ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_BOUND_MREGION * SMALL_MCHUNK_MAX_ALLOCATION_SIZE)), PAGE_SIZE)
+# define SMALL_MREGION_SIZE ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_BOUND_MREGION * GET_MCHUNK_SIZE(SMALL_MCHUNK_MAX_ALLOCATION_SIZE))), PAGE_SIZE)
 /** @brief Size of a large `mregion_t`, given a target `allocation_size`. */
 # define LARGE_MREGION_SIZE(allocation_size) ALIGN_UP((MREGION_HEADER_SIZE + (MCHUNKS_PER_UNBOUND_MREGION * GET_MCHUNK_SIZE(allocation_size))), PAGE_SIZE)
 
@@ -167,6 +171,11 @@ typedef void*   status_t;
 # define IS_BOUND_MREGION(allocation_size) ((bool)((size_t)allocation_size <= SMALL_MCHUNK_MAX_ALLOCATION_SIZE))
 
 /* Other */
+
+/** @brief Page aligned value closest to (size_t)-1 */
+# define PAGE_ALIGNED_SIZE_MAX (size_t)ALIGN_DOWN(SIZE_MAX, PAGE_SIZE)
+/** @brief Maximum allocation_size */
+# define MAX_ALLOCATION_SIZE (size_t)((PAGE_ALIGNED_SIZE_MAX - MREGION_HEADER_SIZE) / (MCHUNKS_PER_UNBOUND_MREGION * MREGION_HEADER_SIZE))
 
 /** @brief Represents a successful operation. It's also an invalid memory address.
  * @note Used with `status_t`. */

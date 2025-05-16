@@ -93,7 +93,8 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mchunk/coalesce/try_coalesce_with_next_free_mchunk \
 								mchunk/coalesce/try_coalesce_with_neighboring_free_mchunks \
 								mchunk/coalesce/try_coalesce_until_allocation_size_reached \
-								mchunk/utils/mchunk_has_aberrant_values \
+								mchunk/utils/has_mchunk_aberrant_values \
+								mchunk/utils/has_allocation_size_aberrant_value \
 								mchunk/utils/is_mchunk_in_marena \
 								\
 								limits/get_max_allocation_size \

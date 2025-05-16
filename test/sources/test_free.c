@@ -16,36 +16,91 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-// static void test_free_null(int fd)
-// {
-//     put_colored(UNDERLINE, "null:", true, fd);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#pragma GCC diagnostic ignored "-Wuse-after-free"
+static void test_free_edge_cases(int fd)
+{
+    void    *ptrs[3] = { NULL };
 
-//     put_colored(BOLD_CYAN, "free(NULL): ", false, fd);
-//     free(NULL); ft_putchar_fd('\n', fd);
-// }
+    put_colored(UNDERLINE, "Test free edge cases:", true, fd);
 
-// static void test_double_free(int fd)
-// {
-//     put_colored(UNDERLINE, "Double free:", true, fd);
+    put_colored(BOLD_CYAN, "Operations:", true, fd);
+    {
+        for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+            ptrs[i] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
 
-//     put_colored(BOLD_CYAN, "free(NULL): ", false, fd);
-//     free(NULL); ft_putchar_fd('\n', fd);
-// }
+        put_colored(BRIGHT_WHITE, "free(NULL): ", false, fd);
+        free(NULL); ft_putchar_fd('\n', fd);
+        ft_putendl_fd("🞄 Expected behavior: nothing.", fd);
 
-// static void test_invalid_ptr(int fd)
-// {
-//     put_colored(UNDERLINE, "Invalid pointers:", true, fd);
+        put_colored(BRIGHT_WHITE, "free(ptrs[0]); free(ptrs[0]): ", false, fd);
+        free(ptrs[0]); free(ptrs[0]); ptrs[0] = NULL;
+        ft_putendl_fd("🞄 Expected behavior: double free or corruption error message.", fd);
 
-//     #pragma GCC diagnostic push
-//     #pragma GCC diagnostic ignored "-Wfree-nonheap-object"
-//     #pragma GCC diagnostic ignored "-Wuninitialized"
-//     #pragma GCC diagnostic ignored "-Wuse-after-free"
+        void    *uninitialized_ptr;
+        put_colored(BRIGHT_WHITE, "free(uninitialized_ptr): ", false, fd);
+        free(uninitialized_ptr);
+        ft_putendl_fd("🞄 Expected behavior: double free or corruption error message.", fd);
 
+        int stack_var = 42;
+        put_colored(BRIGHT_WHITE, "free(&stack_var): ", false, fd);
+        free(&stack_var);
+        ft_putendl_fd("🞄 Expected behavior: double free or corruption error message.", fd);
 
+        put_colored(BRIGHT_WHITE, "ptrs[2] = realloc(ptrs[1]); free(ptrs[1]): ", false, fd);
+        ptrs[2] = realloc(ptrs[1], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1); free(ptrs[1]);
+        ft_putendl_fd("🞄 Expected behavior: double free or corruption error message.", fd);
+    }
 
-//     #pragma GCC diagnostic pop
-// }
+    put_colored(BOLD_CYAN, "Results:", true, fd);
+    {
+        please_show_alloc_mem();
+    }
 
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        free(ptrs[i]); // Assuming free works fine.
+}
+#pragma GCC diagnostic pop
+
+static void test_coalesce_on_free(int fd)
+{
+    void    *ptrs[84] = { NULL };
+
+    put_colored(UNDERLINE, "Test coalesce on free", true, fd);
+
+    put_colored(BOLD_CYAN, "Operations:", true, fd);
+    {
+        for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+            ptrs[i++] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
+
+        please_show_alloc_mem();
+
+        put_colored(BRIGHT_WHITE, "free(...ptrs[i % 3]): ", true, fd);
+        free(ptrs[1]); ptrs[1] = NULL;
+        // free(ptrs[2]); ptrs[2] = NULL;
+        // for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        // {
+        //     if (i % 3 != 0)
+        //     {
+        //         free(ptrs[i]);
+        //         ptrs[i] = NULL;
+        //     }
+        // }
+        // ft_putendl_fd("🞄 Expected behavior: no neighboring free `mchunk_t`s.", fd);
+
+        le free ne semble pas trigger ici.
+    }
+
+    put_colored(BOLD_CYAN, "Results:", true, fd);
+    {
+        please_show_alloc_mem();
+    }
+
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        free(ptrs[i]); // Assuming free works fine.
+}
 
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
@@ -54,35 +109,7 @@
 void    test_free(int fd)
 {
     put_colored(BG_BOLD_BLACK, "Testing:            free(void *ptr)                 ", true, fd);
-    
-    // // This tells the compiler to ignore some rules that protect calls on free().
-    // #pragma GCC diagnostic push
-    // #pragma GCC diagnostic ignored "-Wfree-nonheap-object"
-    // #pragma GCC diagnostic ignored "-Wuninitialized"
-    // #pragma GCC diagnostic ignored "-Wuse-after-free"
 
-    // void    *allocated_ptr;
-    // void    *invalid_ptr = (void *)(uintptr_t)0xDEADBEEF;
-
-    // put_colored(BOLD_CYAN, "free(NULL): ", false, fd);
-    // free(NULL); ft_putchar_fd('\n', fd);
-    // put_colored(BOLD_CYAN, "free(uninitialized_ptr): ", false, fd);
-    // free(invalid_ptr);
-    // put_colored(BOLD_CYAN, "free((void*)-1): ", false, fd);
-    // free((void*)-1);
-    
-    // put_colored(BOLD_CYAN, "free(allocated_ptr): ", true, fd);
-
-    // allocated_ptr = malloc(42);
-    // put_colored(DIM, "After: malloc(42): ", true, fd);
-    // please_show_alloc_mem();
-
-    // put_colored(DIM, "After: free(allocated_Ptr): ", true, fd);
-    // free(allocated_ptr);
-    // please_show_alloc_mem();
-
-    // put_colored(DIM, "After second: free(allocated_Ptr): ", false, fd);
-    // free(allocated_ptr);
-
-    // #pragma GCC diagnostic pop
+    test_free_edge_cases(fd);
+    test_coalesce_on_free(fd);
 }

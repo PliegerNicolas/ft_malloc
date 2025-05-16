@@ -83,8 +83,9 @@ void        try_coalesce_with_next_free_mchunk(mregion_t *mregion, mchunk_t **mc
 void        try_coalesce_with_neighboring_free_mchunks(mregion_t *mregion, mchunk_t **mchunk);
 bool        try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchunk_t **mchunk, size_t target_size);
 /* utils */
-bool        mchunk_has_aberrant_values(mchunk_t *mchunk);
-bool        is_mchunk_is_marena(marena_t *marena, mchunk_t *mchunk);
+bool        has_mchunk_aberrant_values(mchunk_t *mchunk);
+bool        has_allocation_size_aberrant_value(size_t allocation_size);
+bool        is_mchunk_in_marena(marena_t *marena, mchunk_t *mchunk);
 # pragma GCC visibility pop
 
 #endif // MCHUNK_H

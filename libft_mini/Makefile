@@ -60,6 +60,7 @@ HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
 SOURCES_FILE_NAMES				:=	ft_strlen \
+									ft_strncmp \
 									ft_putchar_fd \
 									ft_putstr_fd \
 									ft_putendl_fd \

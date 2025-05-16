@@ -1,30 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   malloc.c                                           :+:      :+:    :+:   */
+/*   has_allocation_size_aberrant_value.c               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-11 02:23:36 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-11 02:23:36 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-16 17:16:31 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-16 17:16:31 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void    *malloc(size_t size)
+bool    has_allocation_size_aberrant_value(size_t allocation_size)
 {
-    marena_t    *marena;
-    mchunk_t    *allocated_mchunk;
-
-    if (has_allocation_size_aberrant_value(size))
-        return NULL;
-
-    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
-        return NULL;
-
-    if ((allocated_mchunk = alloc_mchunk(marena, size)) == STATUS_FAILURE)
-        return NULL;
-
-    return GET_MCHUNK_DATA_PTR(allocated_mchunk);
+    if (allocation_size > MAX_ALLOCATION_SIZE)
+        return printerr("has_allocation_size_aberrant_value()", "max allocation size exceeded", NULL), true;
+    return false;
 }
