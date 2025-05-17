@@ -31,20 +31,20 @@ static bool should_keep_mregion(mregion_t *mregion, bool is_bound_mregion, size_
 
     total_neighboring_mregions = 0;
     current_mregion = mregion;
-    while (current_mregion && total_neighboring_mregions < free_bound_mregion_threshold)
+    while (current_mregion && current_mregion->prev && total_neighboring_mregions < free_bound_mregion_threshold)
     {
         ++total_neighboring_mregions;
         current_mregion = current_mregion->prev;
     }
 
     current_mregion = mregion;
-    while (current_mregion && total_neighboring_mregions < free_bound_mregion_threshold)
+    while (current_mregion && current_mregion->next && total_neighboring_mregions < free_bound_mregion_threshold)
     {
         ++total_neighboring_mregions;
         current_mregion = current_mregion->next;
     }
 
-    return !(total_neighboring_mregions < free_bound_mregion_threshold);
+    return total_neighboring_mregions < free_bound_mregion_threshold;
 }
 
 /* *************************************************************************** */
