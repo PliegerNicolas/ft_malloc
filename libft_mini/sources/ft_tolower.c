@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   please_show_alloc_mem.c                            :+:      :+:    :+:   */
+/*   ft_tolower.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-13 21:06:40 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-13 21:06:40 by nplieger         ###   ########.fr       */
+/*   Created: 2025-05-18 14:15:14 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-18 14:15:14 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "test_ft_malloc.h"
+#include "libft_mini.h"
 
-void    please_show_alloc_mem()
+int ft_tolower(int c)
 {
-    #if STD_MALLOC == 0
-    show_alloc_mem();
-    #endif
+	if (c >= 'A' && c <= 'Z')
+		c += 32;
+	return (c);
 }

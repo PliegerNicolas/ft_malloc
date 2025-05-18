@@ -1,0 +1,15 @@
+{
+   corrupted_mchunk_suppression
+   Memcheck:Free
+   fun:free
+   fun:check_free
+   fun:test_free_on_corrupted_mchunk
+}
+
+{
+   double_free_suppression
+   Memcheck:Free
+   fun:free
+   fun:check_free
+   fun:test_double_free
+}

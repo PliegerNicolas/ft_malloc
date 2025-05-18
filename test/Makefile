@@ -69,8 +69,7 @@ HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
 SOURCES_FILE_NAMES					:=	main \
-										shared \
-										please_show_alloc_mem \
+										utils \
 										test_malloc \
 										test_realloc \
 										test_free \

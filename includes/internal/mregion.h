@@ -77,6 +77,8 @@ status_t    init_mregions(mregion_t **mregion, size_t allocation_size, size_t mr
 
 status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion, size_t free_bound_mregion_threshold);
 mregion_t   **get_mregion_by_mchunk(marena_t *marena, mchunk_t *mchunk, size_t allocation_size);
+
+void        update_mbin_if_necessary(mregion_t *mregion, mchunk_t *free_mchunk);
 /* utils */
 void        *mmap_mregion(size_t bytes);
 status_t    munmap_mregion(mregion_t **mregion);

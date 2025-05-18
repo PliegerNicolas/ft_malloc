@@ -24,13 +24,20 @@
 /* For size_t */
 # include <stddef.h>
 
+/* For bool */
+#include <stdbool.h>
+
+/* For real malloc, realloc, free... */
+#include <stdlib.h>
+
+/* For printf */
+# include <stdio.h>
+
 /* libft_mini */
 # include "libft_mini.h"
 
 // For our custom malloc implementation.
-# if STD_MALLOC == 0
 #  include "ft_malloc.h"
-# endif
 
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */
@@ -54,6 +61,15 @@
 # define PURPLE         "\033[0;35m"
 # define CYAN           "\033[0;36m"
 # define WHITE          "\033[0;37m"
+
+# define DIM_BLACK      "\033[2;30m"
+# define DIM_RED        "\033[2;31m"
+# define DIM_GREEN      "\033[2;32m"
+# define DIM_YELLOW     "\033[2;33m"
+# define DIM_BLUE       "\033[2;34m"
+# define DIM_PURPLE     "\033[2;35m"
+# define DIM_CYAN       "\033[2;36m"
+# define DIM_WHITE      "\033[2;37m"
 
 # define BRIGHT_BLACK   "\033[90m"
 # define BRIGHT_RED     "\033[91m"
@@ -116,5 +132,7 @@ void    test_free(int fd);
 void    test_malloc(int fd);
 void    test_realloc(int fd);
 void    test_macros(int fd);
+
+void    *check_free(const char *title, void *ptr, const char *expected_result, int fd);
 
 #endif

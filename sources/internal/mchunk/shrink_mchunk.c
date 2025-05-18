@@ -23,18 +23,6 @@ static inline bool  is_mchunk_too_small_to_shrink(mchunk_t *mchunk, size_t reall
     return ALIGN_UP(mchunk->allocation_size, ALIGNMENT_BOUNDARY) < GET_MCHUNK_SIZE(reallocation_size);
 }
 
-static void    update_mbin_if_necessary(mregion_t *mregion, mchunk_t *free_mchunk)
-{
-    if (!mregion || !free_mchunk)
-        return;
-
-    if (!mregion->mbin || mregion->mbin->state != FREE)
-        mregion->mbin = free_mchunk;
-
-    while (mregion->mbin->prev_free_mchunk)
-        mregion->mbin = mregion->mbin->prev_free_mchunk;
-}
-
 static mchunk_t *shrink_mchunk_by_partitioning(mregion_t *mregion, mchunk_t **original_mchunk, size_t reallocation_size)
 {   
     mchunk_t    *leading_mchunk;
@@ -77,7 +65,7 @@ mchunk_t    *shrink_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocati
         return STATUS_FAILURE;
     free_mchunk = mchunk; // due to prev function call.
 
-    try_coalesce_with_next_free_mchunk(*mregion, &free_mchunk);
+    try_coalesce_with_next_free_mchunk(*mregion, free_mchunk);
 
     return shrunk_mchunk;
 }

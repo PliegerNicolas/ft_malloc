@@ -51,18 +51,6 @@ static mchunk_t *use_and_partition_mchunk(mchunk_t **original_mchunk, size_t all
     return leading_mchunk;
 }
 
-static void    update_mbin_if_necessary(mregion_t *mregion, mchunk_t *free_mchunk)
-{
-    if (!mregion || !free_mchunk)
-        return;
-
-    if (!mregion->mbin || mregion->mbin->state != FREE)
-        mregion->mbin = free_mchunk;
-
-    while (mregion->mbin->prev_free_mchunk)
-        mregion->mbin = mregion->mbin->prev_free_mchunk;
-}
-
 /* *************************************************************************** */
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */

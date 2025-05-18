@@ -76,6 +76,7 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mregion/init_mregions \
 								mregion/free_mregion \
 								mregion/get_mregion_by_mchunk \
+								mregion/update_mbin_if_necessary \
 								mregion/utils/mmap_mregion \
 								mregion/utils/append_mregion \
 								mregion/utils/prepend_mregion \

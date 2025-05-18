@@ -58,3 +58,10 @@ void    put_relative_ptrs(void *ptr1, void *ptr2, const char *expected_value, in
     }
     ft_putchar_fd('\n', fd);
 }
+
+void    please_show_alloc_mem()
+{
+    #if STD_MALLOC == 0
+    show_alloc_mem();
+    #endif
+}

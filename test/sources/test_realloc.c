@@ -16,80 +16,177 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static void test_mchunk_type_boundaries(int fd)
+/* Utils */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuse-after-free"
+static void *check_realloc(const char *title, void *ptr, size_t size, const char *expected_result, int fd)
+{
+    void    *new_ptr;
+    char    buffer[2048] = { '\0' };
+
+    ft_putstr_fd(BOLD_CYAN, fd);
+    if (title)
+        ft_putstr_fd(title, fd);
+    else
+    {
+        ft_putstr_fd("realloc(", fd);
+        ft_putptr_fd(ptr, fd);
+        ft_putstr_fd(", ", fd);
+        ft_putsize_t_fd(size, fd);
+        ft_putchar_fd(')', fd);
+    }        
+    ft_putchar_fd(':', fd);
+    ft_putendl_fd(RESET, fd);
+
+    ft_putstr_fd("🞄 expecting: ", fd);
+    ft_putendl_fd(expected_result, fd);
+
+    {
+        int     pipefd[2];
+        int     original_stderr;
+        ssize_t read_bytes;
+
+        if (pipe(pipefd) == -1)
+            return NULL;
+
+        original_stderr = dup(STDERR_FILENO); // Duplicate STDERR so it can be restored later.
+        if (original_stderr == -1)
+            return close(pipefd[0]), close(pipefd[1]), NULL;
+
+        if (dup2(pipefd[1], STDERR_FILENO) == -1) // Transform STDERR to pipefd[1] (write part of the pipe).
+            return close(pipefd[0]), close(pipefd[1]), close(original_stderr), NULL;
+        close(pipefd[1]); // Close the original pipefd[1] as it has now taken the place of STDERR.
+
+        new_ptr = realloc(ptr, size);
+
+        if (dup2(original_stderr, STDERR_FILENO) == -1)  // restore STDERR.
+            return close(pipefd[0]), close(original_stderr), NULL;
+        read_bytes = read(pipefd[0], buffer, sizeof(buffer) - 1);
+        close(pipefd[0]); // Close the read end of the pipe.
+
+        buffer[read_bytes] = '\0';
+        if (read_bytes > 0 && buffer[read_bytes - 1] == '\n')
+            buffer[read_bytes - 1] = '\0';
+    }
+
+    ft_putstr_fd("🞄 got: ", fd);
+    ft_putptr_fd(ptr, fd);
+    ft_putstr_fd(" => ", fd);
+    ft_putptr_fd(new_ptr, fd);
+    if (ft_strlen(buffer) > 0)
+    {
+        ft_putstr_fd(" (", fd);
+        ft_putstr_fd(buffer, fd);
+        ft_putchar_fd(')', fd);
+    }
+    ft_putchar_fd('\n', fd);
+
+    return new_ptr;
+}
+#pragma GCC diagnostic pop
+
+/* Tests */
+
+static void test_realloc_edge_cases(int fd)
 {
     void    *ptrs[5] = { NULL };
 
-    put_colored(UNDERLINE, "Test mchunk boundary sizes:", true, fd);
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Edge cases:", true, fd);
 
-    /* Operations */
+    put_colored(DIM_CYAN, "Operations:", true, fd);
+    {
+        ptrs[0] = check_realloc("realloc(NULL, 0)", NULL, 0, "(nil) => 0x...            [equivalent to malloc(0)]", fd);
 
-    put_colored(BOLD_CYAN, "Operations:", true, fd);
+        ptrs[1] = check_realloc("realloc(prev_ptr, 0)", ptrs[0], 0, "prev_ptr => (nil).", fd);
+        ptrs[0] = check_free(NULL, ptrs[0], "** free(): double free or corruption: 0x... **", fd);
 
-    put_colored(BRIGHT_WHITE, "malloc(0)", true, fd);
-    ptrs[0] = malloc(0);
+        ptrs[2] = check_realloc("realloc(NULL, MAX_ALLOCATION_SIZE)", NULL, MAX_ALLOCATION_SIZE, "(nil) (** mmap_mregion(): Not enough memory (ENOMEM) **)", fd);
+        ptrs[3] = check_realloc("realloc(NULL, MAX_ALLOCATION_SIZE + 1)", NULL, MAX_ALLOCATION_SIZE + 1, "(nil) (** mmap_mregion(): Not enough memory (ENOMEM) **)", fd);
+        ptrs[4] = check_realloc("realloc(NULL, SIZE_MAX)", NULL, SIZE_MAX, "(nil) (** has_allocation_size_aberrant_value(): max allocation size exceeded **)", fd);
+    }
 
-    put_colored(BRIGHT_WHITE, "malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE)", true, fd);
-    ptrs[1] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
-    put_colored(BRIGHT_WHITE, "malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1)", true, fd);
-    ptrs[2] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1);
-
-    put_colored(BRIGHT_WHITE, "malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE)", true, fd);
-    ptrs[3] = malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE);
-    put_colored(BRIGHT_WHITE, "malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1)", true, fd);
-    ptrs[4] = malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1);
-
-    /* Results */
-
-    put_colored(BOLD_CYAN, "Results:", true, fd);
-
-    please_show_alloc_mem();
-
-    /* Clean up */
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
+    {
+        please_show_alloc_mem();
+    }
 
     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
         free(ptrs[i]); // Assuming free works fine.
 }
 
-static void test_mchunk_edge_cases(int fd)
+static void test_realloc_boundary_growth(int fd)
 {
-    void    *ptrs[6] = { NULL };
+    void    *ptrs[7] = { NULL };
 
-    put_colored(UNDERLINE, "Test mchunk boundary sizes:", true, fd);
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Mchunk boundaries growth:", true, fd);
 
-    /* Operations */
+    put_colored(DIM_CYAN, "Operations:", true, fd);
+    {
+        /* Tiny */
+        ptrs[0] = check_realloc("realloc(NULL, 0)", NULL, 0, "(nil) => new_addr", fd);
+        ptrs[1] = check_realloc("realloc(prev_ptr, 42)", ptrs[0], 42, "prev_ptr => prev_ptr", fd);
+        ptrs[0] = NULL;
+        ptrs[2] = check_realloc("realloc(prev_ptr, 43)", ptrs[1], 43, "prev_ptr => prev_ptr", fd);
+        ptrs[1] = NULL;
 
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wuninitialized"
-    #pragma GCC diagnostic ignored "-Wno-alloc-size-larger-than"
+        /* Small */
+        ptrs[3] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[2], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => new_addr", fd);
+        ptrs[2] = NULL;
+        ptrs[4] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 42)", ptrs[3], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 42, "prev_addr => prev_addr", fd);
+        ptrs[3] = NULL;
 
-    put_colored(BOLD_CYAN, "Operations:", true, fd);
+        /* Large */
+        ptrs[5] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[4], SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => new_addr", fd);
+        ptrs[4] = NULL;
+        ptrs[6] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000)", ptrs[5], SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000, "prev_addr => prev_addr", fd);
+        ptrs[5] = NULL;
+    }
 
-    put_colored(BRIGHT_WHITE, "malloc(0)", true, fd);
-    ptrs[0] = malloc(0);
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
+    {
+        please_show_alloc_mem();
+    }
 
-    put_colored(BRIGHT_WHITE, "malloc(PAGE_SIZE)", true, fd);
-    ptrs[1] = malloc(PAGE_SIZE);
-    put_colored(BRIGHT_WHITE, "malloc(PAGE_SIZE - 1)", true, fd);
-    ptrs[2] = malloc(PAGE_SIZE - 1);
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        free(ptrs[i]); // Assuming free works fine.
+}
 
-    put_colored(BRIGHT_WHITE, "malloc(SIZE_MAX)", true, fd);
-    ptrs[3] = malloc(SIZE_MAX);
-    put_colored(BRIGHT_WHITE, "malloc(SIZE_MAX / 2)", true, fd);
-    ptrs[4] = malloc(SIZE_MAX / 2);
+static void test_realloc_boundary_shrinkage(int fd)
+{
+    void    *ptrs[7] = { NULL };
 
-    put_colored(BRIGHT_WHITE, "malloc(MAX_ALLOCATION_SIZE)", true, fd);
-    ptrs[5] = malloc(MAX_ALLOCATION_SIZE);
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Mchunk boundaries shrinkage:", true, fd);
 
-    #pragma GCC diagnostic pop
+    put_colored(DIM_CYAN, "Operations:", true, fd);
+    {
+        /* Large */
+        ptrs[0] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000)", NULL, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000, "(nil) => new_addr", fd);
+        ptrs[1] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[0], SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => prev_addr", fd);
+        ptrs[0] = NULL;
 
-    /* Results */
+        /* Small */
+        ptrs[2] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[1], SMALL_MCHUNK_MAX_ALLOCATION_SIZE, "prev_addr => new_addr", fd);
+        ptrs[1] = NULL;
+        ptrs[3] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[2], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => prev_addr", fd);
+        ptrs[2] = NULL;
 
-    put_colored(BOLD_CYAN, "Results:", true, fd);
+        /* Tiny */
+        ptrs[4] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[3], TINY_MCHUNK_MAX_ALLOCATION_SIZE, "prev_addr => new_addr", fd);
+        ptrs[3] = NULL;
+        ptrs[5] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[4], 1, "prev_addr => prev_addr", fd);
+        ptrs[4] = NULL;
+        ptrs[6] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[5], 0, "prev_addr => (nil)", fd);
+        ptrs[5] = NULL;
+    }
 
-    please_show_alloc_mem();
-
-    /* Clean up */
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
+    {
+        please_show_alloc_mem();
+    }
 
     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
         free(ptrs[i]); // Assuming free works fine.
@@ -102,34 +199,8 @@ static void test_mchunk_edge_cases(int fd)
 void    test_realloc(int fd)
 {
     put_colored(BG_BOLD_BLACK, "Testing:        realloc(void *ptr, size_t size)     ", true, fd);
+
+    test_realloc_edge_cases(fd);
+    test_realloc_boundary_growth(fd);
+    test_realloc_boundary_shrinkage(fd);
 }
-
-// #include "test_ft_malloc.h"
-
-// void    test_realloc()
-// {
-//     void    *ptrs[5];
-
-//     ft_bzero(ptrs, sizeof(ptrs));
-
-//     put_colored(YELLOW, "TEST REALLOC", STDOUT_FILENO);
-
-//     put_colored(CYAN, "॰ show allocated memory before allocation", STDOUT_FILENO);
-//     show_alloc_mem();
-
-//     // Need to handle double frees.
-//     ptrs[0] = realloc(NULL, 0);
-//     ptrs[1] = realloc(NULL, 42);
-//     ptrs[2] = realloc(NULL, 128);
-//     ptrs[3] = realloc(NULL, 500);
-//     ptrs[4] = realloc(NULL, 1000);
-
-//     put_colored(CYAN, "॰ show allocated memory after allocation", STDOUT_FILENO);
-//     show_alloc_mem();
-
-//     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
-//         free(ptrs[i]);
-
-//     put_colored(CYAN, "॰ show allocated memory after free", STDOUT_FILENO);
-//     show_alloc_mem();
-// }

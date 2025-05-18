@@ -18,44 +18,85 @@
 
 /* Utils */
 
-static inline void  *validate_malloc(void *ptr, char *expected_result, int fd)
+static void *check_malloc(const char *title, size_t size, const char *expected_result, int fd)
 {
-    if (ft_strncmp("PLDEP", expected_result, 4) == 0)
-        ft_putendl_fd("plateform dependant ⚪", fd);
-    else if (ft_strncmp("PTR", expected_result, 3) == 0 && ptr)
-        ft_putendl_fd("success 🟢", fd);
-    else if (ft_strncmp("NULL", expected_result, 4) == 0 && !ptr)
-        ft_putendl_fd("success 🟢", fd);
+    void    *ptr;
+    char    buffer[2048] = { '\0' };
+
+    ft_putstr_fd(BOLD_CYAN, fd);
+    if (title)
+        ft_putstr_fd(title, fd);
     else
-        ft_putendl_fd("failure 🔴", fd);
+    {
+        ft_putstr_fd("malloc(", fd);
+        ft_putsize_t_fd(size, fd);
+        ft_putchar_fd(')', fd);
+    }        
+    ft_putchar_fd(':', fd);
+    ft_putendl_fd(RESET, fd);
+
+    ft_putstr_fd("🞄 expecting: ", fd);
+    ft_putendl_fd(expected_result, fd);
+
+    {
+        int     pipefd[2];
+        int     original_stderr;
+        ssize_t read_bytes;
+
+        if (pipe(pipefd) == -1)
+            return NULL;
+
+        original_stderr = dup(STDERR_FILENO); // Duplicate STDERR so it can be restored later.
+        if (original_stderr == -1)
+            return close(pipefd[0]), close(pipefd[1]), NULL;
+
+        if (dup2(pipefd[1], STDERR_FILENO) == -1) // Transform STDERR to pipefd[1] (write part of the pipe).
+            return close(pipefd[0]), close(pipefd[1]), close(original_stderr), NULL;
+        close(pipefd[1]); // Close the original pipefd[1] as it has now taken the place of STDERR.
+
+        ptr = malloc(size);
+
+        if (dup2(original_stderr, STDERR_FILENO) == -1)  // restore STDERR.
+            return close(pipefd[0]), close(original_stderr), NULL;
+        read_bytes = read(pipefd[0], buffer, sizeof(buffer) - 1);
+        close(pipefd[0]); // Close the read end of the pipe.
+
+        buffer[read_bytes] = '\0';
+        if (read_bytes > 0 && buffer[read_bytes - 1] == '\n')
+            buffer[read_bytes - 1] = '\0';
+    }
+
+    ft_putstr_fd("🞄 got: ", fd);
+    ft_putptr_fd(ptr, fd);
+    if (ft_strlen(buffer) > 0)
+    {
+        ft_putstr_fd(" (", fd);
+        ft_putstr_fd(buffer, fd);
+        ft_putchar_fd(')', fd);
+    }
+    ft_putchar_fd('\n', fd);
+
     return ptr;
 }
 
 /* Tests */
 
-static void test_malloc_mchunk_type_boundaries(int fd)
+static void test_malloc_edge_cases(int fd)
 {
-    void    *ptrs[5] = { NULL };
+    void    *ptrs[4] = { NULL };
 
-    put_colored(UNDERLINE, "Test malloc mchunk boundary sizes:", true, fd);
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Edge cases:", true, fd);
 
-    put_colored(BOLD_CYAN, "Operations:", true, fd);
+    put_colored(DIM_CYAN, "Operations:", true, fd);
     {
-        put_colored(BRIGHT_WHITE, "malloc(0): ", false, fd);
-        ptrs[0] = validate_malloc(malloc(0), "PTR", fd);
-        put_colored(BRIGHT_WHITE, "malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE): ", false, fd);
-        ptrs[1] = validate_malloc(malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE), "PTR", fd);
-
-        put_colored(BRIGHT_WHITE, "malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1): ", false, fd);
-        ptrs[2] = validate_malloc(malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1), "PTR", fd);
-        put_colored(BRIGHT_WHITE, "malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE): ", false, fd);
-        ptrs[3] = validate_malloc(malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE), "PTR", fd);
-
-        put_colored(BRIGHT_WHITE, "malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1): ", false, fd);
-        ptrs[4] = validate_malloc(malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1), "PTR", fd);
+        ptrs[0] = check_malloc("malloc(0)", 0, "0x...", fd);
+        ptrs[1] = check_malloc("malloc(MAX_ALLOCATION_SIZE)", MAX_ALLOCATION_SIZE, "(nil) (** mmap_mregion(): Not enough memory (ENOMEM) **)", fd);
+        ptrs[2] = check_malloc("malloc(MAX_ALLOCATION_SIZE + 1)", MAX_ALLOCATION_SIZE + 1, "(nil) (** has_allocation_size_aberrant_value(): max allocation size exceeded **)", fd);
+        ptrs[3] = check_malloc("malloc(SIZE_MAX)", SIZE_MAX, "(nil) (** has_allocation_size_aberrant_value(): max allocation size exceeded **)", fd);
     }
 
-    put_colored(BOLD_CYAN, "Results:", true, fd);
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
     {
         please_show_alloc_mem();
     }
@@ -64,35 +105,26 @@ static void test_malloc_mchunk_type_boundaries(int fd)
         free(ptrs[i]); // Assuming free works fine.
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#pragma GCC diagnostic ignored "-Wno-alloc-size-larger-than"
-static void test_malloc_edge_cases(int fd)
+static void test_malloc_mchunk_boundaries(int fd)
 {
     void    *ptrs[6] = { NULL };
 
-    put_colored(UNDERLINE, "Test malloc edge cases:", true, fd);
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Mchunk boundaries:", true, fd);
 
-    put_colored(BOLD_CYAN, "Operations:", true, fd);
+    put_colored(DIM_CYAN, "Operations:", true, fd);
     {
-        put_colored(BRIGHT_WHITE, "malloc(PAGE_SIZE - 1): ", false, fd);
-        ptrs[0] = validate_malloc(malloc(PAGE_SIZE - 1), "PTR", fd);
-        put_colored(BRIGHT_WHITE, "malloc(PAGE_SIZE): ", false, fd);
-        ptrs[1] = validate_malloc(malloc(PAGE_SIZE), "PTR", fd);
-        put_colored(BRIGHT_WHITE, "malloc(PAGE_SIZE + 1): ", false, fd);
-        ptrs[2] = validate_malloc(malloc(PAGE_SIZE + 1), "PTR", fd);
+        ptrs[0] = check_malloc("malloc(0)", 0, "0x...", fd);
+        ptrs[1] = check_malloc("malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE)", TINY_MCHUNK_MAX_ALLOCATION_SIZE, "0x...", fd);
+    
+        ptrs[2] = check_malloc("malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1)", TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1, "0x...", fd);
+        ptrs[3] = check_malloc("malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE)", SMALL_MCHUNK_MAX_ALLOCATION_SIZE, "0x...", fd);
 
-        put_colored(BRIGHT_WHITE, "malloc(MAX_ALLOCATION_SIZE): ", false, fd);
-        ptrs[3] = validate_malloc(malloc(MAX_ALLOCATION_SIZE), "PLDEP", fd);
-
-        put_colored(BRIGHT_WHITE, "malloc(SIZE_MAX): ", false, fd);
-        ptrs[4] = validate_malloc(malloc(SIZE_MAX), "NULL", fd);
-
-        put_colored(BRIGHT_WHITE, "malloc(SIZE_MAX / 42): ", false, fd);
-        ptrs[5] = validate_malloc(malloc(SIZE_MAX / 42), "PLDEP", fd);
+        ptrs[4] = check_malloc("malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1)", SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1, "0x...", fd);
+        ptrs[5] = check_malloc("malloc(MAX_ALLOCATION_SIZE)", MAX_ALLOCATION_SIZE, "(nil) (** mmap_mregion(): Not enough memory (ENOMEM) **)", fd);
     }
 
-    put_colored(BOLD_CYAN, "Results:", true, fd);
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
     {
         please_show_alloc_mem();
     }
@@ -100,41 +132,46 @@ static void test_malloc_edge_cases(int fd)
     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
         free(ptrs[i]); // Assuming free works fine.
 }
-#pragma GCC diagnostic pop
 
-static void test_max_mchunks_per_mregion(int fd)
+static void test_malloc_max_mchunks_per_mregion(int fd)
 {
-    void    *ptrs[425] = { NULL };
+    void    *tiny_ptrs[MCHUNKS_PER_BOUND_MREGION] = { NULL };
+    void    *small_ptrs[MCHUNKS_PER_BOUND_MREGION] = { NULL };
+    void    *large_ptrs[MCHUNKS_PER_UNBOUND_MREGION] = { NULL };
 
-    put_colored(UNDERLINE, "Test max mchunks per mregion:", true, fd);
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Max mchunks per mregion:", true, fd);
 
-    put_colored(BOLD_CYAN, "Operations:", true, fd);
+    put_colored(DIM_CYAN, "Operations:", true, fd);
     {
-        size_t  i = 0;
 
-        put_colored(BRIGHT_WHITE, "200 * malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE): ", false, fd);
-        while (i < 200)
-            ptrs[i++] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
-        validate_malloc(NULL, "PLDEP", fd);
+        put_colored(BOLD_CYAN, "MCHUNKS_PER_BOUND_MREGION * malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE):", true, fd);
+        ft_putendl_fd("🞄 expecting: only one populated tiny `mregion_t` (cf. 'Final arena state').", fd);
+        for (size_t i = 0; i < sizeof(tiny_ptrs) / sizeof(*tiny_ptrs); i++)
+            tiny_ptrs[i] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
 
-        put_colored(BRIGHT_WHITE, "200 * malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE): ", false, fd);
-        while (i < 400)
-            ptrs[i++] = malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE);
-        validate_malloc(NULL, "PLDEP", fd);
+        put_colored(BOLD_CYAN, "MCHUNKS_PER_BOUND_MREGION * malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE):", true, fd);
+        ft_putendl_fd("🞄 expecting: only one populated small `mregion_t` (cf. 'Final arena state').", fd);
+        for (size_t i = 0; i < sizeof(small_ptrs) / sizeof(*small_ptrs); i++)
+            small_ptrs[i] = malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE);
 
-        put_colored(BRIGHT_WHITE, "10 * malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1): ", false, fd);
-        while (i < 410)
-            ptrs[i++] = malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1);
-        validate_malloc(NULL, "PLDEP", fd);
+        put_colored(BOLD_CYAN, "MCHUNKS_PER_UNBOUND_MREGION * malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1):", true, fd);
+        ft_putendl_fd("🞄 expecting: only one populated large `mregion_t` (cf. 'Final arena state').", fd);
+        for (size_t i = 0; i < sizeof(large_ptrs) / sizeof(*large_ptrs); i++)
+            large_ptrs[i] = malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1);
     }
 
-    put_colored(BOLD_CYAN, "Results:", true, fd);
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
     {
         please_show_alloc_mem();
     }
 
-    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
-        free(ptrs[i]); // Assuming free works fine.
+    for (size_t i = 0; i < sizeof(tiny_ptrs) / sizeof(*tiny_ptrs); i++)
+        free(tiny_ptrs[i]); // Assuming free works fine.
+    for (size_t i = 0; i < sizeof(small_ptrs) / sizeof(*small_ptrs); i++)
+        free(small_ptrs[i]); // Assuming free works fine.
+    for (size_t i = 0; i < sizeof(large_ptrs) / sizeof(*large_ptrs); i++)
+        free(large_ptrs[i]); // Assuming free works fine.
 }
 
 /* *************************************************************************** */
@@ -146,6 +183,6 @@ void    test_malloc(int fd)
     put_colored(BG_BOLD_BLACK, "Testing:            malloc(size_t size)             ", true, fd);
 
     test_malloc_edge_cases(fd);
-    test_malloc_mchunk_type_boundaries(fd);
-    test_max_mchunks_per_mregion(fd);
+    test_malloc_mchunk_boundaries(fd);
+    test_malloc_max_mchunks_per_mregion(fd);
 }

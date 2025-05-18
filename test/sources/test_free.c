@@ -16,52 +16,88 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#pragma GCC diagnostic ignored "-Wuse-after-free"
-static void test_free_edge_cases(int fd)
+/* Utils */
+
+void    *check_free(const char *title, void *ptr, const char *expected_result, int fd)
 {
-    int *ptrs[2] = { NULL };
+    char    buffer[2048] = { '\0' };
 
-    put_colored(UNDERLINE, "Test free edge cases:", true, fd);
-
-    put_colored(BOLD_CYAN, "Operations:", true, fd);
+    ft_putstr_fd(BOLD_CYAN, fd);
+    if (title)
+        ft_putstr_fd(title, fd);
+    else
     {
-        for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
-        {
-            ptrs[i] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
-            *ptrs[i] = i;
-        }
+        ft_putstr_fd("free(", fd);
+        ft_putptr_fd(ptr, fd);
+        ft_putchar_fd(')', fd);
+    }
+    ft_putchar_fd(':', fd);
+    ft_putendl_fd(RESET, fd);
 
-        put_colored(BRIGHT_WHITE, "free(NULL): ", false, fd);
-        free(NULL); ft_putchar_fd('\n', fd);
-        ft_putendl_fd("🞄 Expected behavior: nothing.", fd);
-
-        put_colored(BRIGHT_WHITE, "free(ptrs[0]); free(ptrs[0]): ", false, fd);
-        free(ptrs[0]);
-        free(ptrs[0]);
-        ptrs[0] = NULL;
-        ft_putendl_fd("🞄 Expected behavior ⚪: double free or corruption error message.", fd);
-
-        void    *uninitialized_ptr;
-        put_colored(BRIGHT_WHITE, "free(uninitialized_ptr): ", false, fd);
-        free(uninitialized_ptr);
-        ft_putendl_fd("🞄 Expected behavior ⚪: double free or corruption error message.", fd);
-
-        int stack_var = 42;
-        put_colored(BRIGHT_WHITE, "free(&stack_var): ", false, fd);
-        free(&stack_var);
-        ft_putendl_fd("🞄 Expected behavior ⚪: double free or corruption error message.", fd);
-
-        put_colored(BRIGHT_WHITE, "ptrs[2] = realloc(ptrs[1]); free(ptrs[1]): ", false, fd);
-        ptrs[0] = realloc(ptrs[1], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1);
-        free(ptrs[1]); ptrs[1] = NULL;
-        free(ptrs[0]); ptrs[0] = NULL;
-        ft_putendl_fd("🞄 Expected behavior ⚪: double free or corruption error message.", fd);
+    if (expected_result)
+    {
+        ft_putstr_fd("🞄 expecting: ", fd);
+        ft_putendl_fd(expected_result, fd);
     }
 
-    put_colored(BOLD_CYAN, "Results:", true, fd);
+    {
+        int     pipefd[2];
+        int     original_stderr;
+        ssize_t read_bytes;
+
+        if (pipe(pipefd) == -1)
+            return NULL;
+
+        original_stderr = dup(STDERR_FILENO); // Duplicate STDERR so it can be restored later.
+        if (original_stderr == -1)
+            return close(pipefd[0]), close(pipefd[1]), NULL;
+
+        if (dup2(pipefd[1], STDERR_FILENO) == -1) // Transform STDERR to pipefd[1] (write part of the pipe).
+            return close(pipefd[0]), close(pipefd[1]), close(original_stderr), NULL;
+        close(pipefd[1]); // Close the original pipefd[1] as it has now taken the place of STDERR.
+
+        free(ptr);
+
+        if (dup2(original_stderr, STDERR_FILENO) == -1)  // restore STDERR.
+            return close(pipefd[0]), (void)close(original_stderr), NULL;
+        read_bytes = read(pipefd[0], buffer, sizeof(buffer) - 1);
+        close(pipefd[0]); // Close the read end of the pipe.
+
+        buffer[read_bytes] = '\0';
+        if (read_bytes > 0 && buffer[read_bytes - 1] == '\n')
+            buffer[read_bytes - 1] = '\0';
+    }
+
+    if (expected_result)
+    {
+        ft_putstr_fd("🞄 got: ", fd);
+        if (ft_strlen(buffer) > 0)
+            ft_putstr_fd(buffer, fd);
+        ft_putchar_fd('\n', fd);
+    }
+
+    return NULL;
+}
+
+/* Tests */
+
+static void test_double_free(int fd)
+{
+    void    *ptrs[2] = { NULL };
+
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Edge cases:", true, fd);
+
+    put_colored(DIM_CYAN, "Operations:", true, fd);
+    {
+        ptrs[0] = malloc(42);
+        ptrs[1] = ptrs[0];
+
+        ptrs[0] = check_free(NULL, ptrs[0], "", fd);
+        ptrs[1] = check_free(NULL, ptrs[1], "** free(): double free or corruption: 0x... **", fd);
+    }
+
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
     {
         please_show_alloc_mem();
     }
@@ -69,49 +105,80 @@ static void test_free_edge_cases(int fd)
     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
         free(ptrs[i]); // Assuming free works fine.
 }
-#pragma GCC diagnostic pop
 
-static void test_coalesce_on_free(int fd)
+static void test_free_on_corrupted_mchunk(int fd)
 {
-    int *tiny_ptrs[MCHUNKS_PER_BOUND_MREGION] = { NULL };
-    int *small_ptrs[MCHUNKS_PER_BOUND_MREGION] = { NULL };
+    void    *ptrs[2] = { NULL };
 
-    put_colored(UNDERLINE, "Test coalesce on free", true, fd);
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Edge cases:", true, fd);
 
-    put_colored(BOLD_CYAN, "Operations:", true, fd);
+    put_colored(DIM_CYAN, "Operations:", true, fd);
     {
-        for (size_t i = 0; i < MCHUNKS_PER_BOUND_MREGION; i++)
-        {
-            tiny_ptrs[i] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
-            small_ptrs[i] = malloc(SMALL_MCHUNK_MAX_ALLOCATION_SIZE);
-            *tiny_ptrs[i] = i;
-            *small_ptrs[i] = i;
-        }
+        size_t          aligned_size = ALIGNMENT_BOUNDARY;
+        unsigned char   *cache[MCHUNK_HEADER_SIZE];
 
-        for (size_t i = 0; i < MCHUNKS_PER_BOUND_MREGION; i++)
-        {
-            if (i % 3 == 0)
-                continue;
-            free(tiny_ptrs[i]);
-            free(small_ptrs[i]);
-            tiny_ptrs[i] = NULL;
-            small_ptrs[i] = NULL;
-        }
+        ptrs[0] = malloc(aligned_size);
+        ptrs[1] = malloc(aligned_size);
 
-        put_colored(BRIGHT_WHITE, "if (i % 3 != 0) { free(ptrs[i]) }: ", true, fd);
-        ft_putendl_fd("🞄 Expected behavior ⚪: regularly sized isolated free `mchunk_t`s, excluding the last one.", fd);
+        // Cache mchunk metadata before corruption.
+        ft_memcpy(cache, GET_MCHUNK_PTR(ptrs[1]), sizeof(cache));
+
+        ft_memset(ptrs[0] + aligned_size, 'a', 1);
+        check_free(NULL, ptrs[1], "** has_mchunk_aberrant_values(): corrupted mchunk: 0x... **", fd);
+
+        // Restore mchunk after corruption.
+        ft_memcpy(GET_MCHUNK_PTR(ptrs[1]), cache, sizeof(cache));
     }
 
-    put_colored(BOLD_CYAN, "Results:", true, fd);
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
     {
         please_show_alloc_mem();
     }
 
-    for (size_t i = 0; i < MCHUNKS_PER_BOUND_MREGION; i++)
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        free(ptrs[i]); // Assuming free works fine.
+}
+
+static void test_coalesce_on_free(int fd)
+{
+    void    *ptrs[MCHUNKS_PER_BOUND_MREGION] = { NULL };
+
+    ft_putstr_fd(UNDERLINE, fd);
+    put_colored(BOLD_CYAN, "Edge cases:", true, fd);
+
+    put_colored(DIM_CYAN, "Operations:", true, fd);
     {
-        free(tiny_ptrs[i]);
-        free(small_ptrs[i]);
+        for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+            ptrs[i] = malloc(TINY_MCHUNK_MAX_ALLOCATION_SIZE);
+
+        put_colored(BOLD_CYAN, "Free() every free triplets in a list:", true, fd);
+        ft_putendl_fd("🞄 expecting: isolated free mchunks of regular sizes except potentially the last one (cf. 'Final arena state').", fd);
+
+        for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        {
+            if (i % 2 != 0)
+                continue;
+            free(ptrs[i]);
+            ptrs[i] = NULL;
+        }
+
+        for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        {
+            if (i % 4 != 1)
+                continue;
+            free(ptrs[i]);
+            ptrs[i] = NULL;
+        }
     }
+
+    put_colored(DIM_CYAN, "Final arena state:", true, fd);
+    {
+        please_show_alloc_mem();
+    }
+
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        free(ptrs[i]); // Assuming free works fine.
 }
 
 /* *************************************************************************** */
@@ -122,7 +189,7 @@ void    test_free(int fd)
 {
     put_colored(BG_BOLD_BLACK, "Testing:            free(void *ptr)                 ", true, fd);
 
-    show_alloc_mem();
-    test_free_edge_cases(fd);
+    test_double_free(fd);
+    test_free_on_corrupted_mchunk(fd);
     test_coalesce_on_free(fd);
 }
