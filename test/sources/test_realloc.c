@@ -99,7 +99,7 @@ static void test_realloc_edge_cases(int fd)
     {
         ptrs[0] = check_realloc("realloc(NULL, 0)", NULL, 0, "(nil) => 0x...            [equivalent to malloc(0)]", fd);
 
-        ptrs[1] = check_realloc("realloc(prev_ptr, 0)", ptrs[0], 0, "prev_ptr => (nil).", fd);
+        ptrs[1] = check_realloc("realloc(prev_ptr, 0)", ptrs[0], 0, "prev_ptr => (nil)", fd);
         ptrs[0] = check_free(NULL, ptrs[0], "** free(): double free or corruption: 0x... **", fd);
 
         ptrs[2] = check_realloc("realloc(NULL, MAX_ALLOCATION_SIZE)", NULL, MAX_ALLOCATION_SIZE, "(nil) (** mmap_mregion(): Not enough memory (ENOMEM) **)", fd);
