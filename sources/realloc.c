@@ -23,10 +23,10 @@ void    *realloc(void *ptr, size_t size)
     else if (size == 0)
         return free(ptr), NULL;
 
-    if (has_allocation_size_aberrant_value(size))
+    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
         return NULL;
 
-    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
+    if (has_allocation_size_aberrant_value(size))
         return NULL;
 
     mchunk = GET_MCHUNK_PTR(ptr);

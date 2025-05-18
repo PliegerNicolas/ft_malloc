@@ -16,7 +16,7 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static void print_options(const char *options[4], size_t n, int fd)
+static void print_options(const char *options[5], size_t n, int fd)
 {
     ft_putstr_fd("🞄 Options: ", fd);
 
@@ -36,11 +36,11 @@ static void print_options(const char *options[4], size_t n, int fd)
 
 int main(int argc, char **argv)
 {
-    static const char   *options[4] = { "MACROS", "MALLOC", "REALLOC", "FREE" };
+    static const char   *options[5] = { "MACROS", "MALLOC", "REALLOC", "FREE", "MULTI_THREADING" };
     const int           fd = STDOUT_FILENO;
 
     if (argc < 2 || !argv[1])
-        return ft_putendl_fd("Error: one parameter expected.", STDERR_FILENO), print_options(options, 4, STDERR_FILENO), 1;
+        return ft_putendl_fd("Error: one parameter expected.", STDERR_FILENO), print_options(options, 5, STDERR_FILENO), 1;
 
     if (ft_strncmp(ft_toupper_str(argv[1]), options[0], ft_strlen(options[0]) + 1) == 0)
         test_macros(fd);
@@ -50,6 +50,8 @@ int main(int argc, char **argv)
         test_realloc(fd);
     else if (ft_strncmp(ft_toupper_str(argv[1]), options[3], ft_strlen(options[3]) + 1) == 0)
         test_free(fd);
+    else if (ft_strncmp(ft_toupper_str(argv[1]), options[4], ft_strlen(options[4]) + 1) == 0)
+        test_multithreading(fd);
     else
         return ft_putendl_fd("Error: unrecognized parameter.", STDERR_FILENO), print_options(options, 4, STDERR_FILENO), 1;
 

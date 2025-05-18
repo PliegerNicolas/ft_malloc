@@ -61,7 +61,8 @@
 
 /* Global var */
 
-extern marena_t gmarena;
+// https://gcc.gnu.org/onlinedocs/gcc/Thread-Local.html
+extern __thread marena_t    gmarena;
 
 /* Mandatory functions */
 
@@ -81,7 +82,6 @@ mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *used_mchunk, size_t real
 mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *mchunk);
 
 size_t      print_marena(marena_t *marena, int fd, bool print_free);
-
 /* errors/ */
 void        printerr(const char *caller, const char *err, void *ptr);
 

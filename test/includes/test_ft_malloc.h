@@ -132,6 +132,7 @@ void    test_free(int fd);
 void    test_malloc(int fd);
 void    test_realloc(int fd);
 void    test_macros(int fd);
+void    test_multithreading(int fd);
 
 void    *check_free(const char *title, void *ptr, const char *expected_result, int fd);
 
