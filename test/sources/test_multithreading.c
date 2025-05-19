@@ -28,19 +28,25 @@
 
 static void *routine(void *t)
 {
-    void    *ptr = malloc(42);
+    int     *a = (int *)t;
+    void    *ptr;
+    
+    ptr = malloc(*a);
     please_show_alloc_mem();
+    free(ptr);
+
     return NULL;
 }
 
 void    test_multithreading(int fd)
 {
-    pthread_t   threads[1] = { 0 };
+    pthread_t   threads[3] = { 0 };
+    int         allocation_sizes[3] = { 42, 500, 3999 };
 
     // put_colored(BG_BOLD_BLACK, "Testing:        realloc(void *ptr, size_t size)     ", true, fd);
 
     for (size_t i = 0; i < sizeof(threads) / sizeof(*threads); i++)
-        if (pthread_create(&threads[i], NULL, routine, NULL) != 0)
+        if (pthread_create(&threads[i], NULL, routine, &allocation_sizes[i]) != 0)
             threads[i] = 0;
             
     for (size_t i = 0; i < sizeof(threads) / sizeof(*threads); i++)

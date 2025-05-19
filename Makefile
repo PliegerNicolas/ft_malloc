@@ -64,6 +64,7 @@ HEADERS_FILE_EXTENSION			:=	.h
 # Files
 INTERNAL_SOURCE_FILE_NAMES	:=	\
 								gmarena \
+								gmutex \
 								alloc_mchunk \
 								realloc_mchunk \
 								free_mchunk_or_mregion \

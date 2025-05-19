@@ -14,3 +14,17 @@
 
 /** @brief Global mutex instance. */
 pthread_mutex_t gmutex = PTHREAD_MUTEX_INITIALIZER;
+
+status_t    gmutex_lock()
+{
+    if (pthread_mutex_lock(&gmutex) != 0)
+        return STATUS_FAILURE;
+    return STATUS_SUCCESS;
+}
+
+status_t    gmutex_unlock()
+{
+    if (pthread_mutex_unlock(&gmutex) != 0)
+        return STATUS_FAILURE;
+    return STATUS_SUCCESS;
+}

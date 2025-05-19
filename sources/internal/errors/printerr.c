@@ -19,6 +19,8 @@ void    printerr(const char *caller, const char *err, void *ptr)
     if (!err)
         return;
 
+    gmutex_lock();
+
     fd = STDERR_FILENO;
     ft_putstr_fd("** ", fd);
 
@@ -37,4 +39,6 @@ void    printerr(const char *caller, const char *err, void *ptr)
     }
 
     ft_putendl_fd(" **", fd);
+
+    gmutex_unlock();
 }

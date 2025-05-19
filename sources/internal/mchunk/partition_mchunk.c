@@ -31,7 +31,7 @@ mchunk_t    *partition_mchunk(mchunk_t **original_mchunk, size_t allocation_size
     remainder_mchunk = GET_NEXT_MCHUNK(leading_mchunk);
     *remainder_mchunk = (mchunk_t) {
         .state = FREE,
-        .allocation_size = ALIGN_UP(cache.allocation_size, ALIGNMENT_BOUNDARY) - GET_MCHUNK_SIZE(leading_mchunk->allocation_size),
+        .allocation_size = ALIGN_UP(cache.allocation_size, ALIGNMENT_BOUNDARY) - GET_MCHUNK_SIZE(leading_mchunk->allocation_size), // TODO: a check if valid allocation_size for partitioning.
         .prev_allocation_size = leading_mchunk->allocation_size,
         .next_free_mchunk = cache.next_free_mchunk,
         .prev_free_mchunk = cache.prev_free_mchunk,
