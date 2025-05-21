@@ -95,7 +95,10 @@ typedef void*   status_t;
 /** @brief Aligns `value` downwards to the nearest multiple of `align`. */
 # define ALIGN_DOWN(value, align) ((value) & ~((align) - 1))
 
-
+/** @brief Align `value` downwards to next power of 2. */
+# define ALIGN_DOWN_POW2(value) ((size_t)(value) <= 1 ? (size_t)1 : ((size_t)1 << (sizeof(size_t) * CHAR_BIT - ft_clz_size_t((size_t)value) - 1)))
+/** @brief Align `value` downwards to next power of 2. */
+# define ALIGN_UP_POW2(value) ((size_t)(value) <= 1 ? (size_t)1 : ((size_t)1 << (sizeof(size_t) * CHAR_BIT - ft_clz_size_t((size_t)(value) - 1))))
 
 /** @returns The highest value between `value` and `min` */
 # define CLAMP_MIN(value, min) (((value) < (min)) ? (min) : (value))
@@ -103,7 +106,7 @@ typedef void*   status_t;
 # define CLAMP_MAX(value, max) (((value) > (max)) ? (max) : (value))
 
 /** @brief General use-case memory alignment boundary in bytes. */
-# define ALIGNMENT_BOUNDARY (size_t)(ALIGN_UP(DESIRED_ALIGNMENT_BOUNDARY, 2))
+# define ALIGNMENT_BOUNDARY (size_t)(ALIGN_UP_POW2(DESIRED_ALIGNMENT_BOUNDARY))
 
 /** @brief Checks if a value or pointer is aligned given an alignment boundary. */
 # define IS_ALIGNED(val, align) ((bool)(((uintptr_t)(val) % (uintptr_t)(align)) == 0))

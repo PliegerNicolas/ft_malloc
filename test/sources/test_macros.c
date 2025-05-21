@@ -68,6 +68,32 @@ static void    test_system_macros(int fd)
     put_colored(BOLD_CYAN, "ALIGN_DOWN(-42, 16): ", false, fd);
     put_size_t(ALIGN_DOWN(-42, 16), "UB => {value} must be positive", fd);
 
+    put_colored(BOLD_CYAN, "ALIGN_UP_POW2(0): ", false, fd);
+    put_size_t(ALIGN_UP_POW2(0), "1", fd);
+    put_colored(BOLD_CYAN, "ALIGN_UP_POW2(1): ", false, fd);
+    put_size_t(ALIGN_UP_POW2(1), "1", fd);
+    put_colored(BOLD_CYAN, "ALIGN_UP_POW2(2): ", false, fd);
+    put_size_t(ALIGN_UP_POW2(2), "2", fd);
+    put_colored(BOLD_CYAN, "ALIGN_UP_POW2(5): ", false, fd);
+    put_size_t(ALIGN_UP_POW2(5), "8", fd);
+    put_colored(BOLD_CYAN, "ALIGN_UP_POW2(13): ", false, fd);
+    put_size_t(ALIGN_UP_POW2(13), "16", fd);
+    put_colored(BOLD_CYAN, "ALIGN_UP_POW2(50): ", false, fd);
+    put_size_t(ALIGN_UP_POW2(50), "64", fd);
+
+    put_colored(BOLD_CYAN, "ALIGN_DOWN_POW2(0): ", false, fd);
+    put_size_t(ALIGN_DOWN_POW2(0), "1", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN_POW2(1): ", false, fd);
+    put_size_t(ALIGN_DOWN_POW2(1), "1", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN_POW2(2): ", false, fd);
+    put_size_t(ALIGN_DOWN_POW2(2), "2", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN_POW2(5): ", false, fd);
+    put_size_t(ALIGN_DOWN_POW2(5), "4", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN_POW2(13): ", false, fd);
+    put_size_t(ALIGN_DOWN_POW2(13), "8", fd);
+    put_colored(BOLD_CYAN, "ALIGN_DOWN_POW2(50): ", false, fd);
+    put_size_t(ALIGN_DOWN_POW2(50), "32", fd);
+
     put_colored(BOLD_CYAN, "CLAMP_MIN(10, 15): ", false, fd);
     put_size_t(CLAMP_MIN(10, 15), "at least 15 => 15", fd);
     put_colored(BOLD_CYAN, "CLAMP_MIN(20, 15): ", false, fd);

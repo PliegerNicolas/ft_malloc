@@ -76,7 +76,8 @@ SOURCES_FILE_NAMES				:=	ft_strlen \
 									ft_tolower \
 									ft_toupper \
 									ft_tolower_str \
-									ft_toupper_str
+									ft_toupper_str \
+									ft_clz_size_t
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))
