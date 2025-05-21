@@ -33,6 +33,9 @@
 /* For printf */
 # include <stdio.h>
 
+/* For select */
+# include <sys/select.h>
+
 /* libft_mini */
 # include "libft_mini.h"
 
@@ -42,6 +45,21 @@
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
+
+typedef struct fd_listener {
+    int             fd;
+    struct timeval  timeout;
+    char            buffer[2048];
+    size_t          length;
+} fd_listener_t;
+
+typedef struct thread_sync
+{
+    void            *thread_arg;
+    pthread_mutex_t ready_mutex;
+    pthread_cond_t  ready_cond;
+    bool            is_ready;
+} thread_sync_t;
 
 # define RESET          "\033[0m"
 # define BOLD           "\033[1m"
@@ -120,20 +138,19 @@
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
 
-void    put_colored(char *color, char *title, bool newline, int fd);
-
-void    put_size_t(size_t n, const char *expected_value, int fd);
-void    put_ptr(void *ptr, const char *expected_value, int fd);
-void    put_relative_ptrs(void *ptr1, void *ptr2s, const char *expected_value, int fd);
-
-void    please_show_alloc_mem();
-
-void    test_free(int fd);
+void    test_macros(int fd);
 void    test_malloc(int fd);
 void    test_realloc(int fd);
-void    test_macros(int fd);
-void    test_multithreading(int fd);
+void    test_free(int fd);
 
-void    *check_free(const char *title, void *ptr, const char *expected_result, int fd);
+/* Utils */
+void    please_show_alloc_mem();
+
+void    put_title(const char *title, char *colors[], size_t total_colors, int fd);
+
+void    *readFromFdRoutine(void *arg);
+bool    create_thread(pthread_t *thread, void *(*fn)(void *arg), thread_sync_t *thread_sync);
+bool    close_thread(pthread_t thread);
+void    set_thread_as_ready(thread_sync_t *thread_sync);
 
 #endif

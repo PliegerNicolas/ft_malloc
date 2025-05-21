@@ -68,13 +68,15 @@ SOURCES_FILE_EXTENSION			:=	.c
 HEADERS_FILE_EXTENSION			:=	.h
 
 # Files
-SOURCES_FILE_NAMES					:=	main \
-										utils \
-										test_malloc \
-										test_realloc \
-										test_free \
-										test_macros \
-										test_multithreading
+SOURCES_FILE_NAMES				:=	main \
+									test_macros \
+									test_malloc \
+									test_realloc \
+									test_free \
+									utils/please \
+									utils/print \
+									utils/thread \
+									utils/stdio
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))
