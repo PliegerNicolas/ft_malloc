@@ -43,15 +43,8 @@
 #  include "ft_malloc.h"
 
 /* *************************************************************************** */
-/* *                                  MACROS                                 * */
+/* *                                  MODELS                                 * */
 /* *************************************************************************** */
-
-typedef struct fd_listener {
-    int             fd;
-    struct timeval  timeout;
-    char            buffer[2048];
-    size_t          length;
-} fd_listener_t;
 
 typedef struct thread_sync
 {
@@ -60,6 +53,35 @@ typedef struct thread_sync
     pthread_cond_t  ready_cond;
     bool            is_ready;
 } thread_sync_t;
+
+typedef struct test
+{
+    char            *test;
+    char            *expec_res;
+    bool            expec_err;
+    void            *ptr;
+    size_t          bytes;
+} test_t;
+
+typedef struct tests
+{
+    const char  *test;
+    const char  *expec_res;
+    test_t      *values;
+    size_t      size;
+} tests_t;
+
+typedef struct fd_listener
+{
+    int             fd;
+    struct timeval  timeout;
+    char            buffer[2048];
+    size_t          length;
+} fd_listener_t;
+
+/* *************************************************************************** */
+/* *                                  MACROS                                 * */
+/* *************************************************************************** */
 
 # define RESET          "\033[0m"
 # define BOLD           "\033[1m"
@@ -134,6 +156,15 @@ typedef struct thread_sync
 # define BG_BOLD_CYAN   "\033[1;46m"
 # define BG_BOLD_WHITE  "\033[1;47m"
 
+#define BG_BLACK_BRIGHT_BLACK   "\033[40m\033[90m"
+#define BG_BLACK_BRIGHT_RED     "\033[40m\033[91m"
+#define BG_BLACK_BRIGHT_GREEN   "\033[40m\033[92m"
+#define BG_BLACK_BRIGHT_YELLOW  "\033[40m\033[93m"
+#define BG_BLACK_BRIGHT_BLUE    "\033[40m\033[94m"
+#define BG_BLACK_BRIGHT_MAGENTA "\033[40m\033[95m"
+#define BG_BLACK_BRIGHT_CYAN    "\033[40m\033[96m"
+#define BG_BLACK_BRIGHT_WHITE   "\033[40m\033[97m"
+
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */
@@ -146,11 +177,18 @@ void    test_free(int fd);
 /* Utils */
 void    please_show_alloc_mem();
 
-void    put_title(const char *title, char *colors[], size_t total_colors, int fd);
+void    put_title(const char *title, char *color, int fd);
+void    put_expected_result(const char *expected_result, int fd);
+void    put_test_result(void *ptr, const char *error, int fd);
+void    put_memory_state(int fd);
 
-void    *readFromFdRoutine(void *arg);
 bool    create_thread(pthread_t *thread, void *(*fn)(void *arg), thread_sync_t *thread_sync);
 bool    close_thread(pthread_t thread);
 void    set_thread_as_ready(thread_sync_t *thread_sync);
+void    run_in_thread(void *(*fn)(void *arg), void *arg);
+
+void    *listenToSTDERR(void *arg);
+void    *run_malloc_test(void *arg);
+void    *run_malloc_tests(void *arg);
 
 #endif

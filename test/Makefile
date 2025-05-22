@@ -75,8 +75,8 @@ SOURCES_FILE_NAMES				:=	main \
 									test_free \
 									utils/please \
 									utils/print \
-									utils/thread \
-									utils/stdio
+									utils/thread/thread \
+									utils/thread/routines
 
 SOURCES_FILE_NAMES_WITH_EXT := $(foreach file, $(SOURCES_FILE_NAMES), $(basename $(file))$(SOURCES_FILE_EXTENSION))
 DIRECTORIES := $(sort $(dir $(SOURCES_FILE_NAMES_WITH_EXT)))

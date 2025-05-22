@@ -12,65 +12,39 @@
 
 #include "test_ft_malloc.h"
 
-void    put_title(const char *title, char *colors[], size_t total_colors, int fd)
+void    put_title(const char *title, char *color, int fd)
 {
-    for(size_t i = 0; i < total_colors; i++)
-        ft_putstr_fd(colors[i], fd);
+    if (color)
+        ft_putstr_fd(color, fd);
+
     ft_putstr_fd(title, fd);
     ft_putstr_fd(RESET, fd);
     ft_putchar_fd('\n', fd);
 }
 
-// void    put_colored(char *color, char *title, bool newline, int fd)
-// {
-//     ft_putstr_fd(color, fd);
-//     ft_putstr_fd(title, fd);
-//     ft_putstr_fd(RESET, fd);
-//     if (newline)
-//         ft_putchar_fd('\n', fd);
-// }
+void    put_expected_result(const char *expected_result, int fd)
+{
+    ft_putstr_fd("🞄 Expected: ", fd);
+    ft_putendl_fd(expected_result, fd);
+}
 
-// void    put_size_t(size_t n, const char *expected_value, int fd)
-// {
-//     ft_putsize_t_fd(n, fd);
-//     if (expected_value)
-//     {
-//         ft_putstr_fd(" (expected: ", fd);
-//         ft_putstr_fd(expected_value, fd);
-//         ft_putstr_fd(")", fd);
-//     }
-//     ft_putchar_fd('\n', fd);
-// }
+void    put_test_result(void *ptr, const char *error, int fd)
+{
+    ft_putstr_fd("🞄 Got: ", fd);
+    ft_putptr_fd(ptr, fd);
+    if (error && *error)
+    {
+        ft_putchar_fd(' ', fd);
+        ft_putstr_fd(error, fd);
+    }
+    ft_putchar_fd('\n', fd);
+}
 
-// void    put_ptr(void *ptr, const char *expected_value, int fd)
-// {
-//     ft_putptr_fd(ptr, fd);
-//     if (expected_value)
-//     {
-//         ft_putstr_fd(" (expected: ", fd);
-//         ft_putstr_fd(expected_value, fd);
-//         ft_putstr_fd(")", fd);
-//     }
-//     ft_putchar_fd('\n', fd);
-// }
-
-// void    put_relative_ptrs(void *ptr1, void *ptr2, const char *expected_value, int fd)
-// {
-//     ft_putptr_fd(ptr1, fd);
-//     ft_putstr_fd(" => ", fd);
-//     ft_putptr_fd(ptr2, fd);
-//     if (expected_value)
-//     {
-//         ft_putstr_fd(" (expected: ", fd);
-//         ft_putstr_fd(expected_value, fd);
-//         ft_putstr_fd(")", fd);
-//     }
-//     ft_putchar_fd('\n', fd);
-// }
-
-// void    please_show_alloc_mem()
-// {
-//     #if STD_MALLOC == 0
-//     show_alloc_mem();
-//     #endif
-// }
+void    put_memory_state(int fd)
+{
+    ft_putstr_fd(BOLD_CYAN, fd);
+    ft_putstr_fd("Memory state: ", fd);
+    ft_putstr_fd(RESET, fd);
+    ft_putchar_fd('\n', fd);
+    please_show_alloc_mem();
+}
