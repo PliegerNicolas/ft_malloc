@@ -180,6 +180,9 @@ void    please_show_alloc_mem();
 void    put_title(const char *title, char *color, int fd);
 void    put_expected_result(const char *expected_result, int fd);
 void    put_test_result(void *ptr, const char *error, int fd);
+void    put_macro_result_size_t(size_t macro, int fd);
+void    put_macro_result_int(int macro, int fd);
+void    put_ptr_comparison(void *ptr1, void*ptr2, int fd);
 void    put_memory_state(int fd);
 
 bool    create_thread(pthread_t *thread, void *(*fn)(void *arg), thread_sync_t *thread_sync);
@@ -190,5 +193,7 @@ void    run_in_thread(void *(*fn)(void *arg), void *arg);
 void    *listenToSTDERR(void *arg);
 void    *run_malloc_test(void *arg);
 void    *run_malloc_tests(void *arg);
+void    *run_realloc_test(void *arg);
+void    *run_realloc_tests(void *arg);
 
 #endif

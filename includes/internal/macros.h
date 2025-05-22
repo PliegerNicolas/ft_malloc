@@ -88,29 +88,31 @@ typedef void*   status_t;
 /* *                                  MACROS                                 * */
 /* *************************************************************************** */
 
-/* SYSTEM */
+/* SYSTEM / PLATEFORM */
 
-/** @brief Aligns `value` upwards to the nearest multiple of `align`. */
-# define ALIGN_UP(value, align) (((value) + (align - 1)) & ~(align - 1))
-/** @brief Aligns `value` downwards to the nearest multiple of `align`. */
-# define ALIGN_DOWN(value, align) ((value) & ~((align) - 1))
+/** @returns A boolean expressing if the value is a power of 2. */
+# define IS_POW_2(value) ((bool)((value) && !(value & (value - 1))))
 
 /** @brief Align `value` downwards to next power of 2. */
 # define ALIGN_DOWN_POW2(value) ((size_t)(value) <= 1 ? (size_t)1 : ((size_t)1 << (sizeof(size_t) * CHAR_BIT - ft_clz_size_t((size_t)value) - 1)))
 /** @brief Align `value` downwards to next power of 2. */
 # define ALIGN_UP_POW2(value) ((size_t)(value) <= 1 ? (size_t)1 : ((size_t)1 << (sizeof(size_t) * CHAR_BIT - ft_clz_size_t((size_t)(value) - 1))))
 
+/** @brief Aligns `value` upwards to the nearest multiple of `align`. */
+# define ALIGN_UP(value, align) (((value) + (align - 1)) & ~(align - 1))
+/** @brief Aligns `value` downwards to the nearest multiple of `align`. */
+# define ALIGN_DOWN(value, align) ((value) & ~((align) - 1))
+
 /** @returns The highest value between `value` and `min` */
 # define CLAMP_MIN(value, min) (((value) < (min)) ? (min) : (value))
 /** @returns The smallest value between `value` and `max` */
 # define CLAMP_MAX(value, max) (((value) > (max)) ? (max) : (value))
 
-/** @brief General use-case memory alignment boundary in bytes. */
-# define ALIGNMENT_BOUNDARY (size_t)(ALIGN_UP_POW2(DESIRED_ALIGNMENT_BOUNDARY))
-
 /** @brief Checks if a value or pointer is aligned given an alignment boundary. */
 # define IS_ALIGNED(val, align) ((bool)(((uintptr_t)(val) % (uintptr_t)(align)) == 0))
 
+/** @brief General use-case memory alignment boundary in bytes. */
+# define ALIGNMENT_BOUNDARY (size_t)(ALIGN_UP_POW2(DESIRED_ALIGNMENT_BOUNDARY))
 
 # ifndef PAGE_SIZE
 #  if defined(__linux__)
@@ -147,6 +149,9 @@ typedef void*   status_t;
 /** @brief Calculate pointer to the first `mchunk_t` of given `mregion_t`. */
 # define GET_MREGION_FIRST_MCHUNK(mregion_ptr) ((mchunk_t *)((unsigned char*)(mregion_ptr) + MREGION_HEADER_SIZE))
 
+/** @returns True if the allocation_size fits within a bound mregion (cf. `bound_mregion_type_t`). */
+# define IS_BOUND_MREGION(allocation_size) ((bool)((size_t)allocation_size <= SMALL_MCHUNK_MAX_ALLOCATION_SIZE))
+
 /* MCHUNK */
 
 /** @brief Size of a `mchunk_t` header. */
@@ -170,15 +175,12 @@ typedef void*   status_t;
 /** @returns Calculates pointer to the previous `mchunk_t` in memory. */
 # define GET_PREV_MCHUNK(mchunk_ptr) ((mchunk_t*)((unsigned char*)(mchunk_ptr) - GET_MCHUNK_SIZE(((mchunk_t*)(mchunk_ptr))->prev_allocation_size)))
 
-/** @returns True if the allocation_size fits within a bound mregion (cf. `bound_mregion_type_t`). */
-# define IS_BOUND_MREGION(allocation_size) ((bool)((size_t)allocation_size <= SMALL_MCHUNK_MAX_ALLOCATION_SIZE))
-
 /* Other */
 
 /** @brief Page aligned value closest to (size_t)-1 */
 # define PAGE_ALIGNED_SIZE_MAX (size_t)ALIGN_DOWN(SIZE_MAX, PAGE_SIZE)
 /** @brief Maximum allocation_size */
-# define MAX_ALLOCATION_SIZE (size_t)((PAGE_ALIGNED_SIZE_MAX - MREGION_HEADER_SIZE) / (MCHUNKS_PER_UNBOUND_MREGION * MREGION_HEADER_SIZE))
+# define MAX_ALLOCATION_SIZE (size_t)(ALIGN_DOWN_POW2((PAGE_ALIGNED_SIZE_MAX - MREGION_HEADER_SIZE) / (MCHUNKS_PER_UNBOUND_MREGION * MREGION_HEADER_SIZE)))
 
 /** @brief Represents a successful operation. It's also an invalid memory address.
  * @note Used with `status_t`. */

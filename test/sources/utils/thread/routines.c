@@ -175,3 +175,17 @@ void    *run_malloc_tests(void *arg)
 
     return NULL;
 }
+
+/* *************************************************************************** */
+/* *                                 REALLOC                                 * */
+/* *************************************************************************** */
+
+void    *run_realloc_test(void *arg)
+{
+    return NULL;
+}
+
+void    *run_realloc_tests(void *arg)
+{
+    return NULL;
+}
