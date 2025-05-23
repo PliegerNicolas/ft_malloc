@@ -56,17 +56,16 @@ typedef struct thread_sync
 
 typedef struct test
 {
-    char            *test;
-    char            *expec_res;
-    bool            expec_err;
-    void            *ptr;
+    char            *executed_test;
+    char            *expected_res;
+    bool            expected_err;
     size_t          bytes;
 } test_t;
 
 typedef struct tests
 {
-    const char  *test;
-    const char  *expec_res;
+    const char  *executed_test;
+    const char  *expected_res;
     test_t      *values;
     size_t      size;
 } tests_t;
@@ -183,7 +182,8 @@ void    put_test_result(void *ptr, const char *error, int fd);
 void    put_macro_result_size_t(size_t macro, int fd);
 void    put_macro_result_int(int macro, int fd);
 void    put_ptr_comparison(void *ptr1, void*ptr2, int fd);
-void    put_memory_state(int fd);
+void    put_test_result_ptr_comparison(void *ptr1, void *ptr2, const char *error, int fd);
+void    put_memory_state(const char *operation, int fd);
 
 bool    create_thread(pthread_t *thread, void *(*fn)(void *arg), thread_sync_t *thread_sync);
 bool    close_thread(pthread_t thread);
@@ -194,7 +194,7 @@ void    *listenToSTDERR(void *arg);
 void    *run_malloc_test(void *arg);
 void    *run_malloc_tests(void *arg);
 void    *run_realloc_test(void *arg);
-void    *run_realloc_tests(void *arg);
-void    *run_chained_realloc_tests(void *arg);
+void    *run_realloc_with_neighbor_test(void *arg);
+void    *run_realloc_chained_tests(void *arg);
 
 #endif

@@ -74,7 +74,7 @@ SOURCES_FILE_NAMES				:=	main \
 									test_realloc \
 									test_free \
 									utils/please \
-									utils/print \
+									utils/put \
 									utils/thread/thread \
 									utils/thread/routines
 

@@ -98,8 +98,8 @@ void    *run_malloc_test(void *arg)
 
     // Put test.
     ft_putstr_fd(BOLD_CYAN, fd);
-    if (test->test)
-        ft_putstr_fd(test->test, fd);
+    if (test->executed_test)
+        ft_putstr_fd(test->executed_test, fd);
     else
     {
         ft_putstr_fd("malloc(", fd);
@@ -110,15 +110,12 @@ void    *run_malloc_test(void *arg)
     ft_putstr_fd(RESET, fd);
     ft_putchar_fd('\n', fd);
 
-    put_expected_result(test->expec_res, fd);
+    put_expected_result(test->expected_res, fd);
 
     // Exec malloc and capture it's stderr.
     fd_listener_t   stderr_listener = {
         .fd = STDERR_FILENO,
-        .timeout = {
-            .tv_sec = test->expec_err ? 5 : 0,
-            .tv_usec = 0
-        },
+        .timeout = { .tv_sec = test->expected_err ? 3 : 0, .tv_usec = 0 },
     };
     
     {
@@ -133,8 +130,11 @@ void    *run_malloc_test(void *arg)
         close_thread(thread);
     }
 
+    // Put test result.
     put_test_result(ptr, stderr_listener.buffer, fd);
-    put_memory_state(fd);
+
+    // Put memory state.
+    put_memory_state(NULL, fd);
 
     // Free allocated ptr.
     free(ptr);
@@ -152,22 +152,23 @@ void    *run_malloc_tests(void *arg)
     set_thread_as_ready(thread_sync);
 
     // Put test.
-    if (tests->test)
+    if (tests->executed_test)
     {
         ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(tests->test, fd);
+        ft_putstr_fd(tests->executed_test, fd);
         ft_putchar_fd(':', fd);
         ft_putstr_fd(RESET, fd);
         ft_putchar_fd('\n', fd);
     }
 
-    put_expected_result(tests->expec_res, fd);
+    // Put expected result.
+    put_expected_result(tests->expected_res, fd);
 
     ft_bzero(ptrs, sizeof(ptrs));
     for (size_t i = 0; i < tests->size; i++)
         ptrs[i] = malloc(tests->values[i].bytes);
 
-    put_memory_state(fd);
+    put_memory_state(NULL, fd);
 
     // Free everything up
     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
@@ -185,84 +186,124 @@ void    *run_realloc_test(void *arg)
     thread_sync_t   *thread_sync = arg;
     test_t          *test = thread_sync->thread_arg;
     int             fd = STDOUT_FILENO;
-    void            *ptr;
-    
+    void            *ptr = NULL;
+
     set_thread_as_ready(thread_sync);
 
     // Put test.
     ft_putstr_fd(BOLD_CYAN, fd);
-    if (test->test)
-        ft_putstr_fd(test->test, fd);
+    if (test->executed_test)
+        ft_putstr_fd(test->executed_test, fd);
     else
     {
         ft_putstr_fd("realloc(", fd);
-        ft_putptr_fd(test->ptr, fd);
+        ft_putptr_fd(NULL, fd);
         ft_putstr_fd(", ", fd);
         ft_putsize_t_fd(test->bytes, fd);
-        ft_putstr_fd(")", fd);
+        ft_putchar_fd(')', fd);
     }
     ft_putchar_fd(':', fd);
     ft_putstr_fd(RESET, fd);
     ft_putchar_fd('\n', fd);
 
-    put_expected_result(test->expec_res, fd);
+    // Put Results.
+    put_expected_result(test->expected_res, fd);
 
-    // Exec malloc and capture it's stderr.
     fd_listener_t   stderr_listener = {
         .fd = STDERR_FILENO,
-        .timeout = {
-            .tv_sec = test->expec_err ? 5 : 0,
-            .tv_usec = 0
-        },
+        .timeout = { .tv_sec = test->expected_err ? 3 : 0, .tv_usec = 0 },
     };
-    
+
     {
         pthread_t   thread;
+
         create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
             .thread_arg = &stderr_listener,
             .is_ready = false,
             .ready_cond = PTHREAD_COND_INITIALIZER,
             .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
         });
-        ptr = realloc(test->ptr, test->bytes);
+
+        ptr = realloc(NULL, test->bytes);
+
         close_thread(thread);
     }
 
-    put_test_result(ptr, stderr_listener.buffer, fd);
-    put_memory_state(fd);
+    // Put memory state.
+    put_memory_state(NULL, fd);
 
-    // Free allocated ptr.
+    // Free everything up
     free(ptr);
 
     return NULL;
 }
 
-void    *run_realloc_tests(void *arg)
+void    *run_realloc_with_neighbor_test(void *arg)
 {
     thread_sync_t   *thread_sync = arg;
     tests_t         *tests = thread_sync->thread_arg;
-    void            *ptrs[tests->size];
     int             fd = STDOUT_FILENO;
-    
+
+    void            *ptrs[3] = { 0 };
+    bool            expect_error = false;
+
     set_thread_as_ready(thread_sync);
 
-    // Put test.
-    if (tests->test)
+    if (tests->size < 2 && tests->size > 3)
+        return ft_putendl_fd("Expected exacly 2 or 3 tests/values", STDERR_FILENO), NULL;
+
+    for (size_t i = 0; i < tests->size; i++)
+        if (tests->values[i].expected_err)
+            expect_error = tests->values[i].expected_err;
+
+    if (tests->executed_test)
     {
         ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(tests->test, fd);
+        ft_putstr_fd(tests->executed_test, fd);
         ft_putchar_fd(':', fd);
         ft_putstr_fd(RESET, fd);
         ft_putchar_fd('\n', fd);
     }
 
-    put_expected_result(tests->expec_res, fd);
+    // Put Results.
+    put_expected_result(tests->expected_res, fd);
 
-    ft_bzero(ptrs, sizeof(ptrs));
-    for (size_t i = 0; i < tests->size; i++)
-        ptrs[i] = realloc(tests->values[i].ptr, tests->values[i].bytes);
+    fd_listener_t   stderr_listener = {
+        .fd = STDERR_FILENO,
+        .timeout = { .tv_sec = expect_error ? 3 : 0, .tv_usec = 0 },
+    };
 
-    put_memory_state(fd);
+    {
+        pthread_t   thread;
+
+        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
+            .thread_arg = &stderr_listener,
+            .is_ready = false,
+            .ready_cond = PTHREAD_COND_INITIALIZER,
+            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
+        });
+
+        if (tests->size == 2)
+        {
+            ptrs[0] = malloc(tests->values[0].bytes);
+            // Put memory state.
+            put_memory_state("before realloc()", fd);
+            ptrs[1] = realloc(ptrs[0], tests->values[1].bytes);
+            put_memory_state("after realloc()", fd);
+            ptrs[0] = NULL;
+        }
+        else if (tests->size == 3)
+        {
+            ptrs[0] = malloc(tests->values[0].bytes);
+            ptrs[1] = malloc(tests->values[1].bytes);
+            put_memory_state("before realloc()", fd);
+            ptrs[2] = realloc(ptrs[0], tests->values[2].bytes);
+            put_memory_state("after realloc()", fd);
+            ptrs[0] = NULL;
+        }
+
+        close_thread(thread);
+    }
 
     // Free everything up
     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
@@ -271,32 +312,40 @@ void    *run_realloc_tests(void *arg)
     return NULL;
 }
 
-void    *run_chained_realloc_tests(void *arg)
+void    *run_realloc_chained_tests(void *arg)
 {
     thread_sync_t   *thread_sync = arg;
     tests_t         *tests = thread_sync->thread_arg;
+    test_t          current_test;
     int             fd = STDOUT_FILENO;
-    void            *ptr = NULL;
-    
+    void            *ptr;
+
     set_thread_as_ready(thread_sync);
 
-    // Put test.
-    if (tests->test)
+    // We do not capture STDERR here.
+
+    if (tests->executed_test)
     {
         ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(tests->test, fd);
+        ft_putstr_fd(tests->executed_test, fd);
         ft_putchar_fd(':', fd);
         ft_putstr_fd(RESET, fd);
         ft_putchar_fd('\n', fd);
     }
 
-    put_expected_result(tests->expec_res, fd);
+    // Put Results.
+    put_expected_result(tests->expected_res, fd);
 
     for (size_t i = 0; i < tests->size; i++)
-        ptr = realloc(ptr, tests->values[i].bytes);
+    {
+        current_test = tests->values[i];
+        ptr = realloc(ptr, current_test.bytes);
+    }
 
-    put_memory_state(fd);
+    // Put memory state.
+    put_memory_state(NULL, fd);
 
+    // Free everything up
     free(ptr);
 
     return NULL;

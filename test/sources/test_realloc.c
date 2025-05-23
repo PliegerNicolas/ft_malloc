@@ -29,42 +29,128 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-void    test_realloc_grow(int fd)
+static void test_realloc_semantic_special_cases(int fd)
 {
-    // run_in_thread(run_chained_realloc_tests, &(tests_t) {
-    //     .test = "realloc(NULL, 0) => realloc(prev, TINY_MCHUNK_MAX_ALLOCATION_SIZE)",
-    //     .expec_res = "zigogo",
-    //     .size = 2,
-    //     .values = (test_t[2]) {
-    //         { .bytes = 0 },
-    //         { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE },
-    //     },
-    // });
+    run_in_thread(run_realloc_test, &(test_t) {
+        .executed_test = "realloc(NULL, 0)",
+        .expected_res = "eq. malloc(0)",
+        .bytes = 0,
+    });
 
-    // run_in_thread(run_chained_realloc_tests, &(tests_t) {
-    //     .test = "realloc(NULL, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1) => realloc(prev, SMALL_MCHUNK_MAX_ALLOCATION_SIZE)",
-    //     .expec_res = "zigogo",
-    //     .size = 2,
-    //     .values = (test_t[2]) {
-    //         { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
-    //         { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE },
-    //     },
-    // });
+    ft_putchar_fd('\n', fd);
 
-    run_in_thread(run_chained_realloc_tests, &(tests_t) {
-        .test = "realloc(NULL, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1) => realloc(prev, SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 10)",
-        .expec_res = "zigogo",
+    run_in_thread(run_realloc_test, &(test_t) {
+        .executed_test = "realloc(NULL, 42)",
+        .expected_res = "eq. malloc(42)",
+        .bytes = 42,
+    });
+
+    ft_putchar_fd('\n', fd);
+
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "realloc(ptr, 0)",
+        .expected_res = "eq. free() of allocated ptr",
         .size = 2,
-        .values = (test_t[2]) {
-            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
-            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 10000 }, // Pas de free quand grow and move. Ça init mall
+        .values = (test_t[]) {
+            { .bytes = 42 },
+            { .bytes = 0 },
         },
     });
 }
 
-void    test_realloc_shrink(int fd)
+
+
+
+
+static void test_realloc_same_size(int fd)
 {
-    
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "realloc(ptr, N) * 2",
+        .expected_res = "no difference",
+        .size = 2,
+        .values = (test_t[]) {
+            { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 },
+            { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 },
+        },
+    });
+
+    ft_putchar_fd('\n', fd);
+
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "realloc(ptr, N) * 2",
+        .expected_res = "no difference",
+        .size = 2,
+        .values = (test_t[]) {
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 },
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 },
+        },
+    });
+
+    ft_putchar_fd('\n', fd);
+
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "realloc(ptr, N) * 2",
+        .expected_res = "no difference",
+        .size = 2,
+        .values = (test_t[]) {
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 1.5 },
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 1.5 },
+        },
+    });
+}
+
+
+
+
+
+static void test_realloc_grow_between_mregions(int fd)
+{
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "malloc(max TINY mregion) => realloc(..., min SMALL mregion)",
+        .expected_res = "Relocated mchunk from TINY mregion to SMALL mregion",
+        .size = 2,
+        .values = (test_t[]) {
+            { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE },
+            { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
+        },
+    });
+
+    ft_putchar_fd('\n', fd);
+
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "malloc(max SMALL mregion) => realloc(..., min LARGE mregion)",
+        .expected_res = "Relocated mchunk from SMALL mregion to LARGE mregion",
+        .size = 2,
+        .values = (test_t[]) {
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE },
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
+        },
+    });
+}
+
+static void test_realloc_shrink_between_mregions(int fd)
+{
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "malloc(min LARGE mregion) => realloc(..., max SMALL mregion)",
+        .expected_res = "Relocated mchunk from LARGE mregion to SMALL mregion",
+        .size = 2,
+        .values = (test_t[]) {
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE },
+        },
+    });
+
+    ft_putchar_fd('\n', fd);
+
+    run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
+        .executed_test = "malloc(min SMALL mregion) => realloc(..., max TINY mregion)",
+        .expected_res = "Relocated mchunk from SMALL mregion to TINY mregion",
+        .size = 2,
+        .values = (test_t[]) {
+            { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
+            { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE },
+        },
+    });
 }
 
 /* *************************************************************************** */
@@ -75,218 +161,15 @@ void    test_realloc(int fd)
 {
     put_title("Testing:                        realloc(void *ptr, size_t size)                         ", BG_BOLD_BLACK, fd);
 
-    test_realloc_grow(fd);
+    put_title("1.        realloc semantic special cases        ", BG_BLACK_BRIGHT_BLUE, fd);
+    test_realloc_semantic_special_cases(fd);
+
+    put_title("2.               realloc same size              ", BG_BLACK_BRIGHT_BLUE, fd);
+    test_realloc_same_size(fd);
+
+    put_title("3.        realloc grow between mregions         ", BG_BLACK_BRIGHT_BLUE, fd);
+    test_realloc_grow_between_mregions(fd);
+
+    put_title("4.       realloc shrink between mregions        ", BG_BLACK_BRIGHT_BLUE, fd);
+    test_realloc_shrink_between_mregions(fd);
 }
-
-
-// /* ************************************************************************** */
-// /*                                                                            */
-// /*                                                        :::      ::::::::   */
-// /*   test_realloc.c                                     :+:      :+:    :+:   */
-// /*                                                    +:+ +:+         +:+     */
-// /*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
-// /*                                                +#+#+#+#+#+   +#+           */
-// /*   Created: 2025-05-13 21:03:57 by nplieger          #+#    #+#             */
-// /*   Updated: 2025-05-13 21:03:57 by nplieger         ###   ########.fr       */
-// /*                                                                            */
-// /* ************************************************************************** */
-
-// #include "test_ft_malloc.h"
-
-// /* *************************************************************************** */
-// /* *                                 STATIC                                  * */
-// /* *************************************************************************** */
-
-// /* Utils */
-
-// #pragma GCC diagnostic push
-// #pragma GCC diagnostic ignored "-Wuse-after-free"
-// static void *check_realloc(const char *title, void *ptr, size_t size, const char *expected_result, int fd)
-// {
-//     void    *new_ptr;
-//     char    buffer[2048] = { '\0' };
-
-//     ft_putstr_fd(BOLD_CYAN, fd);
-//     if (title)
-//         ft_putstr_fd(title, fd);
-//     else
-//     {
-//         ft_putstr_fd("realloc(", fd);
-//         ft_putptr_fd(ptr, fd);
-//         ft_putstr_fd(", ", fd);
-//         ft_putsize_t_fd(size, fd);
-//         ft_putchar_fd(')', fd);
-//     }        
-//     ft_putchar_fd(':', fd);
-//     ft_putendl_fd(RESET, fd);
-
-//     ft_putstr_fd("🞄 expecting: ", fd);
-//     ft_putendl_fd(expected_result, fd);
-
-//     {
-//         int     pipefd[2];
-//         int     original_stderr;
-//         ssize_t read_bytes;
-
-//         if (pipe(pipefd) == -1)
-//             return NULL;
-
-//         original_stderr = dup(STDERR_FILENO); // Duplicate STDERR so it can be restored later.
-//         if (original_stderr == -1)
-//             return close(pipefd[0]), close(pipefd[1]), NULL;
-
-//         if (dup2(pipefd[1], STDERR_FILENO) == -1) // Transform STDERR to pipefd[1] (write part of the pipe).
-//             return close(pipefd[0]), close(pipefd[1]), close(original_stderr), NULL;
-//         close(pipefd[1]); // Close the original pipefd[1] as it has now taken the place of STDERR.
-
-//         new_ptr = realloc(ptr, size);
-
-//         if (dup2(original_stderr, STDERR_FILENO) == -1)  // restore STDERR.
-//             return close(pipefd[0]), close(original_stderr), NULL;
-//         read_bytes = read(pipefd[0], buffer, sizeof(buffer) - 1);
-//         close(pipefd[0]); // Close the read end of the pipe.
-
-//         buffer[read_bytes] = '\0';
-//         if (read_bytes > 0 && buffer[read_bytes - 1] == '\n')
-//             buffer[read_bytes - 1] = '\0';
-//     }
-
-//     ft_putstr_fd("🞄 got: ", fd);
-//     ft_putptr_fd(ptr, fd);
-//     ft_putstr_fd(" => ", fd);
-//     ft_putptr_fd(new_ptr, fd);
-//     if (ft_strlen(buffer) > 0)
-//     {
-//         ft_putstr_fd(" (", fd);
-//         ft_putstr_fd(buffer, fd);
-//         ft_putchar_fd(')', fd);
-//     }
-//     ft_putchar_fd('\n', fd);
-
-//     return new_ptr;
-// }
-// #pragma GCC diagnostic pop
-
-// /* Tests */
-
-// static void test_realloc_edge_cases(int fd)
-// {
-//     void    *ptrs[5] = { NULL };
-
-//     ft_putstr_fd(UNDERLINE, fd);
-//     put_colored(BOLD_CYAN, "Edge cases:", true, fd);
-
-//     put_colored(DIM_CYAN, "Operations:", true, fd);
-//     {
-//         ptrs[0] = check_realloc("realloc(NULL, 0)", NULL, 0, "(nil) => 0x...            [equivalent to malloc(0)]", fd);
-
-//         ptrs[1] = check_realloc("realloc(prev_ptr, 0)", ptrs[0], 0, "prev_ptr => (nil)", fd);
-//         ptrs[0] = check_free(NULL, ptrs[0], "** free(): double free or corruption: 0x... **", fd);
-
-//         ptrs[2] = check_realloc("realloc(NULL, MAX_ALLOCATION_SIZE)", NULL, MAX_ALLOCATION_SIZE, "(nil) (** mmap_mregion(): Not enough memory (ENOMEM) **)", fd);
-//         ptrs[3] = check_realloc("realloc(NULL, MAX_ALLOCATION_SIZE + 1)", NULL, MAX_ALLOCATION_SIZE + 1, "(nil) (** mmap_mregion(): Not enough memory (ENOMEM) **)", fd);
-//         ptrs[4] = check_realloc("realloc(NULL, SIZE_MAX)", NULL, SIZE_MAX, "(nil) (** has_allocation_size_aberrant_value(): max allocation size exceeded **)", fd);
-//     }
-
-//     put_colored(DIM_CYAN, "Final arena state:", true, fd);
-//     {
-//         please_show_alloc_mem();
-//     }
-
-//     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
-//         free(ptrs[i]); // Assuming free works fine.
-// }
-
-// static void test_realloc_boundary_growth(int fd)
-// {
-//     void    *ptrs[7] = { NULL };
-
-//     ft_putstr_fd(UNDERLINE, fd);
-//     put_colored(BOLD_CYAN, "Mchunk boundaries growth:", true, fd);
-
-//     put_colored(DIM_CYAN, "Operations:", true, fd);
-//     {
-//         /* Tiny */
-//         ptrs[0] = check_realloc("realloc(NULL, 0)", NULL, 0, "(nil) => new_addr", fd);
-//         ptrs[1] = check_realloc("realloc(prev_ptr, 42)", ptrs[0], 42, "prev_ptr => prev_ptr", fd);
-//         ptrs[0] = NULL;
-//         ptrs[2] = check_realloc("realloc(prev_ptr, 43)", ptrs[1], 43, "prev_ptr => prev_ptr", fd);
-//         ptrs[1] = NULL;
-
-//         /* Small */
-//         ptrs[3] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[2], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => new_addr", fd);
-//         ptrs[2] = NULL;
-//         ptrs[4] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 42)", ptrs[3], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 42, "prev_addr => prev_addr", fd);
-//         ptrs[3] = NULL;
-
-//         /* Large */
-//         ptrs[5] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[4], SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => new_addr", fd);
-//         ptrs[4] = NULL;
-//         ptrs[6] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000)", ptrs[5], SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000, "prev_addr => prev_addr", fd);
-//         ptrs[5] = NULL;
-//     }
-
-//     put_colored(DIM_CYAN, "Final arena state:", true, fd);
-//     {
-//         please_show_alloc_mem();
-//     }
-
-//     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
-//         free(ptrs[i]); // Assuming free works fine.
-// }
-
-// static void test_realloc_boundary_shrinkage(int fd)
-// {
-//     void    *ptrs[7] = { NULL };
-
-//     ft_putstr_fd(UNDERLINE, fd);
-//     put_colored(BOLD_CYAN, "Mchunk boundaries shrinkage:", true, fd);
-
-//     put_colored(DIM_CYAN, "Operations:", true, fd);
-//     {
-//         /* Large */
-//         ptrs[0] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000)", NULL, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1000, "(nil) => new_addr", fd);
-//         ptrs[1] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[0], SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => prev_addr", fd);
-//         ptrs[0] = NULL;
-
-//         /* Small */
-//         ptrs[2] = check_realloc("realloc(prev_ptr, SMALL_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[1], SMALL_MCHUNK_MAX_ALLOCATION_SIZE, "prev_addr => new_addr", fd);
-//         ptrs[1] = NULL;
-//         ptrs[3] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1)", ptrs[2], TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1, "prev_addr => prev_addr", fd);
-//         ptrs[2] = NULL;
-
-//         /* Tiny */
-//         ptrs[4] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[3], TINY_MCHUNK_MAX_ALLOCATION_SIZE, "prev_addr => new_addr", fd);
-//         ptrs[3] = NULL;
-//         ptrs[5] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[4], 1, "prev_addr => prev_addr", fd);
-//         ptrs[4] = NULL;
-//         ptrs[6] = check_realloc("realloc(prev_ptr, TINY_MCHUNK_MAX_ALLOCATION_SIZE)", ptrs[5], 0, "prev_addr => (nil)", fd);
-//         ptrs[5] = NULL;
-//     }
-
-//     put_colored(DIM_CYAN, "Final arena state:", true, fd);
-//     {
-//         please_show_alloc_mem();
-//     }
-
-//     for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
-//         free(ptrs[i]); // Assuming free works fine.
-// }
-
-// /* *************************************************************************** */
-// /* *                                 LINKED                                  * */
-// /* *************************************************************************** */
-
-// void    test_realloc(int fd)
-// {
-//     put_colored(BG_BOLD_BLACK, "Testing:        realloc(void *ptr, size_t size)     ", true, fd);
-
-//     test_realloc_edge_cases(fd);
-//     test_realloc_boundary_growth(fd);
-//     test_realloc_boundary_shrinkage(fd);
-// }
-
-// void    test_realloc(int fd)
-// {
-    
-// }
