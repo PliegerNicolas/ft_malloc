@@ -25,7 +25,8 @@ void    put_title(const char *title, char *color, int fd)
 void    put_expected_result(const char *expected_result, int fd)
 {
     ft_putstr_fd("🞄 Expected: ", fd);
-    ft_putendl_fd(expected_result, fd);
+    ft_putstr_fd(expected_result, fd);
+    ft_putchar_fd('\n', fd);
 }
 
 void    put_test_result(void *ptr, const char *error, int fd)

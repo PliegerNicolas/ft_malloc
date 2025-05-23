@@ -47,5 +47,5 @@ bool    try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchunk_t 
     }
     while (has_mchunk_grown(mchunk, prev_mchunk_allocation_size) && !has_mchunk_reached_target_size(mchunk, target_size));
 
-    return true;
+    return has_mchunk_reached_target_size(mchunk, target_size);
 }

@@ -16,11 +16,11 @@
 /* *                                 STATIC                                  * */
 /* *************************************************************************** */
 
-static void test_malloc_around_alignment_boundary(int fd)
+static void test_malloc_around_small_sizes(int fd)
 {
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = ALIGNMENT_BOUNDARY - 1 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = ALIGNMENT_BOUNDARY });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = ALIGNMENT_BOUNDARY + 1 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = 0 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = 1 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = 2 });
 }
 
 static void test_malloc_around_mchunk_header_size(int fd)
@@ -30,19 +30,11 @@ static void test_malloc_around_mchunk_header_size(int fd)
     run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = MCHUNK_HEADER_SIZE + 1 });
 }
 
-static void test_malloc_around_mregion_max_allocation_size(int fd)
+static void test_malloc_around_alignment_boundary(int fd)
 {
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = 0 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE });
-
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE });
-
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "(nil) ** mmap_mregion(): Not enough memory (ENOMEM) **", .bytes = MAX_ALLOCATION_SIZE * 0.5, .expec_err = true });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "(nil) ** mmap_mregion(): Not enough memory (ENOMEM) **", .bytes = MAX_ALLOCATION_SIZE, .expec_err = true });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = ALIGNMENT_BOUNDARY - 1 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = ALIGNMENT_BOUNDARY });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = ALIGNMENT_BOUNDARY + 1 });
 }
 
 static void test_malloc_around_page_size(int fd)
@@ -59,11 +51,19 @@ static void test_malloc_around_size_max(int fd)
     run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = SIZE_MAX + 1 });
 }
 
-static void test_malloc_around_small_sizes(int fd)
+static void test_malloc_around_mregion_max_allocation_size(int fd)
 {
     run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = 0 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = 1 });
-    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = 2 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE });
+
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 0.5 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE });
+
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "0x...", .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1 });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "(nil) ** mmap_mregion(): Not enough memory (ENOMEM) **", .bytes = MAX_ALLOCATION_SIZE * 0.5, .expec_err = true });
+    run_in_thread(run_malloc_test, &(test_t) { .expec_res = "(nil) ** mmap_mregion(): Not enough memory (ENOMEM) **", .bytes = MAX_ALLOCATION_SIZE, .expec_err = true });
 }
 
 static void test_fill_mregions(int fd)
@@ -155,6 +155,8 @@ void    test_malloc(int fd)
     test_malloc_around_size_max(fd);
     put_title("6.   malloc(≈ *_MCHUNK_MAX_ALLOCATION_SIZE)   ", BG_BLACK_BRIGHT_BLUE, fd);
     test_malloc_around_mregion_max_allocation_size(fd);
+
+    ft_putchar_fd('\n', fd);
 
     // Bulk malloc calls
     put_title("7.            malloc: fill mregions             ", BG_BLACK_BRIGHT_BLUE, fd);

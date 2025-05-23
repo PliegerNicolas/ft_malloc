@@ -1,3 +1,84 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   test_realloc.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-05-22 17:42:12 by nplieger          #+#    #+#             */
+/*   Updated: 2025-05-22 17:42:12 by nplieger         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "test_ft_malloc.h"
+
+//     // run_in_thread(run_chained_realloc_tests, &(tests_t) {
+//     //     .test = "zigaga",
+//     //     .expec_res = "zigogo",
+//     //     .size = 5,
+//     //     .values = (test_t[5]) {
+//     //         { .bytes = 0 },
+//     //         { .bytes = 1 },
+//     //         { .bytes = 2 },
+//     //         { .bytes = 3 },
+//     //         { .bytes = 4 },
+//     //     },
+//     // });
+
+/* *************************************************************************** */
+/* *                                 STATIC                                  * */
+/* *************************************************************************** */
+
+void    test_realloc_grow(int fd)
+{
+    // run_in_thread(run_chained_realloc_tests, &(tests_t) {
+    //     .test = "realloc(NULL, 0) => realloc(prev, TINY_MCHUNK_MAX_ALLOCATION_SIZE)",
+    //     .expec_res = "zigogo",
+    //     .size = 2,
+    //     .values = (test_t[2]) {
+    //         { .bytes = 0 },
+    //         { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE },
+    //     },
+    // });
+
+    // run_in_thread(run_chained_realloc_tests, &(tests_t) {
+    //     .test = "realloc(NULL, TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1) => realloc(prev, SMALL_MCHUNK_MAX_ALLOCATION_SIZE)",
+    //     .expec_res = "zigogo",
+    //     .size = 2,
+    //     .values = (test_t[2]) {
+    //         { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
+    //         { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE },
+    //     },
+    // });
+
+    run_in_thread(run_chained_realloc_tests, &(tests_t) {
+        .test = "realloc(NULL, SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1) => realloc(prev, SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 10)",
+        .expec_res = "zigogo",
+        .size = 2,
+        .values = (test_t[2]) {
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1 },
+            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 10000 }, // Pas de free quand grow and move. Ça init mall
+        },
+    });
+}
+
+void    test_realloc_shrink(int fd)
+{
+    
+}
+
+/* *************************************************************************** */
+/* *                                 LINKED                                  * */
+/* *************************************************************************** */
+
+void    test_realloc(int fd)
+{
+    put_title("Testing:                        realloc(void *ptr, size_t size)                         ", BG_BOLD_BLACK, fd);
+
+    test_realloc_grow(fd);
+}
+
+
 // /* ************************************************************************** */
 // /*                                                                            */
 // /*                                                        :::      ::::::::   */
@@ -205,7 +286,7 @@
 //     test_realloc_boundary_shrinkage(fd);
 // }
 
-void    test_realloc(int fd)
-{
+// void    test_realloc(int fd)
+// {
     
-}
+// }

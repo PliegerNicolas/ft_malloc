@@ -195,5 +195,6 @@ void    *run_malloc_test(void *arg);
 void    *run_malloc_tests(void *arg);
 void    *run_realloc_test(void *arg);
 void    *run_realloc_tests(void *arg);
+void    *run_chained_realloc_tests(void *arg);
 
 #endif

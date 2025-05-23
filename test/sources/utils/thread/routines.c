@@ -182,10 +182,122 @@ void    *run_malloc_tests(void *arg)
 
 void    *run_realloc_test(void *arg)
 {
+    thread_sync_t   *thread_sync = arg;
+    test_t          *test = thread_sync->thread_arg;
+    int             fd = STDOUT_FILENO;
+    void            *ptr;
+    
+    set_thread_as_ready(thread_sync);
+
+    // Put test.
+    ft_putstr_fd(BOLD_CYAN, fd);
+    if (test->test)
+        ft_putstr_fd(test->test, fd);
+    else
+    {
+        ft_putstr_fd("realloc(", fd);
+        ft_putptr_fd(test->ptr, fd);
+        ft_putstr_fd(", ", fd);
+        ft_putsize_t_fd(test->bytes, fd);
+        ft_putstr_fd(")", fd);
+    }
+    ft_putchar_fd(':', fd);
+    ft_putstr_fd(RESET, fd);
+    ft_putchar_fd('\n', fd);
+
+    put_expected_result(test->expec_res, fd);
+
+    // Exec malloc and capture it's stderr.
+    fd_listener_t   stderr_listener = {
+        .fd = STDERR_FILENO,
+        .timeout = {
+            .tv_sec = test->expec_err ? 5 : 0,
+            .tv_usec = 0
+        },
+    };
+    
+    {
+        pthread_t   thread;
+        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
+            .thread_arg = &stderr_listener,
+            .is_ready = false,
+            .ready_cond = PTHREAD_COND_INITIALIZER,
+            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
+        });
+        ptr = realloc(test->ptr, test->bytes);
+        close_thread(thread);
+    }
+
+    put_test_result(ptr, stderr_listener.buffer, fd);
+    put_memory_state(fd);
+
+    // Free allocated ptr.
+    free(ptr);
+
     return NULL;
 }
 
 void    *run_realloc_tests(void *arg)
 {
+    thread_sync_t   *thread_sync = arg;
+    tests_t         *tests = thread_sync->thread_arg;
+    void            *ptrs[tests->size];
+    int             fd = STDOUT_FILENO;
+    
+    set_thread_as_ready(thread_sync);
+
+    // Put test.
+    if (tests->test)
+    {
+        ft_putstr_fd(BOLD_CYAN, fd);
+        ft_putstr_fd(tests->test, fd);
+        ft_putchar_fd(':', fd);
+        ft_putstr_fd(RESET, fd);
+        ft_putchar_fd('\n', fd);
+    }
+
+    put_expected_result(tests->expec_res, fd);
+
+    ft_bzero(ptrs, sizeof(ptrs));
+    for (size_t i = 0; i < tests->size; i++)
+        ptrs[i] = realloc(tests->values[i].ptr, tests->values[i].bytes);
+
+    put_memory_state(fd);
+
+    // Free everything up
+    for (size_t i = 0; i < sizeof(ptrs) / sizeof(*ptrs); i++)
+        free(ptrs[i]);
+
+    return NULL;
+}
+
+void    *run_chained_realloc_tests(void *arg)
+{
+    thread_sync_t   *thread_sync = arg;
+    tests_t         *tests = thread_sync->thread_arg;
+    int             fd = STDOUT_FILENO;
+    void            *ptr = NULL;
+    
+    set_thread_as_ready(thread_sync);
+
+    // Put test.
+    if (tests->test)
+    {
+        ft_putstr_fd(BOLD_CYAN, fd);
+        ft_putstr_fd(tests->test, fd);
+        ft_putchar_fd(':', fd);
+        ft_putstr_fd(RESET, fd);
+        ft_putchar_fd('\n', fd);
+    }
+
+    put_expected_result(tests->expec_res, fd);
+
+    for (size_t i = 0; i < tests->size; i++)
+        ptr = realloc(ptr, tests->values[i].bytes);
+
+    put_memory_state(fd);
+
+    free(ptr);
+
     return NULL;
 }
