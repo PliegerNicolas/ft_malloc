@@ -38,6 +38,12 @@ In this schema:
 - Marena is the only element defined on the stack. Each thread has it's own instance as it is set as ThreadLocal.
 - From left to right, the bigger element includes the smaller ones.
 
+Is stored on the stack:
+- The marena header (thus the pointers to the mregion heads).
+
+Is stored on the heap (via mmap):
+- Each mregion catalogued through their headers.
+
 ![ft_malloc_internal_structure](.assets/ft_malloc_internal_structure.png)
 
 ## libft_mini
