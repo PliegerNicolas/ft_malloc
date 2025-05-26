@@ -50,4 +50,4 @@ I decided to recreate one that answers my needs while using a more modern approa
 If you want to use this malloc implementation instead of the libc's one inside existing programs you have to:
 - Prepend the path where `libft_malloc.so` is located in `LD_LIBRARY_PATH` environment variable. Ensure our *.so file is read first and has precedence.  
 Please see how it's been done in my `tester`'s `Makefile`.
-- Ensure the existing program only uses functions that are present in the header file of libc's malloc and ours.
+- Ensure the existing program only uses functions that are present in both the header file of libc's malloc and ours.
