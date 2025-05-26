@@ -40,7 +40,7 @@ ifeq (debug, $(filter debug, $(MAKECMDGOALS)))
 endif
 
 ifeq (optimize, $(filter optimize, $(MAKECMDGOALS)))
-	CFLAGS				+=	-O3
+	CFLAGS				+=	-O2
 endif
 
 #* *************************************************************************** *#
