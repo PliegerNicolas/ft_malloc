@@ -33,7 +33,12 @@ With our **malloc** implementation, we aim to optimize memory allocation while b
 
 ## Internal structure
 
-...
+In this schema:
+- The term header can be used interchangeably with metadata.
+- Marena is the only element defined on the stack. Each thread has it's own instance as it is set as ThreadLocal.
+- From left to right, the bigger element includes the smaller ones.
+
+![ft_malloc_internal_structure](.assets/ft_malloc_internal_structure.png)
 
 ## libft_mini
 
