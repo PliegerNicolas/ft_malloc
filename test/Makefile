@@ -73,6 +73,7 @@ SOURCES_FILE_NAMES				:=	main \
 									test_malloc \
 									test_realloc \
 									test_free \
+									test_sandbox \
 									utils/please \
 									utils/put \
 									utils/thread/thread \
@@ -189,7 +190,7 @@ fclean: clean
 re: fclean all
 
 # Rule to build project with malloc from c's standard library.
-std: $(ARTEFACT_NAME)
+std: all
 debug: all
 optimize: all
 

@@ -72,7 +72,7 @@ mchunk_t    *select_best_fit_mbin_mchunk(mchunk_t *mbin, size_t allocation_size)
 status_t    insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *free_mchunk);
 mchunk_t    *migrate_mchunk_to_new_mregion(marena_t *marena, mchunk_t *original_mchunk, size_t reallocation_size);
 
-mchunk_t    *use_mchunk(mregion_t **mregion, mchunk_t *free_mchunk, size_t allocation_size);
+mchunk_t    *use_mchunk(mregion_t **mregion, mchunk_t *original_mchunk, size_t allocation_size);
 mchunk_t    *free_mchunk(mregion_t *mregion, mchunk_t *used_mchunk);
 
 mchunk_t    *partition_mchunk(mregion_t **mregion, mchunk_t **original_mchunk, size_t new_allocation_size);

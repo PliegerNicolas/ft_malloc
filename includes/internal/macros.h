@@ -64,10 +64,10 @@ typedef void*   status_t;
 
 /** @brief Desired maximum allocation_size per TINY `mchunk_t`.
  * @note Will be rounded up to `ALIGNMENT_BOUNDARY`. */
-# define DESIRED_TINY_MCHUNK_MAX_ALLOCATION_SIZE (size_t)64
+# define DESIRED_TINY_MCHUNK_MAX_ALLOCATION_SIZE (size_t)128
 /** @brief Maximum allocation_size per TINY `mchunk_t`.
  * @note Will be rounded up to `ALIGNMENT_BOUNDARY`. */
-# define DESIRED_SMALL_MCHUNK_MAX_ALLOCATION_SIZE (size_t)512
+# define DESIRED_SMALL_MCHUNK_MAX_ALLOCATION_SIZE (size_t)1024
 
 /* MREGION */
 
@@ -82,7 +82,7 @@ typedef void*   status_t;
 /* MARENA */
 
 /** @brief Desired number of initialised `mregion_t` per bound category. */
-# define DESIRED_INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE (size_t)3
+# define DESIRED_INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE (size_t)1
 
 /* *************************************************************************** */
 /* *                                  MACROS                                 * */

@@ -36,7 +36,7 @@ static void print_options(const char *options[4], size_t n, int fd)
 
 int main(int argc, char **argv)
 {
-    static const char   *options[4] = { "MACROS", "MALLOC", "REALLOC", "FREE" };
+    static const char   *options[] = { "MACROS", "MALLOC", "REALLOC", "FREE", "SANDBOX" };
     const int           fd = STDOUT_FILENO;
 
     if (argc < 2 || !argv[1])
@@ -50,6 +50,8 @@ int main(int argc, char **argv)
         test_realloc(fd);
     else if (ft_strncmp(ft_toupper_str(argv[1]), options[3], ft_strlen(options[3]) + 1) == 0)
         test_free(fd);
+    else if (ft_strncmp(ft_toupper_str(argv[1]), options[4], ft_strlen(options[4]) + 1) == 0)
+        test_sandbox(fd);
     else
         return ft_putendl_fd("Error: unrecognized parameter.", STDERR_FILENO), print_options(options, 4, STDERR_FILENO), 1;
 
