@@ -50,29 +50,29 @@ static void test_configurable_macros(int fd)
 static void test_formatted_configurable_macros(int fd)
 {
     put_title("ALIGNMENT_BOUNDARY:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
+    put_expected_result("2ₙ", fd);
     put_macro_result_size_t(ALIGNMENT_BOUNDARY, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("TINY_MCHUNK_MAX_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
-    put_macro_result_size_t(TINY_MCHUNK_MAX_ALLOCATION_SIZE, fd);
-    put_title("SMALL_MCHUNK_MAX_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
-    put_macro_result_size_t(SMALL_MCHUNK_MAX_ALLOCATION_SIZE, fd);
-
-    ft_putchar_fd('\n', fd);
-
     put_title("TINY_MCHUNK_MIN_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
+    put_expected_result("0", fd);
     put_macro_result_size_t(TINY_MCHUNK_MIN_ALLOCATION_SIZE, fd);
     put_title("SMALL_MCHUNK_MIN_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
+    put_expected_result("2ₙ + 1", fd);
     put_macro_result_size_t(SMALL_MCHUNK_MIN_ALLOCATION_SIZE, fd);
     put_title("LARGE_MCHUNK_MIN_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
+    put_expected_result("2ₙ + 1", fd);
     put_macro_result_size_t(LARGE_MCHUNK_MIN_ALLOCATION_SIZE, fd);
+    
+    ft_putchar_fd('\n', fd);
+
+    put_title("TINY_MCHUNK_MAX_ALLOCATION_SIZE:", BOLD_CYAN, fd);
+    put_expected_result("2ₙ", fd);
+    put_macro_result_size_t(TINY_MCHUNK_MAX_ALLOCATION_SIZE, fd);
+    put_title("SMALL_MCHUNK_MAX_ALLOCATION_SIZE:", BOLD_CYAN, fd);
+    put_expected_result("2ₙ", fd);
+    put_macro_result_size_t(SMALL_MCHUNK_MAX_ALLOCATION_SIZE, fd);
 
     ft_putchar_fd('\n', fd);
 
@@ -93,13 +93,13 @@ static void test_formatted_configurable_macros(int fd)
 static void test_plateform_dependent_macros(int fd)
 {
     put_title("PAGE_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
+    put_expected_result("2ₙ", fd);
     put_macro_result_size_t(PAGE_SIZE, fd);
 
     ft_putchar_fd('\n', fd);
 
     put_title("ALIGNMENT_BOUNDARY:", BOLD_CYAN, fd);
-    put_expected_result("a power of 2", fd);
+    put_expected_result("2ₙ", fd);
     put_macro_result_size_t(ALIGNMENT_BOUNDARY, fd);
 
     ft_putchar_fd('\n', fd);
@@ -236,7 +236,7 @@ static void test_utilitary_plateform_macros(int fd)
     put_expected_result("32", fd);
     put_macro_result_size_t(ALIGN_UP(17, 16), fd);
     put_title("ALIGN_UP(17, 7):", BOLD_CYAN, fd);
-    put_expected_result("Undefined behavior. `align` should be a power of 2", fd);
+    put_expected_result("Undefined behavior. `align` should be 2ₙ", fd);
     put_macro_result_size_t(ALIGN_UP(17, 7), fd);
 
     ft_putchar_fd('\n', fd);
@@ -254,7 +254,7 @@ static void test_utilitary_plateform_macros(int fd)
     put_expected_result("16", fd);
     put_macro_result_size_t(ALIGN_DOWN(17, 16), fd);
     put_title("ALIGN_DOWN(17, 7):", BOLD_CYAN, fd);
-    put_expected_result("Undefined behavior. `align` should be a power of 2", fd);
+    put_expected_result("Undefined behavior. `align` should be 2ₙ", fd);
     put_macro_result_size_t(ALIGN_DOWN(17, 7), fd);
 }
 

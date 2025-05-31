@@ -467,11 +467,11 @@ void    *run_double_free_test(void *arg)
             .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
         });
 
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wuse-after-free"
+        // #pragma GCC diagnostic push
+        // #pragma GCC diagnostic ignored "-Wuse-after-free"
         free(ptr);
         free(ptr);
-        #pragma GCC diagnostic pop
+        // #pragma GCC diagnostic pop
 
         close_thread(thread);
     }
@@ -536,14 +536,14 @@ void    *run_corrupted_free_test(void *arg)
             .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
         });
 
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wuse-after-free"
+        // #pragma GCC diagnostic push
+        // #pragma GCC diagnostic ignored "-Wuse-after-free"
         cached_byte = *((unsigned char *)ptr - MCHUNK_HEADER_SIZE);
         ft_memset((unsigned char *)ptr - MCHUNK_HEADER_SIZE, 'a', 1);
         free(ptr);
         ft_memset((unsigned char *)ptr - MCHUNK_HEADER_SIZE, cached_byte, 1);
         free(ptr);
-        #pragma GCC diagnostic pop
+        // #pragma GCC diagnostic pop
 
         close_thread(thread);
     }

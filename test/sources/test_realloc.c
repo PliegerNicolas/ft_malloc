@@ -52,7 +52,7 @@ static void test_realloc_semantic_special_cases(int fd)
 static void test_realloc_same_size(int fd)
 {
     run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
-        .executed_test = "realloc(ptr, N) * 2",
+        .executed_test = "realloc(ptr, TINY_N) * 2",
         .expected_res = "no difference",
         .size = 2,
         .values = (test_t[]) {
@@ -64,7 +64,7 @@ static void test_realloc_same_size(int fd)
     ft_putchar_fd('\n', fd);
 
     run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
-        .executed_test = "realloc(ptr, N) * 2",
+        .executed_test = "realloc(ptr, SMALL_N) * 2",
         .expected_res = "no difference",
         .size = 2,
         .values = (test_t[]) {
@@ -76,12 +76,12 @@ static void test_realloc_same_size(int fd)
     ft_putchar_fd('\n', fd);
 
     run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
-        .executed_test = "realloc(ptr, N) * 2",
+        .executed_test = "realloc(ptr, LARGE_N) * 2",
         .expected_res = "no difference",
         .size = 2,
         .values = (test_t[]) {
-            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 1.5 },
-            { .bytes = SMALL_MCHUNK_MAX_ALLOCATION_SIZE * 1.5 },
+            { .bytes = LARGE_MCHUNK_MIN_ALLOCATION_SIZE * 1.5 },
+            { .bytes = LARGE_MCHUNK_MIN_ALLOCATION_SIZE * 1.5 },
         },
     });
 }
@@ -248,10 +248,10 @@ static void test_realloc_grow_through_coalescing(int fd)
 {
     run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
         .executed_test = "Min to max TINY mchunk growth through coalescing",
-        .expected_res = "One used TINY mchunk, with less available FREE space (used DEBUG mode to see FREE mchunks)",
+        .expected_res = "The same used TINY mchunk, with less or no available FREE space (used DEBUG mode to see FREE mchunks)",
         .size = 2,
         .values = (test_t[]) {
-            { .bytes = 0 + 1 },
+            { .bytes = TINY_MCHUNK_MIN_ALLOCATION_SIZE },
             { .bytes = TINY_MCHUNK_MAX_ALLOCATION_SIZE },
         },
     });
@@ -260,7 +260,7 @@ static void test_realloc_grow_through_coalescing(int fd)
 
     run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
         .executed_test = "Min to max SMALL mchunk growth through coalescing",
-        .expected_res = "One used SMALL mchunk, with less available FREE space (used DEBUG mode to see FREE mchunks)",
+        .expected_res = "The same used SMALL mchunk, with less or no available FREE space (used DEBUG mode to see FREE mchunks)",
         .size = 2,
         .values = (test_t[]) {
             { .bytes = SMALL_MCHUNK_MIN_ALLOCATION_SIZE },
@@ -272,7 +272,7 @@ static void test_realloc_grow_through_coalescing(int fd)
 
     run_in_thread(run_realloc_with_neighbor_test, &(tests_t) {
         .executed_test = "Min to next PAGE_SIZE aligned LARGE mchunk growth through coalescing",
-        .expected_res = "One used LARGE mchunk, and no available FREE space (used DEBUG mode to see FREE mchunks)",
+        .expected_res = "Potentially another LARGE mchunk, and no available FREE space (used DEBUG mode to see FREE mchunks)",
         .size = 2,
         .values = (test_t[]) {
             { .bytes = LARGE_MCHUNK_MIN_ALLOCATION_SIZE },
