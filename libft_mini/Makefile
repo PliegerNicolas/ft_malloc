@@ -183,7 +183,8 @@ fclean: clean
 	@rm -f $(ARTEFACT_NAME)
 
 # Rule to clean all and build it everything from scratch again.
-re: fclean all
+re: fclean
+	@$(MAKE) all
 
 debug: all
 optimize: all

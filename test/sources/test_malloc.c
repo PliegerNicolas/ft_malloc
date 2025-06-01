@@ -129,7 +129,7 @@ static void test_fill_mregions(int fd)
     }
 }
 
-static void test_multi_mregion_mallocs(int fd)
+static void test_multi_mregion_mallocs()
 {
     test_t  mchunk_allocs[10] = {
         { .bytes = 42 * 0 },
@@ -178,5 +178,5 @@ void    test_malloc(int fd)
     put_title("7.            malloc: fill mregions             ", BG_BLACK_BRIGHT_BLUE, fd);
     test_fill_mregions(fd);
     put_title("8.         malloc: scatter in mregions          ", BG_BLACK_BRIGHT_BLUE, fd);
-    test_multi_mregion_mallocs(fd);
+    test_multi_mregion_mallocs();
 }

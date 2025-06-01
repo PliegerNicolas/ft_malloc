@@ -174,7 +174,7 @@ void    test_malloc(int fd);
 void    test_realloc(int fd);
 void    test_free(int fd);
 
-void    test_sandbox(int fd);
+void    test_sandbox();
 
 /* Utils */
 void    please_show_alloc_mem();

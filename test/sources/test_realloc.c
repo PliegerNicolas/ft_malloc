@@ -385,7 +385,7 @@ static void test_realloc_shrink_with_blocking_neighbor(int fd)
     });
 }
 
-static void test_realloc_chained_growth(int fd)
+static void test_realloc_chained_growth()
 {
     run_in_thread(run_realloc_chained_tests, &(tests_t) {
         .executed_test = "A chain of growing allocations.",
@@ -413,7 +413,7 @@ static void test_realloc_chained_growth(int fd)
     });
 }
 
-static void test_realloc_chained_shrinkage(int fd)
+static void test_realloc_chained_shrinkage()
 {
     run_in_thread(run_realloc_chained_tests, &(tests_t) {
         .executed_test = "A chain of shrinking allocations.",
@@ -469,7 +469,7 @@ void    test_realloc(int fd)
     test_realloc_grow_with_blocking_neighbor(fd);
 
     put_title("7.           chained reallocs growth            ", BG_BLACK_BRIGHT_BLUE, fd);
-    test_realloc_chained_growth(fd);
+    test_realloc_chained_growth();
 
     // Shrinkage
     put_title("8.       realloc shrink between mregions        ", BG_BLACK_BRIGHT_BLUE, fd);
@@ -485,5 +485,5 @@ void    test_realloc(int fd)
     test_realloc_shrink_with_blocking_neighbor(fd);
 
     put_title("12.          chained reallocs shrinkage          ", BG_BLACK_BRIGHT_BLUE, fd);
-    test_realloc_chained_shrinkage(fd);
+    test_realloc_chained_shrinkage();
 }

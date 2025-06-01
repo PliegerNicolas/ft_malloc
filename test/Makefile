@@ -18,7 +18,7 @@ NAME				:=	tester
 
 # Compilation flags and utils.
 CC					:=	gcc
-CFLAGS				:=	-Wall -Wextra -Werror -Wno-unused
+CFLAGS				:=	-Wall -Wextra
 
 # Libraries
 LIBFT_MALLOC_PATH	:=	$(CURDIR)/..
@@ -160,7 +160,7 @@ endef
 all: build_ft_malloc $(ARTEFACT_NAME)
 
 build_ft_malloc:
-	@make -C $(LIBFT_MALLOC_PATH) $(filter-out std,$(MAKECMDGOALS))
+	@$(MAKE) -C $(LIBFT_MALLOC_PATH) $(filter-out std,$(MAKECMDGOALS))
 
 # Rule to build the final executable/shared object/...
 $(ARTEFACT_NAME): $(OBJECTS)
@@ -187,7 +187,8 @@ fclean: clean
 	@rm -f $(SYM_LINK_NAME)
 
 # Rule to clean all and build it everything from scratch again.
-re: fclean all
+re: fclean
+	@$(MAKE) all
 
 # Rule to build project with malloc from c's standard library.
 std: all

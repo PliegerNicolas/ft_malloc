@@ -14,7 +14,7 @@
 
 // time -v ./tester sandbox
 
-void    test_sandbox(int fd)
+void    test_sandbox()
 {
     int     i;
     char    *addr;

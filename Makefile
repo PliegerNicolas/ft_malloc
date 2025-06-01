@@ -202,7 +202,7 @@ endef
 all: build_libft_mini $(ARTEFACT_NAME)
 
 build_libft_mini:
-	@make -C $(LIBFT_MINI_PATH) $(MAKECMDGOALS)
+	@$(MAKE) -C $(LIBFT_MINI_PATH) $(MAKECMDGOALS)
 
 # Rule to build the final executable/shared object/...
 $(ARTEFACT_NAME): $(OBJECTS)
@@ -230,10 +230,11 @@ fclean: clean
 	@$(call fclean_message)
 	@rm -f $(ARTEFACT_NAME)
 	@rm -f $(SYM_LINK_NAME)
-	@make -C $(LIBFT_MINI_PATH) fclean
+	@$(MAKE) -C $(LIBFT_MINI_PATH) fclean
 
 # Rule to clean all and build it everything from scratch again.
-re: fclean all
+re: fclean
+	@$(MAKE) all
 
 debug: all
 optimize: all
