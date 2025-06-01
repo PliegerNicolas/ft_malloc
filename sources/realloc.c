@@ -33,8 +33,11 @@ void    *realloc(void *ptr, size_t size)
     if (!mchunk || has_mchunk_aberrant_values(mchunk) || mchunk->state != USED)
         return NULL;
 
-    if ((reallocated_mchunk = realloc_mchunk(&gmarena, mchunk, size)) == STATUS_FAILURE)
+    if (gmutex_lock() == STATUS_FAILURE)
         return NULL;
+    if ((reallocated_mchunk = realloc_mchunk(&gmarena, mchunk, size)) == STATUS_FAILURE)
+        return gmutex_unlock(), NULL;
+    gmutex_unlock();
 
     return GET_MCHUNK_DATA_PTR(reallocated_mchunk);
 }

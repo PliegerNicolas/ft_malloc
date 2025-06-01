@@ -23,8 +23,11 @@ void    *malloc(size_t size)
     if (has_allocation_size_aberrant_value(size))
         return NULL;
 
-    if ((allocated_mchunk = alloc_mchunk(marena, size)) == STATUS_FAILURE)
+    if (gmutex_lock() == STATUS_FAILURE)
         return NULL;
+    if ((allocated_mchunk = alloc_mchunk(marena, size)) == STATUS_FAILURE)
+        return gmutex_unlock(), NULL;
+    gmutex_unlock();
 
     return GET_MCHUNK_DATA_PTR(allocated_mchunk);
 }

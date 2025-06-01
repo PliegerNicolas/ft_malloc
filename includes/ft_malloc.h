@@ -62,8 +62,9 @@
 /* Global var */
 
 // https://gcc.gnu.org/onlinedocs/gcc/Thread-Local.html
-extern __thread marena_t    gmarena;
-extern pthread_mutex_t      gmutex;
+// extern __thread marena_t    gmarena;
+extern marena_t         gmarena;
+extern pthread_mutex_t  gmutex;
 
 /* Mandatory functions */
 

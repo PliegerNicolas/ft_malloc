@@ -29,12 +29,14 @@ void    free(void *ptr)
 
     if (!mchunk || has_mchunk_aberrant_values(mchunk))
         return;
-
-    if (mchunk->state != USED)
+    else if (mchunk->state != USED)
         return printerr("free()", "double free or corruption", mchunk);
 
-    if ((freed_mchunk = free_mchunk_or_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
+    if (gmutex_lock() == STATUS_FAILURE)
         return;
+    if ((freed_mchunk = free_mchunk_or_mregion(&gmarena, mchunk)) == STATUS_FAILURE)
+        return (void)gmutex_unlock();
+    gmutex_unlock();
 
     return;
 }

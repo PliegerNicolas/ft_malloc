@@ -13,7 +13,8 @@
 #include "ft_malloc.h"
 
 /** @brief Global `marena_t` instance. */
-_Thread_local marena_t  gmarena;
+marena_t    gmarena;
+// _Thread_local marena_t  gmarena;
 
 marena_t    *init_gmarena_once()
 {

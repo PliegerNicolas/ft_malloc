@@ -17,6 +17,7 @@ pthread_mutex_t gmutex = PTHREAD_MUTEX_INITIALIZER;
 
 status_t    gmutex_lock()
 {
+    return STATUS_FAILURE;
     if (pthread_mutex_lock(&gmutex) != 0)
         return STATUS_FAILURE;
     return STATUS_SUCCESS;

@@ -19,5 +19,8 @@ void    show_alloc_mem()
     if (init_gmarena_once() == STATUS_FAILURE)
         return;
 
+    if (gmutex_lock() == STATUS_FAILURE)
+        return;
     allocated_bytes = print_marena(&gmarena, STDOUT_FILENO, MALLOC_DEBUG);    
+    gmutex_unlock();
 }

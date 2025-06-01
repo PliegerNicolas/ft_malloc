@@ -110,17 +110,11 @@ size_t  print_marena(marena_t *marena, int fd, bool print_free)
 
     if (!marena)
         return 0;
-    
-    if (gmutex_lock() == STATUS_FAILURE)
-        return 0;
 
     allocated_bytes = 0;
     for (bound_mregion_type_t type = 0; type < NUM_BOUND_MREGION_TYPES; type++)
         allocated_bytes += print_mregion(map_mregion_bound_type_to_name(type), marena->bound_mregions[type], fd, print_free);
     allocated_bytes += print_mregion("LARGE", marena->unbound_mregion, fd, print_free);
-
-    if (gmutex_unlock() == STATUS_FAILURE)
-        return allocated_bytes;
 
     return allocated_bytes;  
 }
