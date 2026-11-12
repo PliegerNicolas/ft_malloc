@@ -41,10 +41,20 @@ static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t 
     mregion_t   **mregion_head;
     mregion_t   **current_mregion;
     mregion_t   *last_mregion;
+    mregion_t   *new_mregion;
     mchunk_t    *best_fit_free_mchunk;
 
     if ((mregion_head = map_allocation_size_to_marena_mregion_head(marena, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
+    if (!IS_BOUND_MREGION(allocation_size))
+    {
+        new_mregion = NULL;
+        if (init_mregion(&new_mregion, allocation_size) == STATUS_FAILURE)
+            return STATUS_FAILURE;
+        prepend_mregion(mregion_head, new_mregion);
+        return new_mregion->mbin;
+    }
+
     if (!*mregion_head && (init_mregion(mregion_head, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
