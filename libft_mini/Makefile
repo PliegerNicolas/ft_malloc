@@ -6,7 +6,7 @@
 #    By: nplieger <nplieger@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/27 21:29:03 by nplieger          #+#    #+#              #
-#    Updated: 2026/11/12 22:03:33 by nplieger         ###   ########.fr        #
+#    Updated: 2026/11/12 22:56:59 by nplieger         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,11 +36,11 @@ ARTEFACT_NAME		:=	$(NAME)$(LIB_FILE_EXTENSION)
 #* *************************************************************************** *#
 
 ifeq (debug, $(filter debug, $(MAKECMDGOALS)))
-	CFLAGS				+=	-g3
+	CFLAGS				+=	-g3 -O0
 endif
 
 ifeq (optimize, $(filter optimize, $(MAKECMDGOALS)))
-	CFLAGS				+=	-O2
+	CFLAGS				+=	-O3
 endif
 
 #* *************************************************************************** *#

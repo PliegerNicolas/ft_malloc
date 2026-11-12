@@ -6,7 +6,7 @@
 #    By: nplieger <nplieger@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/27 21:29:03 by nplieger          #+#    #+#              #
-#    Updated: 2026/11/12 22:54:07 by nplieger         ###   ########.fr        #
+#    Updated: 2026/11/12 22:56:26 by nplieger         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,7 @@ SYM_LINK_NAME		:=	$(NAME)$(LIB_FILE_EXTENSION)
 #* *************************************************************************** *#
 
 ifeq (debug, $(filter debug, $(MAKECMDGOALS)))
-	CFLAGS				+=	-g3 -D MALLOC_DEBUG=1
+	CFLAGS				+=	-g3 -O0 -D MALLOC_DEBUG=1
 endif
 
 ifeq (optimize, $(filter optimize, $(MAKECMDGOALS)))
