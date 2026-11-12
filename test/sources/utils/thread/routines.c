@@ -94,6 +94,44 @@ void    *listenToSTDERR(void *arg)
     return NULL;
 }
 
+typedef struct stderr_capture
+{
+    pthread_t       thread;
+    thread_sync_t   thread_sync;
+    fd_listener_t   listener;
+} stderr_capture_t;
+
+static void start_stderr_capture(stderr_capture_t *capture, time_t timeout_sec)
+{
+    capture->listener = (fd_listener_t) {
+        .fd = STDERR_FILENO,
+        .timeout = { .tv_sec = timeout_sec, .tv_usec = 0 },
+    };
+    capture->thread_sync = (thread_sync_t) {
+        .thread_arg = &capture->listener,
+        .is_ready = false,
+        .ready_cond = PTHREAD_COND_INITIALIZER,
+        .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
+    };
+    create_thread(&capture->thread, listenToSTDERR, &capture->thread_sync);
+}
+
+static void stop_stderr_capture(stderr_capture_t *capture)
+{
+    close_thread(capture->thread);
+}
+
+static void put_executed_test(const char *executed_test, int fd)
+{
+    if (!executed_test)
+        return;
+    ft_putstr_fd(BOLD_CYAN, fd);
+    ft_putstr_fd(executed_test, fd);
+    ft_putchar_fd(':', fd);
+    ft_putstr_fd(RESET, fd);
+    ft_putchar_fd('\n', fd);
+}
+
 /* *************************************************************************** */
 /* *                                 MALLOC                                  * */
 /* *************************************************************************** */
@@ -124,31 +162,20 @@ void    *run_malloc_test(void *arg)
     put_expected_result(test->expected_res, fd);
 
     // Exec malloc and capture it's stderr.
-    fd_listener_t   stderr_listener = {
-        .fd = STDERR_FILENO,
-        .timeout = { .tv_sec = test->expected_err ? 3 : 0, .tv_usec = 0 },
-    };
-    
-    {
-        pthread_t   thread;
-        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
-            .thread_arg = &stderr_listener,
-            .is_ready = false,
-            .ready_cond = PTHREAD_COND_INITIALIZER,
-            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
-        });
-        ptr = malloc(test->bytes);
-        close_thread(thread);
-    }
+    stderr_capture_t    capture;
+
+    start_stderr_capture(&capture, test->expected_err ? 3 : 0);
+    ptr = malloc(test->bytes);
+    stop_stderr_capture(&capture);
 
     // Put test result.
-    put_test_result(ptr, stderr_listener.buffer, fd);
+    put_test_result(ptr, capture.listener.buffer, fd);
     if (!test->expected_err)
-        put_check(ptr && !*stderr_listener.buffer, fd);
+        put_check(ptr && !*capture.listener.buffer, fd);
     else if (ft_strncmp(test->expected_res, "(nil) ", 6) != 0)
         put_check(false, fd);
     else
-        put_check(!ptr && matches_expected(test->expected_res + 6, stderr_listener.buffer), fd);
+        put_check(!ptr && matches_expected(test->expected_res + 6, capture.listener.buffer), fd);
 
     // Put memory state.
     put_memory_state(NULL, fd);
@@ -169,14 +196,7 @@ void    *run_malloc_tests(void *arg)
     set_thread_as_ready(thread_sync);
 
     // Put test.
-    if (tests->executed_test)
-    {
-        ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(tests->executed_test, fd);
-        ft_putchar_fd(':', fd);
-        ft_putstr_fd(RESET, fd);
-        ft_putchar_fd('\n', fd);
-    }
+    put_executed_test(tests->executed_test, fd);
 
     // Put expected result.
     put_expected_result(tests->expected_res, fd);
@@ -226,28 +246,14 @@ void    *run_realloc_test(void *arg)
     // Put Results.
     put_expected_result(test->expected_res, fd);
 
-    fd_listener_t   stderr_listener = {
-        .fd = STDERR_FILENO,
-        .timeout = { .tv_sec = test->expected_err ? 3 : 0, .tv_usec = 0 },
-    };
+    stderr_capture_t    capture;
 
-    {
-        pthread_t   thread;
+    start_stderr_capture(&capture, test->expected_err ? 3 : 0);
+    ptr = realloc(NULL, test->bytes);
+    stop_stderr_capture(&capture);
 
-        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
-            .thread_arg = &stderr_listener,
-            .is_ready = false,
-            .ready_cond = PTHREAD_COND_INITIALIZER,
-            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
-        });
-
-        ptr = realloc(NULL, test->bytes);
-
-        close_thread(thread);
-    }
-
-    put_test_result(ptr, stderr_listener.buffer, fd);
-    put_check(ptr && !*stderr_listener.buffer, fd);
+    put_test_result(ptr, capture.listener.buffer, fd);
+    put_check(ptr && !*capture.listener.buffer, fd);
 
     // Put memory state.
     put_memory_state(NULL, fd);
@@ -277,33 +283,15 @@ void    *run_realloc_with_neighbor_test(void *arg)
         if (tests->values[i].expected_err)
             expect_error = tests->values[i].expected_err;
 
-    if (tests->executed_test)
-    {
-        ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(tests->executed_test, fd);
-        ft_putchar_fd(':', fd);
-        ft_putstr_fd(RESET, fd);
-        ft_putchar_fd('\n', fd);
-    }
+    put_executed_test(tests->executed_test, fd);
 
     // Put Results.
     put_expected_result(tests->expected_res, fd);
 
-    fd_listener_t   stderr_listener = {
-        .fd = STDERR_FILENO,
-        .timeout = { .tv_sec = expect_error ? 5 : 0, .tv_usec = 0 },
-    };
+    stderr_capture_t    capture;
 
+    start_stderr_capture(&capture, expect_error ? 5 : 0);
     {
-        pthread_t   thread;
-
-        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
-            .thread_arg = &stderr_listener,
-            .is_ready = false,
-            .ready_cond = PTHREAD_COND_INITIALIZER,
-            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
-        });
-
         if (tests->size == 2)
         {
             ptrs[0] = malloc(tests->values[0].bytes);
@@ -324,9 +312,8 @@ void    *run_realloc_with_neighbor_test(void *arg)
             put_memory_state("after realloc()", fd);
             ptrs[0] = NULL;
         }
-
-        close_thread(thread);
     }
+    stop_stderr_capture(&capture);
 
     {
         void    *new_ptr = ptrs[tests->size - 1];
@@ -340,7 +327,7 @@ void    *run_realloc_with_neighbor_test(void *arg)
         else
             ok = new_ptr && is_filled_with(new_ptr, 42, kept_size);
 
-        put_test_result_ptr_comparison(original_ptr, new_ptr, stderr_listener.buffer, fd);
+        put_test_result_ptr_comparison(original_ptr, new_ptr, capture.listener.buffer, fd);
         if (ft_strncmp(tests->expected_res, "In place", 8) == 0 || ft_strncmp(tests->expected_res, "no difference", 14) == 0)
             ok = ok && new_ptr == original_ptr;
         else if (ft_strncmp(tests->expected_res, "Relocated", 9) == 0)
@@ -369,14 +356,7 @@ void    *run_realloc_chained_tests(void *arg)
 
     // We do not capture STDERR here.
 
-    if (tests->executed_test)
-    {
-        ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(tests->executed_test, fd);
-        ft_putchar_fd(':', fd);
-        ft_putstr_fd(RESET, fd);
-        ft_putchar_fd('\n', fd);
-    }
+    put_executed_test(tests->executed_test, fd);
 
     ft_putendl_fd("🞄 Operations: ", fd);
 
@@ -414,221 +394,78 @@ void    *run_realloc_chained_tests(void *arg)
 /* *                                  FREE                                   * */
 /* *************************************************************************** */
 
-void    *run_free_test(void *arg)
+static void free_once(void *ptr)
 {
-    thread_sync_t   *thread_sync = arg;
-    test_t          *test = thread_sync->thread_arg;
-    fd_listener_t   stderr_listener = { 0 };
-    int             fd = STDOUT_FILENO;
-    void            *ptr = NULL;
+    free(ptr);
+}
+
+static void free_twice(void *ptr)
+{
+    free(ptr);
+    free(ptr);
+}
+
+static void free_with_corrupted_mchunk(void *ptr)
+{
+    unsigned char   cached_byte;
+
+    cached_byte = *((unsigned char *)ptr - MCHUNK_HEADER_SIZE);
+    ft_memset((unsigned char *)ptr - MCHUNK_HEADER_SIZE, 'a', 1);
+    free(ptr);
+    ft_memset((unsigned char *)ptr - MCHUNK_HEADER_SIZE, cached_byte, 1);
+    free(ptr);
+}
+
+static void *run_free_variant(void *arg, void (*free_fn)(void *ptr))
+{
+    thread_sync_t       *thread_sync = arg;
+    test_t              *test = thread_sync->thread_arg;
+    stderr_capture_t    capture;
+    int                 fd = STDOUT_FILENO;
+    void                *ptr;
 
     set_thread_as_ready(thread_sync);
 
-    // Put executed test
-    if (test->executed_test)
-    {
-        ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(test->executed_test, fd);
-        ft_putchar_fd(':', fd);
-        ft_putstr_fd(RESET, fd);
-        ft_putchar_fd('\n', fd);
-    }
-
-    // Put expected result.
+    put_executed_test(test->executed_test, fd);
     if (test->expected_res)
         put_expected_result(test->expected_res, fd);
 
-    // Put memory state.
-    put_memory_state("before free()", fd);    
-
-    {
-        pthread_t   thread;
-        stderr_listener.fd = STDERR_FILENO;
-        stderr_listener.timeout = (struct timeval) { .tv_sec = test->expected_err ? 3 : 0, .tv_usec = 0 };
-
-        if (test->ptr)
-            ptr = test->ptr;
-        else
-            ptr = malloc(test->bytes);
-
-        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
-            .thread_arg = &stderr_listener,
-            .is_ready = false,
-            .ready_cond = PTHREAD_COND_INITIALIZER,
-            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
-        });
-
-        free(ptr);
-
-        close_thread(thread);
-    }
-
-    // Put memory state.
+    put_memory_state("before free()", fd);
+    ptr = test->ptr ? test->ptr : malloc(test->bytes);
+    start_stderr_capture(&capture, test->expected_err ? 3 : 0);
+    free_fn(ptr);
+    stop_stderr_capture(&capture);
     put_memory_state("after free()", fd);
 
-    // Put test result.
-    if (test->expected_res)
-    {
-        ft_putstr_fd("🞄 Got: ", fd);
-        if (*stderr_listener.buffer)
-            ft_putstr_fd(stderr_listener.buffer, fd);
-        else
-            ft_putstr_fd("nothing", fd);
-        ft_putchar_fd('\n', fd);
-        if (test->expected_err)
-            put_check(matches_expected(test->expected_res, stderr_listener.buffer), fd);
-        else
-            put_check(!*stderr_listener.buffer, fd);
-    }
+    if (!test->expected_res)
+        return NULL;
+    ft_putstr_fd("🞄 Got: ", fd);
+    if (*capture.listener.buffer)
+        ft_putstr_fd(capture.listener.buffer, fd);
+    else
+        ft_putstr_fd("nothing", fd);
+    ft_putchar_fd('\n', fd);
+    if (test->expected_err)
+        put_check(matches_expected(test->expected_res, capture.listener.buffer), fd);
+    else
+        put_check(!*capture.listener.buffer, fd);
 
     return NULL;
+}
+
+void    *run_free_test(void *arg)
+{
+    return run_free_variant(arg, free_once);
 }
 
 void    *run_double_free_test(void *arg)
 {
-    thread_sync_t   *thread_sync = arg;
-    test_t          *test = thread_sync->thread_arg;
-    fd_listener_t   stderr_listener = { 0 };
-    int             fd = STDOUT_FILENO;
-    void            *ptr = NULL;
-
-    set_thread_as_ready(thread_sync);
-
-    // Put executed test
-    if (test->executed_test)
-    {
-        ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(test->executed_test, fd);
-        ft_putchar_fd(':', fd);
-        ft_putstr_fd(RESET, fd);
-        ft_putchar_fd('\n', fd);
-    }
-
-    // Put expected result.
-    if (test->expected_res)
-        put_expected_result(test->expected_res, fd);
-
-    // Put memory state.
-    put_memory_state("before free()", fd);    
-
-    {
-        pthread_t   thread;
-        stderr_listener.fd = STDERR_FILENO;
-        stderr_listener.timeout = (struct timeval) { .tv_sec = test->expected_err ? 3 : 0, .tv_usec = 0 };
-
-        ptr = malloc(test->bytes);
-
-        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
-            .thread_arg = &stderr_listener,
-            .is_ready = false,
-            .ready_cond = PTHREAD_COND_INITIALIZER,
-            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
-        });
-
-        // #pragma GCC diagnostic push
-        // #pragma GCC diagnostic ignored "-Wuse-after-free"
-        free(ptr);
-        free(ptr);
-        // #pragma GCC diagnostic pop
-
-        close_thread(thread);
-    }
-
-    // Put memory state.
-    put_memory_state("after free()", fd);
-
-    // Put test result.
-    if (test->expected_res)
-    {
-        ft_putstr_fd("🞄 Got: ", fd);
-        if (*stderr_listener.buffer)
-            ft_putstr_fd(stderr_listener.buffer, fd);
-        else
-            ft_putstr_fd("nothing", fd);
-        ft_putchar_fd('\n', fd);
-        if (test->expected_err)
-            put_check(matches_expected(test->expected_res, stderr_listener.buffer), fd);
-        else
-            put_check(!*stderr_listener.buffer, fd);
-    }
-
-    return NULL;
+    return run_free_variant(arg, free_twice);
 }
 
 void    *run_corrupted_free_test(void *arg)
 {
-    thread_sync_t   *thread_sync = arg;
-    test_t          *test = thread_sync->thread_arg;
-    fd_listener_t   stderr_listener = { 0 };
-    int             fd = STDOUT_FILENO;
-    void            *ptr = NULL;
-    unsigned char   cached_byte;
-
-    set_thread_as_ready(thread_sync);
-
-    // Put executed test
-    if (test->executed_test)
-    {
-        ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(test->executed_test, fd);
-        ft_putchar_fd(':', fd);
-        ft_putstr_fd(RESET, fd);
-        ft_putchar_fd('\n', fd);
-    }
-
-    // Put expected result.
-    if (test->expected_res)
-        put_expected_result(test->expected_res, fd);
-
-    // Put memory state.
-    put_memory_state("before free()", fd);    
-
-    {
-        pthread_t   thread;
-
-        stderr_listener.fd = STDERR_FILENO;
-        stderr_listener.timeout = (struct timeval) { .tv_sec = test->expected_err ? 3 : 0, .tv_usec = 0 };
-
-        ptr = malloc(test->bytes);
-
-        create_thread(&thread, listenToSTDERR, &(thread_sync_t) {
-            .thread_arg = &stderr_listener,
-            .is_ready = false,
-            .ready_cond = PTHREAD_COND_INITIALIZER,
-            .ready_mutex = PTHREAD_MUTEX_INITIALIZER,
-        });
-
-        // #pragma GCC diagnostic push
-        // #pragma GCC diagnostic ignored "-Wuse-after-free"
-        cached_byte = *((unsigned char *)ptr - MCHUNK_HEADER_SIZE);
-        ft_memset((unsigned char *)ptr - MCHUNK_HEADER_SIZE, 'a', 1);
-        free(ptr);
-        ft_memset((unsigned char *)ptr - MCHUNK_HEADER_SIZE, cached_byte, 1);
-        free(ptr);
-        // #pragma GCC diagnostic pop
-
-        close_thread(thread);
-    }
-
-    // Put memory state.
-    put_memory_state("after free()", fd);
-
-    // Put test result.
-    if (test->expected_res)
-    {
-        ft_putstr_fd("🞄 Got: ", fd);
-        if (*stderr_listener.buffer)
-            ft_putstr_fd(stderr_listener.buffer, fd);
-        else
-            ft_putstr_fd("nothing", fd);
-        ft_putchar_fd('\n', fd);
-        if (test->expected_err)
-            put_check(matches_expected(test->expected_res, stderr_listener.buffer), fd);
-        else
-            put_check(!*stderr_listener.buffer, fd);
-    }
-    
-    return NULL;
+    return run_free_variant(arg, free_with_corrupted_mchunk);
 }
 
 void    *run_free_tests(void *arg)
@@ -647,14 +484,7 @@ void    *run_free_tests(void *arg)
     set_thread_as_ready(thread_sync);
 
     // Put executed test
-    if (tests->executed_test)
-    {
-        ft_putstr_fd(BOLD_CYAN, fd);
-        ft_putstr_fd(tests->executed_test, fd);
-        ft_putchar_fd(':', fd);
-        ft_putstr_fd(RESET, fd);
-        ft_putchar_fd('\n', fd);
-    }
+    put_executed_test(tests->executed_test, fd);
 
     // Put expected result.
     if (tests->expected_res)
