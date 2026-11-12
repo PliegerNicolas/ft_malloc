@@ -3,14 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   routines.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nplieger <nplieger@student.42.fr>          #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-05-22 00:20:10 by nplieger          #+#    #+#             */
-/*   Updated: 2025-05-22 00:20:10 by nplieger         ###   ########.fr       */
+/*   Created: 2025/05/22 00:20:10 by nplieger          #+#    #+#             */
+/*   Updated: 2026/11/12 21:16:25 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "test_ft_malloc.h"
+
+static bool is_filled_with(const void *ptr, unsigned char byte, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+        if (((const unsigned char *)ptr)[i] != byte)
+            return false;
+    return true;
+}
 
 /* *************************************************************************** */
 /* *                                 STDERR                                  * */
@@ -59,21 +67,24 @@ void    *listenToSTDERR(void *arg)
     FD_SET(pipefd[0], &selectFdsSet);
 
     set_thread_as_ready(thread_sync);
-    // /!\ Might miss some words but I don't want to add more complexity just for capturing stderr.
-    int ret = select(pipefd[0] + 1, &selectFdsSet, NULL , NULL, &listener->timeout);
-
-    if (ret > 0 && FD_ISSET(pipefd[0], &selectFdsSet))
+    while (listener->length < sizeof(listener->buffer) - 1)
     {
-        ssize_t read_bytes = read(pipefd[0], listener->buffer, sizeof(listener->buffer) - 1);
+        if (select(pipefd[0] + 1, &selectFdsSet, NULL , NULL, &listener->timeout) <= 0)
+            break;
 
-        if (read_bytes > 0)
+        ssize_t read_bytes = read(pipefd[0], listener->buffer + listener->length, sizeof(listener->buffer) - 1 - listener->length);
+
+        if (read_bytes <= 0)
+            break;
+        listener->length += read_bytes;
+        if (listener->buffer[listener->length - 1] == '\n')
         {
-            if (listener->buffer[read_bytes - 1] == '\n')
-                read_bytes -= 1;
-            listener->buffer[read_bytes] = '\0';
-            listener->length = read_bytes;
+            listener->buffer[--listener->length] = '\0';
+            break;
         }
+        FD_SET(pipefd[0], &selectFdsSet);
     }
+    close(pipefd[0]);
 
     // restore listener->fd.
     if (dup2(prev_fd, listener->fd) == -1)
@@ -132,6 +143,12 @@ void    *run_malloc_test(void *arg)
 
     // Put test result.
     put_test_result(ptr, stderr_listener.buffer, fd);
+    if (!test->expected_err)
+        put_check(ptr && !*stderr_listener.buffer, fd);
+    else if (ft_strncmp(test->expected_res, "(nil) ", 6) != 0)
+        put_check(false, fd);
+    else
+        put_check(!ptr && matches_expected(test->expected_res + 6, stderr_listener.buffer), fd);
 
     // Put memory state.
     put_memory_state(NULL, fd);
@@ -229,6 +246,9 @@ void    *run_realloc_test(void *arg)
         close_thread(thread);
     }
 
+    put_test_result(ptr, stderr_listener.buffer, fd);
+    put_check(ptr && !*stderr_listener.buffer, fd);
+
     // Put memory state.
     put_memory_state(NULL, fd);
 
@@ -245,6 +265,7 @@ void    *run_realloc_with_neighbor_test(void *arg)
     int             fd = STDOUT_FILENO;
 
     void            *ptrs[3] = { 0 };
+    void            *original_ptr;
     bool            expect_error = false;
 
     set_thread_as_ready(thread_sync);
@@ -286,6 +307,7 @@ void    *run_realloc_with_neighbor_test(void *arg)
         if (tests->size == 2)
         {
             ptrs[0] = malloc(tests->values[0].bytes);
+            ft_memset(original_ptr = ptrs[0], 42, tests->values[0].bytes);
             // Put memory state.
             put_memory_state("before realloc()", fd);
             ptrs[1] = realloc(ptrs[0], tests->values[1].bytes);
@@ -296,6 +318,7 @@ void    *run_realloc_with_neighbor_test(void *arg)
         {
             ptrs[0] = malloc(tests->values[0].bytes);
             ptrs[1] = malloc(tests->values[1].bytes);
+            ft_memset(original_ptr = ptrs[0], 42, tests->values[0].bytes);
             put_memory_state("before realloc()", fd);
             ptrs[2] = realloc(ptrs[0], tests->values[2].bytes);
             put_memory_state("after realloc()", fd);
@@ -303,6 +326,26 @@ void    *run_realloc_with_neighbor_test(void *arg)
         }
 
         close_thread(thread);
+    }
+
+    {
+        void    *new_ptr = ptrs[tests->size - 1];
+        size_t  old_size = tests->values[0].bytes;
+        size_t  new_size = tests->values[tests->size - 1].bytes;
+        size_t  kept_size = old_size < new_size ? old_size : new_size;
+        bool    ok;
+
+        if (new_size == 0)
+            ok = !new_ptr;
+        else
+            ok = new_ptr && is_filled_with(new_ptr, 42, kept_size);
+
+        put_test_result_ptr_comparison(original_ptr, new_ptr, stderr_listener.buffer, fd);
+        if (ft_strncmp(tests->expected_res, "In place", 8) == 0 || ft_strncmp(tests->expected_res, "no difference", 14) == 0)
+            ok = ok && new_ptr == original_ptr;
+        else if (ft_strncmp(tests->expected_res, "Relocated", 9) == 0)
+            ok = ok && new_ptr != original_ptr;
+        put_check(ok, fd);
     }
 
     // Free everything up
@@ -319,6 +362,8 @@ void    *run_realloc_chained_tests(void *arg)
     test_t          current_test;
     int             fd = STDOUT_FILENO;
     void            *ptr = NULL;
+    size_t          prev_bytes = 0;
+    bool            ok = true;
 
     set_thread_as_ready(thread_sync);
 
@@ -338,7 +383,15 @@ void    *run_realloc_chained_tests(void *arg)
     for (size_t i = 0; i < tests->size; i++)
     {
         current_test = tests->values[i];
-        ptr = realloc(ptr, current_test.bytes);
+        if (ptr && current_test.bytes == 0)
+            ok = ok && !(ptr = realloc(ptr, 0));
+        else if ((ptr = realloc(ptr, current_test.bytes)) == NULL)
+            ok = false;
+        else
+            ok = ok && is_filled_with(ptr, 42, prev_bytes < current_test.bytes ? prev_bytes : current_test.bytes);
+        if (ptr)
+            ft_memset(ptr, 42, current_test.bytes);
+        prev_bytes = ptr ? current_test.bytes : 0;
         ft_putstr_fd("- realloc(prev_ptr, ", fd);
         ft_putsize_t_fd(current_test.bytes, fd);
         ft_putendl_fd(")", fd);
@@ -346,6 +399,7 @@ void    *run_realloc_chained_tests(void *arg)
 
     // Put Results.
     put_expected_result(tests->expected_res, fd);
+    put_check(ok, fd);
 
     // Put memory state.
     put_memory_state(NULL, fd);
@@ -421,6 +475,10 @@ void    *run_free_test(void *arg)
         else
             ft_putstr_fd("nothing", fd);
         ft_putchar_fd('\n', fd);
+        if (test->expected_err)
+            put_check(matches_expected(test->expected_res, stderr_listener.buffer), fd);
+        else
+            put_check(!*stderr_listener.buffer, fd);
     }
 
     return NULL;
@@ -488,6 +546,10 @@ void    *run_double_free_test(void *arg)
         else
             ft_putstr_fd("nothing", fd);
         ft_putchar_fd('\n', fd);
+        if (test->expected_err)
+            put_check(matches_expected(test->expected_res, stderr_listener.buffer), fd);
+        else
+            put_check(!*stderr_listener.buffer, fd);
     }
 
     return NULL;
@@ -560,6 +622,10 @@ void    *run_corrupted_free_test(void *arg)
         else
             ft_putstr_fd("nothing", fd);
         ft_putchar_fd('\n', fd);
+        if (test->expected_err)
+            put_check(matches_expected(test->expected_res, stderr_listener.buffer), fd);
+        else
+            put_check(!*stderr_listener.buffer, fd);
     }
     
     return NULL;

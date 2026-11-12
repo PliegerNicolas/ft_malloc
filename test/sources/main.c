@@ -55,5 +55,5 @@ int main(int argc, char **argv)
     else
         return ft_putendl_fd("Error: unrecognized parameter.", STDERR_FILENO), print_options(options, 4, STDERR_FILENO), 1;
 
-    return 0;
+    return put_checks_summary(fd);
 }

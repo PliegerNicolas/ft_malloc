@@ -188,6 +188,10 @@ void    put_ptr_comparison(void *ptr1, void*ptr2, int fd);
 void    put_test_result_ptr_comparison(void *ptr1, void *ptr2, const char *error, int fd);
 void    put_memory_state(const char *operation, int fd);
 
+bool    put_check(bool ok, int fd);
+int     put_checks_summary(int fd);
+bool    matches_expected(const char *expected, const char *got);
+
 bool    create_thread(pthread_t *thread, void *(*fn)(void *arg), thread_sync_t *thread_sync);
 bool    close_thread(pthread_t thread);
 void    set_thread_as_ready(thread_sync_t *thread_sync);
