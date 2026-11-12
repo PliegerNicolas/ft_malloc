@@ -165,6 +165,11 @@ typedef struct fd_listener
 #define BG_BLACK_BRIGHT_CYAN    "\033[40m\033[96m"
 #define BG_BLACK_BRIGHT_WHITE   "\033[40m\033[97m"
 
+# define TEST_MACRO(expr, expected, ok, fd) (put_title(#expr ":", BOLD_CYAN, fd), put_expected_result(expected, fd), put_macro_result_size_t(expr, fd), put_check(ok, fd))
+# define TEST_MACRO_EQ(expr, value, fd) (put_title(#expr ":", BOLD_CYAN, fd), put_expected_result(#value, fd), put_macro_result_size_t(expr, fd), put_check((expr) == (value), fd))
+# define TEST_MACRO_INT_EQ(expr, value, fd) (put_title(#expr ":", BOLD_CYAN, fd), put_expected_result(#value, fd), put_macro_result_int(expr, fd), put_check((expr) == (value), fd))
+# define TEST_MACRO_BOOL(expr, value, fd) (put_title(#expr ":", BOLD_CYAN, fd), put_expected_result((value) ? "1 (true)" : "0 (false)", fd), put_macro_result_size_t(expr, fd), put_check((expr) == (value), fd))
+
 /* *************************************************************************** */
 /* *                                PROTOTYPES                               * */
 /* *************************************************************************** */

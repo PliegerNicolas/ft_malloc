@@ -18,10 +18,7 @@
 
 static void test_configurable_macros(int fd)
 {
-    put_title("MALLOC_DEBUG:", BOLD_CYAN, fd);
-    put_expected_result("0 (false) or 1 (true)", fd);
-    put_macro_result_size_t(MALLOC_DEBUG, fd);
-    put_check(MALLOC_DEBUG == 0 || MALLOC_DEBUG == 1, fd);
+    TEST_MACRO(MALLOC_DEBUG, "0 (false) or 1 (true)", MALLOC_DEBUG == 0 || MALLOC_DEBUG == 1, fd);
 
     ft_putchar_fd('\n', fd);
 
@@ -50,83 +47,44 @@ static void test_configurable_macros(int fd)
 
 static void test_formatted_configurable_macros(int fd)
 {
-    put_title("ALIGNMENT_BOUNDARY:", BOLD_CYAN, fd);
-    put_expected_result("2ₙ", fd);
-    put_macro_result_size_t(ALIGNMENT_BOUNDARY, fd);
-    put_check(IS_POW_2(ALIGNMENT_BOUNDARY), fd);
+    TEST_MACRO(ALIGNMENT_BOUNDARY, "2ₙ", IS_POW_2(ALIGNMENT_BOUNDARY), fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("TINY_MCHUNK_MIN_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("0", fd);
-    put_macro_result_size_t(TINY_MCHUNK_MIN_ALLOCATION_SIZE, fd);
-    put_check(TINY_MCHUNK_MIN_ALLOCATION_SIZE == 0, fd);
-    put_title("SMALL_MCHUNK_MIN_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("2ₙ + 1", fd);
-    put_macro_result_size_t(SMALL_MCHUNK_MIN_ALLOCATION_SIZE, fd);
-    put_check(IS_POW_2((SMALL_MCHUNK_MIN_ALLOCATION_SIZE - 1)), fd);
-    put_title("LARGE_MCHUNK_MIN_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("2ₙ + 1", fd);
-    put_macro_result_size_t(LARGE_MCHUNK_MIN_ALLOCATION_SIZE, fd);
-    put_check(IS_POW_2((LARGE_MCHUNK_MIN_ALLOCATION_SIZE - 1)), fd);
+    TEST_MACRO_EQ(TINY_MCHUNK_MIN_ALLOCATION_SIZE, 0, fd);
+    TEST_MACRO(SMALL_MCHUNK_MIN_ALLOCATION_SIZE, "2ₙ + 1", IS_POW_2((SMALL_MCHUNK_MIN_ALLOCATION_SIZE - 1)), fd);
+    TEST_MACRO(LARGE_MCHUNK_MIN_ALLOCATION_SIZE, "2ₙ + 1", IS_POW_2((LARGE_MCHUNK_MIN_ALLOCATION_SIZE - 1)), fd);
     
     ft_putchar_fd('\n', fd);
 
-    put_title("TINY_MCHUNK_MAX_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("2ₙ", fd);
-    put_macro_result_size_t(TINY_MCHUNK_MAX_ALLOCATION_SIZE, fd);
-    put_check(IS_POW_2(TINY_MCHUNK_MAX_ALLOCATION_SIZE), fd);
-    put_title("SMALL_MCHUNK_MAX_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("2ₙ", fd);
-    put_macro_result_size_t(SMALL_MCHUNK_MAX_ALLOCATION_SIZE, fd);
-    put_check(IS_POW_2(SMALL_MCHUNK_MAX_ALLOCATION_SIZE), fd);
+    TEST_MACRO(TINY_MCHUNK_MAX_ALLOCATION_SIZE, "2ₙ", IS_POW_2(TINY_MCHUNK_MAX_ALLOCATION_SIZE), fd);
+    TEST_MACRO(SMALL_MCHUNK_MAX_ALLOCATION_SIZE, "2ₙ", IS_POW_2(SMALL_MCHUNK_MAX_ALLOCATION_SIZE), fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("MCHUNKS_PER_BOUND_MREGION:", BOLD_CYAN, fd);
-    put_expected_result("at least 100", fd);
-    put_macro_result_size_t(MCHUNKS_PER_BOUND_MREGION, fd);
-    put_check(MCHUNKS_PER_BOUND_MREGION >= 100, fd);
-    put_title("MCHUNKS_PER_UNBOUND_MREGION:", BOLD_CYAN, fd);
-    put_expected_result("at least 1", fd);
-    put_macro_result_size_t(MCHUNKS_PER_UNBOUND_MREGION, fd);
-    put_check(MCHUNKS_PER_UNBOUND_MREGION >= 1, fd);
+    TEST_MACRO(MCHUNKS_PER_BOUND_MREGION, "at least 100", MCHUNKS_PER_BOUND_MREGION >= 100, fd);
+    TEST_MACRO(MCHUNKS_PER_UNBOUND_MREGION, "at least 1", MCHUNKS_PER_UNBOUND_MREGION >= 1, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE:", BOLD_CYAN, fd);
-    put_expected_result("at least 0", fd);
-    put_macro_result_size_t(INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE, fd);
-    put_check((long long)INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE >= 0, fd);
+    TEST_MACRO(INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE, "at least 0", (long long)INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE >= 0, fd);
 }
 
 static void test_plateform_dependent_macros(int fd)
 {
-    put_title("PAGE_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("2ₙ", fd);
-    put_macro_result_size_t(PAGE_SIZE, fd);
-    put_check(IS_POW_2(PAGE_SIZE), fd);
+    TEST_MACRO(PAGE_SIZE, "2ₙ", IS_POW_2(PAGE_SIZE), fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("ALIGNMENT_BOUNDARY:", BOLD_CYAN, fd);
-    put_expected_result("2ₙ", fd);
-    put_macro_result_size_t(ALIGNMENT_BOUNDARY, fd);
-    put_check(IS_POW_2(ALIGNMENT_BOUNDARY), fd);
+    TEST_MACRO(ALIGNMENT_BOUNDARY, "2ₙ", IS_POW_2(ALIGNMENT_BOUNDARY), fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("PAGE_ALIGNED_SIZE_MAX:", BOLD_CYAN, fd);
-    put_expected_result("page aligned SIZE_MAX <=> (size_t)-1", fd);
-    put_macro_result_size_t(PAGE_ALIGNED_SIZE_MAX, fd);
-    put_check(IS_ALIGNED(PAGE_ALIGNED_SIZE_MAX, PAGE_SIZE) && SIZE_MAX - PAGE_ALIGNED_SIZE_MAX < PAGE_SIZE, fd);
+    TEST_MACRO(PAGE_ALIGNED_SIZE_MAX, "page aligned SIZE_MAX <=> (size_t)-1", IS_ALIGNED(PAGE_ALIGNED_SIZE_MAX, PAGE_SIZE) && SIZE_MAX - PAGE_ALIGNED_SIZE_MAX < PAGE_SIZE, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("MAX_ALLOCATION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("the biggest acceptable power of 2 relative to the current configuration and plateform", fd);
-    put_macro_result_size_t(MAX_ALLOCATION_SIZE, fd);
-    put_check(IS_POW_2(MAX_ALLOCATION_SIZE), fd);
+    TEST_MACRO(MAX_ALLOCATION_SIZE, "the biggest acceptable power of 2 relative to the current configuration and plateform", IS_POW_2(MAX_ALLOCATION_SIZE), fd);
 
     ft_putchar_fd('\n', fd);
 
@@ -143,166 +101,64 @@ static void test_plateform_dependent_macros(int fd)
 
 static void test_utilitary_plateform_macros(int fd)
 {
-    put_title("IS_ALIGNED(0, 15):", BOLD_CYAN, fd);
-    put_expected_result("1 (true)", fd);
-    put_macro_result_size_t(IS_ALIGNED(0, 15), fd);
-    put_check(IS_ALIGNED(0, 15) == 1, fd);
-    put_title("IS_ALIGNED(1, 3):", BOLD_CYAN, fd);
-    put_expected_result("0 (false)", fd);
-    put_macro_result_size_t(IS_ALIGNED(1, 3), fd);
-    put_check(IS_ALIGNED(1, 3) == 0, fd);
-    put_title("IS_ALIGNED(16, 8):", BOLD_CYAN, fd);
-    put_expected_result("1 (true)", fd);
-    put_macro_result_size_t(IS_ALIGNED(16, 8), fd);
-    put_check(IS_ALIGNED(16, 8) == 1, fd);
+    TEST_MACRO_BOOL(IS_ALIGNED(0, 15), 1, fd);
+    TEST_MACRO_BOOL(IS_ALIGNED(1, 3), 0, fd);
+    TEST_MACRO_BOOL(IS_ALIGNED(16, 8), 1, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("CLAMP_MIN(0, 15):", BOLD_CYAN, fd);
-    put_expected_result("15", fd);
-    put_macro_result_int(CLAMP_MIN(0, 15), fd);
-    put_check(CLAMP_MIN(0, 15) == 15, fd);
-    put_title("CLAMP_MIN(8, 15):", BOLD_CYAN, fd);
-    put_expected_result("15", fd);
-    put_macro_result_int(CLAMP_MIN(8, 15), fd);
-    put_check(CLAMP_MIN(8, 15) == 15, fd);
-    put_title("CLAMP_MIN(15, 15):", BOLD_CYAN, fd);
-    put_expected_result("15", fd);
-    put_macro_result_int(CLAMP_MIN(15, 15), fd);
-    put_check(CLAMP_MIN(15, 15) == 15, fd);
-    put_title("CLAMP_MIN(42, 15):", BOLD_CYAN, fd);
-    put_expected_result("42", fd);
-    put_macro_result_int(CLAMP_MIN(42, 15), fd);
-    put_check(CLAMP_MIN(42, 15) == 42, fd);
-    put_title("CLAMP_MIN(42, -15):", BOLD_CYAN, fd);
-    put_expected_result("42", fd);
-    put_macro_result_int(CLAMP_MIN(42, -15), fd);
-    put_check(CLAMP_MIN(42, -15) == 42, fd);
-    put_title("CLAMP_MIN(-42, 15):", BOLD_CYAN, fd);
-    put_expected_result("15", fd);
-    put_macro_result_int(CLAMP_MIN(-42, 15), fd);
-    put_check(CLAMP_MIN(-42, 15) == 15, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MIN(0, 15), 15, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MIN(8, 15), 15, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MIN(15, 15), 15, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MIN(42, 15), 42, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MIN(42, -15), 42, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MIN(-42, 15), 15, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("CLAMP_MAX(0, 15):", BOLD_CYAN, fd);
-    put_expected_result("0", fd);
-    put_macro_result_int(CLAMP_MAX(0, 15), fd);
-    put_check(CLAMP_MAX(0, 15) == 0, fd);
-    put_title("CLAMP_MAX(8, 15):", BOLD_CYAN, fd);
-    put_expected_result("8", fd);
-    put_macro_result_int(CLAMP_MAX(8, 15), fd);
-    put_check(CLAMP_MAX(8, 15) == 8, fd);
-    put_title("CLAMP_MAX(15, 15):", BOLD_CYAN, fd);
-    put_expected_result("15", fd);
-    put_macro_result_int(CLAMP_MAX(15, 15), fd);
-    put_check(CLAMP_MAX(15, 15) == 15, fd);
-    put_title("CLAMP_MAX(42, 15):", BOLD_CYAN, fd);
-    put_expected_result("15", fd);
-    put_macro_result_int(CLAMP_MAX(42, 15), fd);
-    put_check(CLAMP_MAX(42, 15) == 15, fd);
-    put_title("CLAMP_MAX(42, -15):", BOLD_CYAN, fd);
-    put_expected_result("-15", fd);
-    put_macro_result_int(CLAMP_MAX(42, -15), fd);
-    put_check(CLAMP_MAX(42, -15) == -15, fd);
-    put_title("CLAMP_MAX(-42, 15):", BOLD_CYAN, fd);
-    put_expected_result("-42", fd);
-    put_macro_result_int(CLAMP_MAX(-42, 15), fd);
-    put_check(CLAMP_MAX(-42, 15) == -42, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MAX(0, 15), 0, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MAX(8, 15), 8, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MAX(15, 15), 15, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MAX(42, 15), 15, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MAX(42, -15), -15, fd);
+    TEST_MACRO_INT_EQ(CLAMP_MAX(-42, 15), -42, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("ALIGN_UP_POW2(0):", BOLD_CYAN, fd);
-    put_expected_result("1", fd);
-    put_macro_result_size_t(ALIGN_UP_POW2(0), fd);
-    put_check(ALIGN_UP_POW2(0) == 1, fd);
-    put_title("ALIGN_UP_POW2(1):", BOLD_CYAN, fd);
-    put_expected_result("1", fd);
-    put_macro_result_size_t(ALIGN_UP_POW2(1), fd);
-    put_check(ALIGN_UP_POW2(1) == 1, fd);
-    put_title("ALIGN_UP_POW2(2):", BOLD_CYAN, fd);
-    put_expected_result("2", fd);
-    put_macro_result_size_t(ALIGN_UP_POW2(2), fd);
-    put_check(ALIGN_UP_POW2(2) == 2, fd);
-    put_title("ALIGN_UP_POW2(20):", BOLD_CYAN, fd);
-    put_expected_result("32", fd);
-    put_macro_result_size_t(ALIGN_UP_POW2(20), fd);
-    put_check(ALIGN_UP_POW2(20) == 32, fd);
+    TEST_MACRO_EQ(ALIGN_UP_POW2(0), 1, fd);
+    TEST_MACRO_EQ(ALIGN_UP_POW2(1), 1, fd);
+    TEST_MACRO_EQ(ALIGN_UP_POW2(2), 2, fd);
+    TEST_MACRO_EQ(ALIGN_UP_POW2(20), 32, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("ALIGN_DOWN_POW2(0):", BOLD_CYAN, fd);
-    put_expected_result("1", fd);
-    put_macro_result_size_t(ALIGN_DOWN_POW2(0), fd);
-    put_check(ALIGN_DOWN_POW2(0) == 1, fd);
-    put_title("ALIGN_DOWN_POW2(1):", BOLD_CYAN, fd);
-    put_expected_result("1", fd);
-    put_macro_result_size_t(ALIGN_DOWN_POW2(1), fd);
-    put_check(ALIGN_DOWN_POW2(1) == 1, fd);
-    put_title("ALIGN_DOWN_POW2(2):", BOLD_CYAN, fd);
-    put_expected_result("2", fd);
-    put_macro_result_size_t(ALIGN_DOWN_POW2(2), fd);
-    put_check(ALIGN_DOWN_POW2(2) == 2, fd);
-    put_title("ALIGN_DOWN_POW2(20):", BOLD_CYAN, fd);
-    put_expected_result("16", fd);
-    put_macro_result_size_t(ALIGN_DOWN_POW2(20), fd);
-    put_check(ALIGN_DOWN_POW2(20) == 16, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN_POW2(0), 1, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN_POW2(1), 1, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN_POW2(2), 2, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN_POW2(20), 16, fd);
 
     ft_putchar_fd('\n', fd);
     
-    put_title("IS_POW_2(0):", BOLD_CYAN, fd);
-    put_expected_result("0 (false)", fd);
-    put_macro_result_size_t(IS_POW_2(0), fd);
-    put_check(IS_POW_2(0) == 0, fd);
-    put_title("IS_POW_2(1):", BOLD_CYAN, fd);
-    put_expected_result("1 (true)", fd);
-    put_macro_result_size_t(IS_POW_2(1), fd);
-    put_check(IS_POW_2(1) == 1, fd);
-    put_title("IS_POW_2(16):", BOLD_CYAN, fd);
-    put_expected_result("1 (true)", fd);
-    put_macro_result_size_t(IS_POW_2(16), fd);
-    put_check(IS_POW_2(16) == 1, fd);
+    TEST_MACRO_BOOL(IS_POW_2(0), 0, fd);
+    TEST_MACRO_BOOL(IS_POW_2(1), 1, fd);
+    TEST_MACRO_BOOL(IS_POW_2(16), 1, fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("ALIGN_UP(0, 16):", BOLD_CYAN, fd);
-    put_expected_result("0", fd);
-    put_macro_result_size_t(ALIGN_UP(0, 16), fd);
-    put_check(ALIGN_UP(0, 16) == 0, fd);
-    put_title("ALIGN_UP(1, 16):", BOLD_CYAN, fd);
-    put_expected_result("16", fd);
-    put_macro_result_size_t(ALIGN_UP(1, 16), fd);
-    put_check(ALIGN_UP(1, 16) == 16, fd);
-    put_title("ALIGN_UP(16, 16):", BOLD_CYAN, fd);
-    put_expected_result("16", fd);
-    put_macro_result_size_t(ALIGN_UP(16, 16), fd);
-    put_check(ALIGN_UP(16, 16) == 16, fd);
-    put_title("ALIGN_UP(17, 16):", BOLD_CYAN, fd);
-    put_expected_result("32", fd);
-    put_macro_result_size_t(ALIGN_UP(17, 16), fd);
-    put_check(ALIGN_UP(17, 16) == 32, fd);
+    TEST_MACRO_EQ(ALIGN_UP(0, 16), 0, fd);
+    TEST_MACRO_EQ(ALIGN_UP(1, 16), 16, fd);
+    TEST_MACRO_EQ(ALIGN_UP(16, 16), 16, fd);
+    TEST_MACRO_EQ(ALIGN_UP(17, 16), 32, fd);
     put_title("ALIGN_UP(17, 7):", BOLD_CYAN, fd);
     put_expected_result("Undefined behavior. `align` should be 2ₙ", fd);
     put_macro_result_size_t(ALIGN_UP(17, 7), fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("ALIGN_DOWN(0, 16):", BOLD_CYAN, fd);
-    put_expected_result("0", fd);
-    put_macro_result_size_t(ALIGN_DOWN(0, 16), fd);
-    put_check(ALIGN_DOWN(0, 16) == 0, fd);
-    put_title("ALIGN_DOWN(1, 16):", BOLD_CYAN, fd);
-    put_expected_result("0", fd);
-    put_macro_result_size_t(ALIGN_DOWN(1, 16), fd);
-    put_check(ALIGN_DOWN(1, 16) == 0, fd);
-    put_title("ALIGN_DOWN(16, 16):", BOLD_CYAN, fd);
-    put_expected_result("16", fd);
-    put_macro_result_size_t(ALIGN_DOWN(16, 16), fd);
-    put_check(ALIGN_DOWN(16, 16) == 16, fd);
-    put_title("ALIGN_DOWN(17, 16):", BOLD_CYAN, fd);
-    put_expected_result("16", fd);
-    put_macro_result_size_t(ALIGN_DOWN(17, 16), fd);
-    put_check(ALIGN_DOWN(17, 16) == 16, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN(0, 16), 0, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN(1, 16), 0, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN(16, 16), 16, fd);
+    TEST_MACRO_EQ(ALIGN_DOWN(17, 16), 16, fd);
     put_title("ALIGN_DOWN(17, 7):", BOLD_CYAN, fd);
     put_expected_result("Undefined behavior. `align` should be 2ₙ", fd);
     put_macro_result_size_t(ALIGN_DOWN(17, 7), fd);
@@ -310,25 +166,13 @@ static void test_utilitary_plateform_macros(int fd)
 
 void    test_mregion_macros(int fd)
 {
-    put_title("MREGION_HEADER_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a multiple of ALIGNMENT_BOUNDARY", fd);
-    put_macro_result_size_t(MREGION_HEADER_SIZE, fd);
-    put_check(IS_ALIGNED(MREGION_HEADER_SIZE, ALIGNMENT_BOUNDARY), fd);
+    TEST_MACRO(MREGION_HEADER_SIZE, "a multiple of ALIGNMENT_BOUNDARY", IS_ALIGNED(MREGION_HEADER_SIZE, ALIGNMENT_BOUNDARY), fd);
 
     ft_putchar_fd('\n', fd);
 
-    put_title("TINY_MREGION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a multiple of PAGE_SIZE", fd);
-    put_macro_result_size_t(TINY_MREGION_SIZE, fd);
-    put_check(IS_ALIGNED(TINY_MREGION_SIZE, PAGE_SIZE), fd);
-    put_title("SMALL_MREGION_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a multiple of PAGE_SIZE", fd);
-    put_macro_result_size_t(SMALL_MREGION_SIZE, fd);
-    put_check(IS_ALIGNED(SMALL_MREGION_SIZE, PAGE_SIZE), fd);
-    put_title("LARGE_MREGION_SIZE(4200):", BOLD_CYAN, fd);
-    put_expected_result("a multiple of PAGE_SIZE bigger or equal to `allocation_size`", fd);
-    put_macro_result_size_t(LARGE_MREGION_SIZE(4200), fd);
-    put_check(IS_ALIGNED(LARGE_MREGION_SIZE(4200), PAGE_SIZE) && LARGE_MREGION_SIZE(4200) >= 4200, fd);
+    TEST_MACRO(TINY_MREGION_SIZE, "a multiple of PAGE_SIZE", IS_ALIGNED(TINY_MREGION_SIZE, PAGE_SIZE), fd);
+    TEST_MACRO(SMALL_MREGION_SIZE, "a multiple of PAGE_SIZE", IS_ALIGNED(SMALL_MREGION_SIZE, PAGE_SIZE), fd);
+    TEST_MACRO(LARGE_MREGION_SIZE(4200), "a multiple of PAGE_SIZE bigger or equal to `allocation_size`", IS_ALIGNED(LARGE_MREGION_SIZE(4200), PAGE_SIZE) && LARGE_MREGION_SIZE(4200) >= 4200, fd);
 }
 
 void    test_utilitary_mregion_macros(int fd)
@@ -354,22 +198,13 @@ void    test_utilitary_mregion_macros(int fd)
 
     ft_putchar_fd('\n', fd);
 
-    put_title("IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE):", BOLD_CYAN, fd);
-    put_expected_result("1 (true)", fd);
-    put_macro_result_int(IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE), fd);
-    put_check(IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE) == 1, fd);
-    put_title("IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1):", BOLD_CYAN, fd);
-    put_expected_result("0 (false)", fd);
-    put_macro_result_int(IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1), fd);
-    put_check(IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1) == 0, fd);
+    TEST_MACRO_BOOL(IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE), 1, fd);
+    TEST_MACRO_BOOL(IS_BOUND_MREGION(SMALL_MCHUNK_MAX_ALLOCATION_SIZE + 1), 0, fd);
 }
 
 void    test_mchunk_macros(int fd)
 {
-    put_title("MCHUNK_HEADER_SIZE:", BOLD_CYAN, fd);
-    put_expected_result("a multiple of ALIGNMENT_BOUNDARY", fd);
-    put_macro_result_size_t(MCHUNK_HEADER_SIZE, fd);
-    put_check(IS_ALIGNED(MCHUNK_HEADER_SIZE, ALIGNMENT_BOUNDARY), fd);
+    TEST_MACRO(MCHUNK_HEADER_SIZE, "a multiple of ALIGNMENT_BOUNDARY", IS_ALIGNED(MCHUNK_HEADER_SIZE, ALIGNMENT_BOUNDARY), fd);
 }
 
 void    test_utilitary_mchunk_macros(int fd)
@@ -382,18 +217,9 @@ void    test_utilitary_mchunk_macros(int fd)
         .prev_free_mchunk = NULL,
     };
 
-    put_title("GET_MCHUNK_SIZE(42):", BOLD_CYAN, fd);
-    put_expected_result("MCHUNK_HEADER_SIZE + ALIGN_UP(42, ALIGNMENT_BOUNDARY)", fd);
-    put_macro_result_size_t(GET_MCHUNK_SIZE(42), fd);
-    put_check(GET_MCHUNK_SIZE(42) == MCHUNK_HEADER_SIZE + ALIGN_UP(42, ALIGNMENT_BOUNDARY), fd);
-    put_title("GET_MCHUNK_SIZE(mchunk.allocation_size):", BOLD_CYAN, fd);
-    put_expected_result("MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.allocation_size, ALIGNMENT_BOUNDARY)", fd);
-    put_macro_result_size_t(GET_MCHUNK_SIZE(mchunk.allocation_size), fd);
-    put_check(GET_MCHUNK_SIZE(mchunk.allocation_size) == MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.allocation_size, ALIGNMENT_BOUNDARY), fd);
-    put_title("GET_MCHUNK_SIZE(mchunk.prev_allocation_size):", BOLD_CYAN, fd);
-    put_expected_result("MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.prev_allocation_size, ALIGNMENT_BOUNDARY)", fd);
-    put_macro_result_size_t(GET_MCHUNK_SIZE(mchunk.prev_allocation_size), fd);
-    put_check(GET_MCHUNK_SIZE(mchunk.prev_allocation_size) == MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.prev_allocation_size, ALIGNMENT_BOUNDARY), fd);
+    TEST_MACRO(GET_MCHUNK_SIZE(42), "MCHUNK_HEADER_SIZE + ALIGN_UP(42, ALIGNMENT_BOUNDARY)", GET_MCHUNK_SIZE(42) == MCHUNK_HEADER_SIZE + ALIGN_UP(42, ALIGNMENT_BOUNDARY), fd);
+    TEST_MACRO(GET_MCHUNK_SIZE(mchunk.allocation_size), "MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.allocation_size, ALIGNMENT_BOUNDARY)", GET_MCHUNK_SIZE(mchunk.allocation_size) == MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.allocation_size, ALIGNMENT_BOUNDARY), fd);
+    TEST_MACRO(GET_MCHUNK_SIZE(mchunk.prev_allocation_size), "MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.prev_allocation_size, ALIGNMENT_BOUNDARY)", GET_MCHUNK_SIZE(mchunk.prev_allocation_size) == MCHUNK_HEADER_SIZE + ALIGN_UP(mchunk.prev_allocation_size, ALIGNMENT_BOUNDARY), fd);
 
     ft_putchar_fd('\n', fd);
 
