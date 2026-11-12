@@ -43,7 +43,7 @@ mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *used_mchunk, size_t real
         return printerr("realloc_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     if (reallocation_size == 0)
-        return free_mchunk_or_mregion(marena, used_mchunk), NULL;
+        return free_mchunk_or_mregion(marena, NULL, used_mchunk), NULL;
 
     if (!are_allocation_sizes_mregion_compatible(marena, used_mchunk->allocation_size, reallocation_size))
         return migrate_mchunk_to_new_mregion(marena, used_mchunk, reallocation_size);

@@ -19,9 +19,8 @@
  * 
  * We keep no unbound mregions, as their storage size is unpredictable.
 */
-mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *used_mchunk)
+mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mregion_t **mregion, mchunk_t *used_mchunk)
 {
-    mregion_t   **mregion;
     mchunk_t    *freed_mchunk;
     size_t      free_bound_mregion_threshold;
     bool        is_bound_mregion;
@@ -29,7 +28,7 @@ mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mchunk_t *used_mchunk)
     if (!used_mchunk || used_mchunk->state != USED)
         return printerr("free_mchunk_or_mregion()", "Wrong parameters", NULL), STATUS_FAILURE;
 
-    if ((mregion = get_mregion_by_mchunk(marena, used_mchunk, used_mchunk->allocation_size)) == STATUS_FAILURE)
+    if (!mregion && (mregion = get_mregion_by_mchunk(marena, used_mchunk, used_mchunk->allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
     // We keep as much bound mregions as initialized. Those are expected to be collected by the OS as PAGE FAULTS.

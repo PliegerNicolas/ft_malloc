@@ -40,7 +40,7 @@ mchunk_t    *migrate_mchunk_to_new_mregion(marena_t *marena, mchunk_t *original_
 
     copy_data_between_mchunks(relocated_mchunk, original_mchunk);
 
-    if (free_mchunk_or_mregion(marena, original_mchunk) == STATUS_FAILURE)
+    if (free_mchunk_or_mregion(marena, NULL, original_mchunk) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
     return relocated_mchunk;
