@@ -78,22 +78,20 @@ mchunk_t    *partition_mchunk(mregion_t **mregion, mchunk_t **original_mchunk, s
     }
     else
     {
+        if (og_mchunk_cache.prev_free_mchunk)
+            og_mchunk_cache.prev_free_mchunk->next_free_mchunk = og_mchunk_cache.next_free_mchunk;
+        if (og_mchunk_cache.next_free_mchunk)
+            og_mchunk_cache.next_free_mchunk->prev_free_mchunk = og_mchunk_cache.prev_free_mchunk;
+        if ((*mregion)->mbin == leading_mchunk)
+            (*mregion)->mbin = og_mchunk_cache.next_free_mchunk;
+
         leading_mchunk->next_free_mchunk = NULL;
         leading_mchunk->prev_free_mchunk = NULL;
 
-        remainder_mchunk->next_free_mchunk = og_mchunk_cache.next_free_mchunk;
-        remainder_mchunk->prev_free_mchunk = og_mchunk_cache.prev_free_mchunk;
-        if (remainder_mchunk->prev_free_mchunk)
-            remainder_mchunk->prev_free_mchunk->next_free_mchunk = leading_mchunk;
-        if (remainder_mchunk->next_free_mchunk)
-        {
-            remainder_mchunk->next_free_mchunk->prev_free_mchunk = remainder_mchunk;
-            if (GET_NEXT_MCHUNK(remainder_mchunk) == remainder_mchunk->next_free_mchunk)
-                remainder_mchunk->next_free_mchunk->prev_allocation_size = remainder_mchunk->allocation_size;
-        }
-
-        if (!(*mregion)->mbin || (*mregion)->mbin == leading_mchunk || (unsigned char*)((*mregion)->mbin) > (unsigned char*)remainder_mchunk)
-            (*mregion)->mbin = remainder_mchunk;
+        if (insert_free_mchunk_in_mregion_mbin(*mregion, remainder_mchunk) == STATUS_FAILURE)
+            return STATUS_FAILURE;
+        if (GET_NEXT_MCHUNK(remainder_mchunk) == remainder_mchunk->next_free_mchunk)
+            remainder_mchunk->next_free_mchunk->prev_allocation_size = remainder_mchunk->allocation_size;
     }
 
     return (*original_mchunk = remainder_mchunk), leading_mchunk;
