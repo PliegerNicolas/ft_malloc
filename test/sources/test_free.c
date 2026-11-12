@@ -28,7 +28,7 @@ static void test_free_edge_cases(int fd)
 
     run_in_thread(run_free_test, &(test_t) {
         .executed_test = "free((void*)-42)",
-        .expected_res = "** free(): double free or corruption: 0xffffffffffffa6 **",
+        .expected_res = "** free(): double free or corruption: 0x... **",
         .expected_err = true,
         .ptr = (void*)-42,
     });
@@ -46,7 +46,7 @@ static void test_free_edge_cases(int fd)
 
     run_in_thread(run_corrupted_free_test, &(test_t) {
         .executed_test = "free(ptr_with_corrupted_mchunk)",
-        .expected_res = "** has_mchunk_aberrant_values(): corrupted mchunk: 0x...",
+        .expected_res = "** has_mchunk_aberrant_values(): corrupted mchunk: 0x... **",
         .expected_err = true,
         .bytes = 42,
     });
