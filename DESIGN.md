@@ -1,103 +1,107 @@
 # ft_malloc: design notes
 
-How the allocator is built, and why. For building and using the library, see the [README](README.md).
+How the allocator works and why. For building, testing and usage, see the [README](README.md).
 
-## What it is
+## 1. Overview
 
-`libft_malloc.so` replaces libc's `malloc`, `free` and `realloc`, and adds `show_alloc_mem`, which prints the current state of the heap. Loaded through `LD_LIBRARY_PATH` (or `LD_PRELOAD`), it serves every allocation of an unmodified program.
+`libft_malloc.so` replaces libc's `malloc`, `free` and `realloc`, and adds `show_alloc_mem`, which prints the allocated blocks.
 
-The operating system only gives memory in pages, through `mmap`. A system call per `malloc` would be slow, and a whole page for 24 bytes would waste memory. The allocator sits between the two: it requests large regions rarely, then hands out small pieces of them with pointer arithmetic. It trades a little memory (headers, pre-allocation) for far fewer system calls, and every choice below is about keeping that trade worthwhile.
+The kernel offers two ways to get memory: `brk`/`sbrk`, which grow one contiguous heap, and `mmap`, which creates independent mappings of whole pages *(the [README](README.md) compares them)*. We use `mmap` and `munmap` only for ease of implementation.
 
-## Architecture
+One `mmap` per `malloc` would be slow *(a system call each time)* and wasteful *(a 24-byte block would take a 4 KB page)*. So the allocator maps large regions rarely and cuts them into blocks itself, trading a little memory *(headers, pre-allocated space)* for far fewer system calls.
 
-Memory is organised in three levels, each one a header placed directly in front of the memory it describes:
+## 2. Architecture
 
 ```
-marena (global)
- ├── TINY   (≤ 128 B,  ≥ 100 chunks per region)  mregion ⇄ mregion ⇄ …
- ├── SMALL  (≤ 1024 B, ≥ 100 chunks per region)  mregion ⇄ mregion ⇄ …
- └── LARGE  (> 1024 B, one region per allocation) mregion ⇄ mregion ⇄ …
+marena (one global instance, protected by a mutex)
+ ├── TINY  regions:  blocks up to 128 B,  at least 100 blocks per region
+ ├── SMALL regions:  blocks up to 1024 B, at least 100 blocks per region
+ └── LARGE regions:  blocks above 1024 B, one block per region
 
-mregion = [ header | mchunk | mchunk | mchunk | … ]   (one mmap, page-rounded)
-mchunk  = [ header | user data ]                       (USED, or FREE and in the mbin)
+region = [ region header | chunk | chunk | chunk | ... ]   (one mmap, rounded up to host's page size)
+chunk  = [ chunk header  | user data ]                     (in use, or free)
 ```
 
-- **marena**: the entry point. It holds the head of each region list.
-- **mregion**: one `mmap` call, rounded up to the page size. Regions of a class form a doubly linked list. Each keeps its own **mbin**, the address-ordered list of its free chunks, and a count of used chunks.
-- **mchunk**: the header in front of each block handed to the user.
+Each header sits directly in front of what it describes, because `free` and `realloc` only receive the user's pointer: the chunk header is one subtraction away.
 
-```c
-typedef struct s_mchunk
-{
-    usage_state_t   state;
-    size_t          prev_allocation_size;
-    size_t          allocation_size;
-    struct s_mchunk *next_free_mchunk;
-    struct s_mchunk *prev_free_mchunk;
-} mchunk_t;
-```
+- **marena**: holds the head of each class's region list. A single global instance shared by all threads, so memory freed by one thread can be reused by any other.
+- **mregion** *(region)*: one `mmap`, rounded to whole pages since `mmap` works in pages. A class's regions form a doubly linked list, so an empty region can be unlinked from the middle in constant time. Each region keeps:
+  - its **mbin**, the list of its free chunks, **sorted by address**: the free chunk before another in the list is then also the closest free chunk before it in memory, which is how `free` finds the previous neighbour to merge with;
+  - `max_free_allocation_size`, an upper limit on its largest free chunk, to skip the region without walking its list *(section 4)*;
+  - its number of chunks in use, to know in constant time when it is empty.
+- **mchunk** *(chunk)*: the state *(free or in use, to detect double frees)*, `allocation_size` *(the size asked for, used by `show_alloc_mem` and `realloc`)*, the free-list links, and `prev_allocation_size` *(kept up to date, but currently only used to detect corrupted headers)*.
 
-- `state` is `FREE` or `USED`.
-- `allocation_size` is the size the user asked for. A chunk spans `MCHUNK_HEADER_SIZE + ALIGN_UP(allocation_size, ALIGNMENT_BOUNDARY)` bytes, so the next chunk is reached in O(1) by pointer arithmetic. Any in-place resize must keep that span unchanged.
-- `prev_allocation_size` gives the same O(1) access to the previous chunk.
-- `next_free_mchunk` / `prev_free_mchunk` link the chunk into its region's mbin, and are only meaningful while it is free.
+A chunk spans `MCHUNK_HEADER_SIZE + ALIGN_UP(allocation_size)` bytes and chunks are contiguous, so the next one is found by adding that span, without a pointer.
 
-```c
-#define GET_MCHUNK_DATA_PTR(c) ((void*)((unsigned char*)(c) + MCHUNK_HEADER_SIZE))
-#define GET_MCHUNK_PTR(p)      ((mchunk_t*)((unsigned char*)(p) - MCHUNK_HEADER_SIZE))
-```
+Sizes are aligned on 16 bytes, like libc, so a block can hold any C type, including SSE types and `long double`.
 
-## How an allocation flows
+## 3. How each call works
 
-- **`malloc(n)`** rejects aberrant sizes, takes the global lock, and initialises the arena on first use. The size selects the class and its region list. The allocator walks the regions, asks each region's mbin for a fitting free chunk, and only calls `mmap` for a new region when none fits. The chosen chunk is split if it is larger than needed, and the remainder goes back to the mbin.
-- **`free(p)`** takes the lock, recovers the header from the pointer, and checks that it belongs to the arena and is in use. Otherwise it reports `double free or corruption` instead of corrupting the heap. It then marks the chunk free and merges it with its free neighbours. An empty region is returned to the OS, except the ones kept warm (see below).
-- **`realloc(p, n)`** applies the same checks as `free`, then resizes in place when it can, or moves the data to a new chunk.
+Each call takes the global mutex first, even before checking the pointer: otherwise another thread could unmap a region during the check, and a valid pointer would be reported as invalid. It slows down multi-threaded processes considerably, but keeps the implementation simple and still useful for most of my use cases.
 
-The lock is taken before the arena is initialised and before a pointer is inspected, so no thread ever reads region lists or chunk headers while another one changes them.
+**`malloc(size)`**
 
-## Design choices and trade-offs
+1. The size picks the class.
+2. **LARGE**: a region sized for this block is mapped and put at the head of the list. No search is needed, since LARGE regions are never shared *(section 5)*, and the head is reached without walking the list.
+3. **TINY / SMALL**: the class's regions are walked, skipping those whose `max_free_allocation_size` is too small. In each, the mbin is searched for a free chunk of exactly the right aligned size *(used as is)* or big enough to split *(larger by at least a header)*. Anything in between is unusable: the leftover could not hold a header.
+4. If no region fits, a new one is mapped at the end of the list, so older regions and their holes keep being searched first.
+5. A chunk larger than needed is split, and the rest returns to the mbin.
+
+**`free(ptr)`**
+
+1. The region containing the address is looked up. This is also the validity check, done before reading the header, because reading in front of a foreign pointer could crash. An unknown address is reported as `double free or corruption`.
+2. A chunk not in use is reported the same way, instead of corrupting the free lists.
+3. The chunk is marked free and merged with free neighbours, so the region does not break into fragments too small to reuse.
+4. An empty region is unmapped, unless it is the only TINY or SMALL region left, which is kept so that allocate/free loops do not map and unmap it every time. LARGE regions are always unmapped: the next block will likely have another size.
+
+**`realloc(ptr, size)`**
+
+1. The pointer is validated as in `free`.
+2. Within the same class, the chunk is resized in place to avoid a copy: it shrinks by splitting off its end, or grows by merging with the free chunk after it.
+3. Otherwise, or without room, the data moves to a new chunk and the old one is freed.
+
+## 4. Design choices
 
 | Choice | Why, and what it costs |
 |---|---|
-| Size classes (TINY ≤ 128 B, SMALL ≤ 1024 B, LARGE) | Small blocks of similar size share pre-allocated regions of at least 100 chunks, so most small allocations cost no system call and fragment less. LARGE blocks get their own region, sized exactly, because their size is unpredictable. |
-| 16-byte alignment, page-rounded regions | Every returned pointer is aligned like libc's, so any type can be stored. All sizes go through one set of macros (`ALIGN_UP`, `GET_MCHUNK_SIZE`), so alignment logic lives in one place. |
-| One free list per region, not one global list | A search only touches regions of the right class, and a region knows instantly whether it is full (empty mbin) or unused (zero used chunks), which drives when it can be returned to the OS. |
-| First fit for TINY, best fit for SMALL and LARGE | TINY chunks are nearly all the same size, so the first fitting chunk is good enough and fastest. For larger sizes a closer fit wastes less memory, which is worth a longer scan. The strategy is a function pointer chosen per class, so it can be changed in one place. |
-| Coalescing on free | A freed chunk is merged with its free neighbours, so the region does not degrade into fragments too small to reuse. |
-| Keep one region per bound class, unmap the rest | Keeping a warm TINY and SMALL region avoids an `mmap` / `munmap` cycle in programs that allocate and free in a loop. Empty LARGE regions are returned immediately, since their size is unlikely to be reused. |
-| `realloc` in place when possible | Within the same class, a chunk shrinks by splitting or grows by absorbing free neighbours. Only when it changes class or has no room does the data move to a new chunk. |
-| Thread safety: one global mutex | My first version gave each thread its own arena (`_Thread_local`), with no lock contention. The subject asks for a global lock, so I switched to one arena behind a single `pthread_mutex`: simpler and correct, but threads now wait for each other on every call. Both are valid; the choice depends on the workload. |
-| Hidden internal symbols | Internals are compiled with `#pragma GCC visibility push(hidden)` and libft_mini with `-fvisibility=hidden`, so only the four public functions are exported and nothing can clash with the host program. |
+| TINY ≤ 128 B, SMALL ≤ 1024 B | Small blocks are the most frequent, so pre-allocating for them saves the most system calls. Configurable in `macros.h`. |
+| ≥ 100 blocks per TINY/SMALL region | One `mmap` serves at least 100 allocations, and the region header and page rounding stay small next to the region's content. |
+| One region per LARGE block | Large sizes are unpredictable, so sharing regions would leave unusable gaps. Costs an `mmap` and a `munmap` per block. |
+| First fit for TINY, best fit above | TINY sizes are nearly uniform, so the first fit is as good as any and fastest. Varied larger sizes waste less with the closest fit, worth a longer search. |
+| A free list per region | Searches stay within the right class, and each region knows on its own whether it is full or empty. |
+| `max_free_allocation_size` as an upper limit | An exact maximum would need a rescan after each allocation. The limit is raised when a free chunk appears or grows, and lowered when a search fails *(which proves nothing larger is there)*. Skipping regions this way removes most of the search time in busy heaps. |
+| New TINY/SMALL regions at the end | Older holes are reused before fresh space: less memory, empty regions get unmapped, but searches are longer. |
+| One global mutex | The simplest correct way to share one heap between threads. The cost is that threads wait for each other *(section 8)*. |
+| Every pointer validated | Buggy programs pass invalid and double-freed pointers, and the tests do it on purpose. Reporting them beats crashing, at the cost of a region search on each `free` and `realloc`. |
+| Compile-time configuration | `static_assert`s on `macros.h` *(alignment, class order, `MALLOC_DEBUG`)* make a bad configuration fail to build, and constants are computed by the compiler instead of on every call. |
+| Hidden internal symbols | Only the four public functions are exported, so a host program's own `ft_strlen`, for example, cannot replace the library's. |
 
-The fit strategy, chosen per size class:
+## 5. Invariants
 
-```c
-mchunk_t *select_best_fit_mbin_mchunk(mchunk_t *mbin, size_t allocation_size)
-{
-    mchunk_t *(*strategy)(mchunk_t*, size_t);
+The code relies on these: each place that does carries a one-line comment.
 
-    if (allocation_size <= TINY_MCHUNK_MAX_ALLOCATION_SIZE)
-        strategy = fn_select_mbin_mchunk_first_fit;
-    else
-        strategy = fn_select_mbin_mchunk_best_fit;
-    return strategy(mbin, allocation_size);
-}
-```
+- **An in-place resize keeps the chunk's span** *(same aligned size)*. Otherwise the chunk is split or moved. A changed span would make walking the region land inside user data.
+- **Two free chunks are never adjacent**, since `free` merges neighbours. So allocation never needs to merge.
+- **Free chunks have aligned sizes**, so an equal aligned size means a fit without splitting.
+- **`max_free_allocation_size` is never below the largest free chunk** *(it may be above)*. Otherwise a region with room would be skipped.
+- **A LARGE region holding a block is never reused, and an empty one is unmapped**, so LARGE allocations need no search.
+- **A chunk can outgrow its class while growing** *(e.g. a TINY chunk merged with free space in `realloc`)*, so regions are found by address, not by size.
 
-## How it is tested
+## 6. Testing
 
-A separate program in `test/`, linked against the library, with one suite per area: `macros`, `malloc`, `realloc`, `free`. Each case runs in its own thread and prints what it did, what was expected and what it got, followed by a PASS or FAIL line. The tester ends with a summary and exits non-zero if any check failed. `make std` builds the same suites against libc's `malloc`, so both outputs can be compared.
+`test/` has one suite per area: `macros`, `malloc`, `realloc`, `free`. Each case prints what it did, the expected and the obtained result, then PASS or FAIL. The tester ends with a summary and a non-zero exit code on failure, for use in scripts. Allocator errors are captured from `stderr` and compared too. Only the `show_alloc_mem` dumps are still read by eye, since checking them would mean parsing them.
 
-- **macros**: every configurable and derived constant (powers of two, alignment, region sizes, header sizes, pointer offsets).
-- **malloc**: sizes around every boundary that matters: 0, 1 and 2 bytes, the chunk header size, the alignment boundary, the page size, the TINY/SMALL/LARGE limits, `SIZE_MAX` and the maximum size a region can hold (expected to fail cleanly with `ENOMEM`). Also filling whole regions to force new ones.
-- **free**: invalid and corrupted pointers, double frees, release of empty regions, and coalescing of neighbours.
-- **realloc**: `realloc(NULL, n)` and `realloc(ptr, 0)`, same size, growing and shrinking in place through coalescing or partitioning, with a blocking neighbour, across size classes, and chained growth. Data must survive every move.
+## 7. Performance
 
-Error messages are captured by redirecting `stderr` into a pipe for the duration of the call. The `show_alloc_mem` dumps are still read by eye.
+Compared with glibc, expect:
 
-## Limits and what I would do next
+- **Few live blocks**: TINY and SMALL stay within about an order of magnitude of glibc, since searches are short.
+- **Many live blocks**: the gap widens as the heap grows, because finding a free chunk and validating a pointer both walk lists whose length grows with the number of blocks. glibc does both in constant time *(size-sorted bins, and the owning heap read from the chunk header or the pointer's address)*.
+- **LARGE blocks**: much slower, since each one costs an `mmap` and a `munmap`, and each `free` searches every region. glibc serves blocks below 128 KB from its heap without any system call.
+- **Several threads**: slower, since they all wait for one lock, while glibc serves most small requests from per-thread caches without locking.
 
-- **Lock contention**: one mutex serialises all threads. Next step: per-thread arenas with a shared fallback, as glibc does.
-- **Linear scans**: searching a region's mbin is O(n), `free` checks a pointer against every region, and a LARGE allocation walks every LARGE region. Segregated bins by size and an address-ordered region index would make most lookups O(1) or O(log n).
-- **Region search order**: regions are walked in order. Keeping regions that still have free space at the front of the list would shorten searches under load.
-- **No `calloc`**: programs that call it get libc's memory, which this allocator's `free` then rejects as foreign.
+## 8. Limits and next steps
+
+- **LARGE is slow**: each `free` searches all regions, and each block costs an `mmap` and a `munmap`. The search could probably be removed using some extra metadata.
+- **One lock for all threads**: glibc avoids most locking with per-thread caches, and avoids searching bins as they are sorted by size.
+- **No `calloc`**: programs that call it get libc memory, which this `free` rejects, considered foreign.

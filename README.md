@@ -20,7 +20,7 @@ The operating system provides mechanisms to allocate memory from the heap using 
 ## **Intent of ft_malloc**
 Our goal is to enhance **performance** by reducing the amount of **system calls**, albeit at the cost of **memory pre-allocation**, **memory fragmentation**. In other words: additional **overhead**.
 
-Ideally **fragmentation** is kept minial.
+Ideally **fragmentation** is kept minimal.
 
 ### **Gains:**
 - Fewer system calls through pre-allocation, enabling more efficient memory distribution via pointer arithmetic.
@@ -37,10 +37,10 @@ With our **malloc** implementation, we aim to optimize memory allocation while b
 
 In this schema:
 - The term header can be used interchangeably with metadata.
-- Marena is the only element defined on the stack. Each thread has it's own instance as it is set as ThreadLocal.
+- Marena is the only element not allocated through mmap: a single global instance, shared by all threads behind one mutex.
 - From left to right, the bigger element includes the smaller ones.
 
-Is stored on the stack:
+Is stored in the library's global data:
 - The marena header (thus the pointers to the mregion heads).
 
 Is stored on the heap (via mmap):
@@ -59,3 +59,18 @@ If you want to use this malloc implementation instead of the libc's one inside e
 - Prepend the path where `libft_malloc.so` is located in `LD_LIBRARY_PATH` environment variable. Ensure our *.so file is read first and has precedence.  
 Please see how it's been done in my `tester`'s `Makefile`.
 - Ensure the existing program only uses functions that are present in both the header file of libc's malloc and ours.
+
+## Build
+
+- `make`: builds `libft_malloc.so`.
+- `make optimize`: same, with `-O3`.
+- `make debug`: `-g3 -O0` and `MALLOC_DEBUG=1`, which also lists FREE chunks in `show_alloc_mem`.
+
+## Tests
+
+```sh
+cd test && make
+./tester macros    # or malloc, realloc, free
+```
+
+Each check prints PASS or FAIL, and the tester exits non-zero if any check failed. `make std` builds the same tester against libc's malloc, to compare outputs.
