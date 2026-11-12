@@ -66,7 +66,7 @@ status_t    free_mregion(mregion_t **mregion, bool is_bound_mregion, size_t free
     if (curr_mregion->next)
         curr_mregion->next->prev = curr_mregion->prev;
     if (curr_mregion->prev)
-        curr_mregion->prev = curr_mregion->next;
+        curr_mregion->prev->next = curr_mregion->next;
 
     *mregion = curr_mregion->prev ? curr_mregion->prev : curr_mregion->next;
 
