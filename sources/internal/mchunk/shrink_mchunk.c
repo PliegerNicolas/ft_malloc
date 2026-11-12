@@ -20,7 +20,7 @@ static inline bool  can_mchunk_shrink_in_place(mchunk_t *mchunk, size_t realloca
 {
     if (!mchunk)
         return false;
-    return reallocation_size >= ALIGN_DOWN(mchunk->allocation_size, ALIGNMENT_BOUNDARY);
+    return ALIGN_UP(reallocation_size, ALIGNMENT_BOUNDARY) == ALIGN_UP(mchunk->allocation_size, ALIGNMENT_BOUNDARY);
 }
 
 static inline bool  can_mchunk_be_partitioned(mchunk_t *mchunk, size_t reallocation_size)

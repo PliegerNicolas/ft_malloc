@@ -21,7 +21,7 @@ static inline bool  should_partition_mchunk_for_usage(mchunk_t *free_mchunk, siz
     if (!free_mchunk || free_mchunk->allocation_size < used_allocation_size)
         return true;
 
-    return ALIGN_UP(free_mchunk->allocation_size, ALIGNMENT_BOUNDARY) - used_allocation_size > MCHUNK_HEADER_SIZE; // /!\ not tested.
+    return ALIGN_UP(free_mchunk->allocation_size, ALIGNMENT_BOUNDARY) >= GET_MCHUNK_SIZE(used_allocation_size);
 }
 
 static mchunk_t *use_mchunk_in_place(mregion_t **mregion, mchunk_t **free_mchunk, size_t new_allocation_size)
@@ -45,7 +45,8 @@ static mchunk_t *use_mchunk_in_place(mregion_t **mregion, mchunk_t **free_mchunk
     used_mchunk->next_free_mchunk = NULL;
     used_mchunk->prev_free_mchunk = NULL;
 
-    used_mchunk->allocation_size = new_allocation_size;
+    if (ALIGN_UP(used_mchunk->allocation_size, ALIGNMENT_BOUNDARY) == ALIGN_UP(new_allocation_size, ALIGNMENT_BOUNDARY))
+        used_mchunk->allocation_size = new_allocation_size;
     used_mchunk->state = USED;
 
     if ((*mregion)->mbin == used_mchunk)
