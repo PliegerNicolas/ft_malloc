@@ -17,14 +17,13 @@ void    *malloc(size_t size)
     marena_t    *marena;
     mchunk_t    *allocated_mchunk;
 
-    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
-        return NULL;
-
     if (has_allocation_size_aberrant_value(size))
         return NULL;
 
     if (gmutex_lock() == STATUS_FAILURE)
         return NULL;
+    if ((marena = init_gmarena_once()) == STATUS_FAILURE)
+        return gmutex_unlock(), NULL;
     if ((allocated_mchunk = alloc_mchunk(marena, size)) == STATUS_FAILURE)
         return gmutex_unlock(), NULL;
     gmutex_unlock();
