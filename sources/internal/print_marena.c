@@ -63,6 +63,7 @@ static size_t   print_mregion_mchunks(const char *mregion_type_name, mregion_t *
         return 0;
 
     print_mregion_title(mregion_type_name, mregion, fd);
+    allocated_bytes = 0;
 
     mregion_right_data_bound = (unsigned char *)mregion + mregion->size;
 
