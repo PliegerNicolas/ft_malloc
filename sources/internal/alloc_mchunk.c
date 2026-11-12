@@ -40,6 +40,7 @@ static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t 
 {
     mregion_t   **mregion_head;
     mregion_t   **current_mregion;
+    mregion_t   *last_mregion;
     mchunk_t    *best_fit_free_mchunk;
 
     if ((mregion_head = map_allocation_size_to_marena_mregion_head(marena, allocation_size)) == STATUS_FAILURE)
@@ -48,6 +49,7 @@ static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t 
         return STATUS_FAILURE;
 
     current_mregion = mregion_head;
+    last_mregion = NULL;
     while (*current_mregion)
     {
         if (!is_mregion_full(*current_mregion) && !is_mregion_full_enough(*current_mregion, allocation_size))
@@ -57,11 +59,13 @@ static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t 
                 return best_fit_free_mchunk;
         }
 
+        last_mregion = *current_mregion;
         current_mregion = &(*current_mregion)->next;
     }
 
     if (!*current_mregion && init_mregion(current_mregion, allocation_size) == STATUS_FAILURE)
         return STATUS_FAILURE;
+    (*current_mregion)->prev = last_mregion;
 
     best_fit_free_mchunk = (*current_mregion)->mbin;
     return best_fit_free_mchunk;
