@@ -6,7 +6,7 @@
 #    By: nplieger <nplieger@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/27 21:29:03 by nplieger          #+#    #+#              #
-#    Updated: 2026/11/12 22:56:26 by nplieger         ###   ########.fr        #
+#    Updated: 2026/11/12 23:38:41 by nplieger         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -96,7 +96,6 @@ INTERNAL_SOURCE_FILE_NAMES	:=	\
 								mchunk/coalesce/try_coalesce_until_allocation_size_reached \
 								mchunk/utils/has_mchunk_aberrant_values \
 								mchunk/utils/has_allocation_size_aberrant_value \
-								mchunk/utils/is_mchunk_in_marena \
 								\
 								limits/get_max_allocation_size \
 								limits/get_max_mregion_size \

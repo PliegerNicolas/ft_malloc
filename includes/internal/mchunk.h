@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mchunk.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-25 12:38:31 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-25 12:38:31 by nicolas          ###   ########.fr       */
+/*   Created: 2025/04/25 12:38:31 by nicolas           #+#    #+#             */
+/*   Updated: 2026/11/12 23:38:44 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ bool        try_coalesce_until_allocation_size_reached(mregion_t *mregion, mchun
 /* utils */
 bool        has_mchunk_aberrant_values(mchunk_t *mchunk);
 bool        has_allocation_size_aberrant_value(size_t allocation_size);
-bool        is_mchunk_in_marena(marena_t *marena, mchunk_t *mchunk);
 # pragma GCC visibility pop
 
 #endif // MCHUNK_H

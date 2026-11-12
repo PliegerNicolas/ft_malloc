@@ -2,6 +2,8 @@
 
 This is a dynamic memory allocation library for C17, designed to mimic the behavior of `malloc` in libc.
 
+For how it works inside and why it is built that way, see [DESIGN.md](DESIGN.md).
+
 ## Why build one ?
 
 The operating system provides mechanisms to allocate memory from the heap using system calls. While C offers straightforward functions that wrap these system calls, they come with both advantages and disadvantages.

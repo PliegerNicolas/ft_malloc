@@ -271,12 +271,12 @@ void    *run_realloc_with_neighbor_test(void *arg)
     int             fd = STDOUT_FILENO;
 
     void            *ptrs[3] = { 0 };
-    void            *original_ptr;
+    void            *original_ptr = NULL;
     bool            expect_error = false;
 
     set_thread_as_ready(thread_sync);
 
-    if (tests->size < 2 && tests->size > 3)
+    if (tests->size < 2 || tests->size > 3)
         return ft_putendl_fd("Expected exacly 2 or 3 tests/values", STDERR_FILENO), NULL;
 
     for (size_t i = 0; i < tests->size; i++)
