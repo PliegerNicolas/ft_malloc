@@ -24,16 +24,9 @@ static inline bool  is_mregion_full(mregion_t *mregion)
     return mregion->mbin == NULL;
 }
 
-// Because we want unbound mregions to have a high in-place growth space availability.
-static inline bool  is_mregion_full_enough(mregion_t *mregion, size_t allocation_size)
+static inline bool  may_mregion_fit(mregion_t *mregion, size_t allocation_size)
 {
-    if (!mregion)
-        return true;
-
-    if (IS_BOUND_MREGION(allocation_size))
-        return false;
-
-    return mregion->used_mchunks >= MCHUNKS_PER_UNBOUND_MREGION;
+    return mregion->max_free_allocation_size >= ALIGN_UP(allocation_size, ALIGNMENT_BOUNDARY);
 }
 
 static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t allocation_size)
@@ -63,11 +56,13 @@ static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t 
     last_mregion = NULL;
     while (*current_mregion)
     {
-        if (!is_mregion_full(*current_mregion) && !is_mregion_full_enough(*current_mregion, allocation_size))
+        if (!is_mregion_full(*current_mregion) && may_mregion_fit(*current_mregion, allocation_size))
         {
             best_fit_free_mchunk = select_best_fit_mbin_mchunk((*current_mregion)->mbin, allocation_size);
             if (best_fit_free_mchunk)
                 return best_fit_free_mchunk;
+            // A failed scan proves every FREE mchunk is below GET_MCHUNK_SIZE(allocation_size).
+            (*current_mregion)->max_free_allocation_size = CLAMP_MAX((*current_mregion)->max_free_allocation_size, GET_MCHUNK_SIZE(allocation_size) - ALIGNMENT_BOUNDARY);
         }
 
         last_mregion = *current_mregion;

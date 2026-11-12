@@ -30,6 +30,8 @@ void    try_coalesce_with_next_free_mchunk(mregion_t *mregion, mchunk_t *mchunk)
         return;
 
     mchunk->allocation_size += GET_MCHUNK_SIZE(next_mchunk->allocation_size);
+    if (mchunk->state == FREE)
+        mregion->max_free_allocation_size = CLAMP_MIN(mregion->max_free_allocation_size, mchunk->allocation_size);
 
     if (next_mchunk->next_free_mchunk)
     {

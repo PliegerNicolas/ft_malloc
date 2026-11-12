@@ -35,6 +35,7 @@ status_t    insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *fre
         (*insertion_pos)->prev_free_mchunk = free_mchunk;
     free_mchunk->prev_free_mchunk = prev_free_mchunk;
     free_mchunk->next_free_mchunk = *insertion_pos;
+    mregion->max_free_allocation_size = CLAMP_MIN(mregion->max_free_allocation_size, free_mchunk->allocation_size);
 
     return (*insertion_pos = free_mchunk), STATUS_SUCCESS;
 }

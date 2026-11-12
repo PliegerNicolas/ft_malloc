@@ -58,6 +58,8 @@ typedef struct s_mregion
 {
     size_t              size;
     mchunk_t            *mbin;
+    // Upper bound of the largest FREE mchunk's allocation_size: may be stale-high, never below the real maximum.
+    size_t              max_free_allocation_size;
     size_t              used_mchunks;
 
     struct s_mregion    *next;
