@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   macros.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nicolas <nicolas@student.42.fr>            #+#  +:+       +#+        */
+/*   By: nplieger <nplieger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-04-25 12:39:24 by nicolas           #+#    #+#             */
-/*   Updated: 2025-04-25 12:39:24 by nicolas          ###   ########.fr       */
+/*   Created: 2025/04/25 12:39:24 by nicolas           #+#    #+#             */
+/*   Updated: 2026/11/12 22:34:55 by nplieger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ typedef void*   status_t;
 # ifndef MALLOC_DEBUG
 #  define MALLOC_DEBUG 0
 # endif
+_Static_assert(MALLOC_DEBUG == 0 || MALLOC_DEBUG == 1, "MALLOC_DEBUG must be 0 or 1");
 
 /* SYSTEM */
 
@@ -57,7 +58,7 @@ typedef void*   status_t;
  * Alignment improves performance by adhering to architecture specific requirements.
  * Consider SIMD operations (SSE, AVX...).
  * 
- * @note Will be rounded up to the nearest multiple of 2. */
+ * @note Must be a power of 2, at least `_Alignof(max_align_t)`. */
 # define DESIRED_ALIGNMENT_BOUNDARY (size_t)16
 
 /* MCHUNK */
@@ -112,7 +113,9 @@ typedef void*   status_t;
 # define IS_ALIGNED(val, align) ((bool)(((uintptr_t)(val) % (uintptr_t)(align)) == 0))
 
 /** @brief General use-case memory alignment boundary in bytes. */
-# define ALIGNMENT_BOUNDARY (size_t)(ALIGN_UP_POW2(DESIRED_ALIGNMENT_BOUNDARY))
+_Static_assert(DESIRED_ALIGNMENT_BOUNDARY && !(DESIRED_ALIGNMENT_BOUNDARY & (DESIRED_ALIGNMENT_BOUNDARY - 1)), "DESIRED_ALIGNMENT_BOUNDARY must be a power of 2");
+# define ALIGNMENT_BOUNDARY DESIRED_ALIGNMENT_BOUNDARY
+_Static_assert(ALIGNMENT_BOUNDARY >= _Alignof(max_align_t), "ALIGNMENT_BOUNDARY must fit any type (max_align_t)");
 
 # ifndef PAGE_SIZE
 #  if defined(__linux__)
@@ -169,6 +172,7 @@ typedef void*   status_t;
 # define TINY_MCHUNK_MAX_ALLOCATION_SIZE (size_t)(ALIGN_UP(DESIRED_TINY_MCHUNK_MAX_ALLOCATION_SIZE, ALIGNMENT_BOUNDARY))
 /** @brief Maximum allocation_size per TINY `mchunk_t`. */
 # define SMALL_MCHUNK_MAX_ALLOCATION_SIZE (size_t)(ALIGN_UP(DESIRED_SMALL_MCHUNK_MAX_ALLOCATION_SIZE, ALIGNMENT_BOUNDARY))
+_Static_assert(TINY_MCHUNK_MAX_ALLOCATION_SIZE < SMALL_MCHUNK_MAX_ALLOCATION_SIZE, "TINY max allocation size must be below SMALL's");
 
 /** @brief Minimum allocation_size per TINY `mchunk_t`. */
 # define TINY_MCHUNK_MIN_ALLOCATION_SIZE (size_t)(0)
