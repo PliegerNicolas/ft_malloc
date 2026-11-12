@@ -15,6 +15,7 @@
 status_t    insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *free_mchunk)
 {
     mchunk_t    **insertion_pos;
+    mchunk_t    *prev_free_mchunk;
 
     if (!mregion || !free_mchunk)
         return printerr("insert_free_mchunk_in_mregion_mbin()", "Wrong parameters", NULL), STATUS_FAILURE;
@@ -23,14 +24,16 @@ status_t    insert_free_mchunk_in_mregion_mbin(mregion_t *mregion, mchunk_t *fre
         return printerr("insert_free_mchunk_in_mregion_mbin()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     insertion_pos = &mregion->mbin;
+    prev_free_mchunk = NULL;
     while (*insertion_pos && *insertion_pos < free_mchunk)
+    {
+        prev_free_mchunk = *insertion_pos;
         insertion_pos = &(*insertion_pos)->next_free_mchunk;
+    }
 
     if (*insertion_pos)
-    {
-        free_mchunk->prev_free_mchunk = (*insertion_pos)->prev_free_mchunk;
         (*insertion_pos)->prev_free_mchunk = free_mchunk;
-    }
+    free_mchunk->prev_free_mchunk = prev_free_mchunk;
     free_mchunk->next_free_mchunk = *insertion_pos;
 
     return (*insertion_pos = free_mchunk), STATUS_SUCCESS;
