@@ -26,7 +26,7 @@ static mchunk_t *fn_select_mbin_mchunk_first_fit(mchunk_t *mbin, size_t allocati
     curr_mchunk = mbin;
     while (curr_mchunk)
     {
-        if (curr_mchunk->allocation_size == allocation_size)
+        if (curr_mchunk->allocation_size == ALIGN_UP(allocation_size, ALIGNMENT_BOUNDARY))
             return curr_mchunk;
         if (curr_mchunk->allocation_size >= desired_mchunk_size)
             return curr_mchunk;
@@ -49,7 +49,7 @@ static mchunk_t *fn_select_mbin_mchunk_best_fit(mchunk_t *mbin, size_t allocatio
     curr_mchunk = mbin;
     while (curr_mchunk)
     {
-        if (curr_mchunk->allocation_size == allocation_size)
+        if (curr_mchunk->allocation_size == ALIGN_UP(allocation_size, ALIGNMENT_BOUNDARY))
             return curr_mchunk;
         if (curr_mchunk->allocation_size >= desired_mchunk_size)
         {
