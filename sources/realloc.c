@@ -15,6 +15,7 @@
 void    *realloc(void *ptr, size_t size)
 {
     marena_t    *marena;
+    mregion_t   **mregion;
     mchunk_t    *mchunk;
     mchunk_t    *reallocated_mchunk;
 
@@ -32,12 +33,12 @@ void    *realloc(void *ptr, size_t size)
         return gmutex_unlock(), NULL;
 
     mchunk = GET_MCHUNK_PTR(ptr);
-    if (!is_mchunk_in_marena(marena, mchunk))
+    if ((mregion = get_mregion_by_mchunk(marena, mchunk, 0)) == STATUS_FAILURE)
         return gmutex_unlock(), printerr("realloc()", "invalid pointer", mchunk), NULL;
     if (!mchunk || has_mchunk_aberrant_values(mchunk) || mchunk->state != USED)
         return gmutex_unlock(), NULL;
 
-    if ((reallocated_mchunk = realloc_mchunk(&gmarena, mchunk, size)) == STATUS_FAILURE)
+    if ((reallocated_mchunk = realloc_mchunk(&gmarena, mregion, mchunk, size)) == STATUS_FAILURE)
         return gmutex_unlock(), NULL;
     gmutex_unlock();
 

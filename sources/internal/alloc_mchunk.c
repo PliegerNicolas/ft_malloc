@@ -46,6 +46,7 @@ static mchunk_t *find_or_generate_best_fit_free_mchunk(marena_t *marena, size_t 
 
     if ((mregion_head = map_allocation_size_to_marena_mregion_head(marena, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
+    // Unbound mregions are never reused: one with a USED mchunk is full, an empty one is unmapped on free.
     if (!IS_BOUND_MREGION(allocation_size))
     {
         new_mregion = NULL;

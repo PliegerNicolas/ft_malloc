@@ -35,10 +35,9 @@ mchunk_t    *free_mchunk_or_mregion(marena_t *marena, mregion_t **mregion, mchun
     free_bound_mregion_threshold = INITIAL_MREGIONS_PER_BOUND_MREGION_TYPE;
     is_bound_mregion = IS_BOUND_MREGION(used_mchunk->allocation_size);
 
+    // free_mchunk() already coalesces the freed mchunk with its FREE neighbors.
     if ((freed_mchunk = free_mchunk(*mregion, used_mchunk)) == STATUS_FAILURE)
         return STATUS_FAILURE;
-
-    try_coalesce_with_neighboring_free_mchunks(*mregion, &freed_mchunk);
 
     if (free_mregion(mregion, is_bound_mregion, free_bound_mregion_threshold) == STATUS_FAILURE)
         return STATUS_FAILURE;

@@ -35,7 +35,7 @@ static bool are_allocation_sizes_mregion_compatible(marena_t *marena, size_t all
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *used_mchunk, size_t reallocation_size)
+mchunk_t    *realloc_mchunk(marena_t *marena, mregion_t **mregion, mchunk_t *used_mchunk, size_t reallocation_size)
 {
     mchunk_t    *reallocated_mchunk;
 
@@ -43,7 +43,7 @@ mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *used_mchunk, size_t real
         return printerr("realloc_mchunk()", "Wrong parameters", NULL), STATUS_FAILURE;
 
     if (reallocation_size == 0)
-        return free_mchunk_or_mregion(marena, NULL, used_mchunk), NULL;
+        return free_mchunk_or_mregion(marena, mregion, used_mchunk), NULL;
 
     if (!are_allocation_sizes_mregion_compatible(marena, used_mchunk->allocation_size, reallocation_size))
         return migrate_mchunk_to_new_mregion(marena, used_mchunk, reallocation_size);
@@ -51,9 +51,9 @@ mchunk_t    *realloc_mchunk(marena_t *marena, mchunk_t *used_mchunk, size_t real
     if (used_mchunk->allocation_size == reallocation_size)
         reallocated_mchunk = used_mchunk;
     else if (used_mchunk->allocation_size < reallocation_size)
-        reallocated_mchunk = grow_mchunk(marena, used_mchunk, reallocation_size);
+        reallocated_mchunk = grow_mchunk(marena, mregion, used_mchunk, reallocation_size);
     else
-        reallocated_mchunk = shrink_mchunk(marena, used_mchunk, reallocation_size);
+        reallocated_mchunk = shrink_mchunk(marena, mregion, used_mchunk, reallocation_size);
 
     if (reallocated_mchunk == STATUS_FAILURE)
         return STATUS_FAILURE;

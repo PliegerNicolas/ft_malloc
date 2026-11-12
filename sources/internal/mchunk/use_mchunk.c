@@ -45,6 +45,7 @@ static mchunk_t *use_mchunk_in_place(mregion_t **mregion, mchunk_t **free_mchunk
     used_mchunk->next_free_mchunk = NULL;
     used_mchunk->prev_free_mchunk = NULL;
 
+    // An mchunk spans MCHUNK_HEADER_SIZE + ALIGN_UP(allocation_size): resizing in place must keep that span.
     if (ALIGN_UP(used_mchunk->allocation_size, ALIGNMENT_BOUNDARY) == ALIGN_UP(new_allocation_size, ALIGNMENT_BOUNDARY))
         used_mchunk->allocation_size = new_allocation_size;
     used_mchunk->state = USED;
@@ -70,8 +71,7 @@ mchunk_t    *use_mchunk(mregion_t **mregion, mchunk_t *original_mchunk, size_t a
     if (!does_mregion_contain_mchunk(*mregion, original_mchunk) || original_mchunk->state != FREE)
         return STATUS_FAILURE;
 
-    try_coalesce_with_neighboring_free_mchunks(*mregion, &original_mchunk);
-
+    // No coalescing needed: free_mchunk() merges neighbors, so two FREE mchunks are never adjacent.
     if (should_partition_mchunk_for_usage(original_mchunk, allocation_size))
     {
         original_mchunk->state = USED;

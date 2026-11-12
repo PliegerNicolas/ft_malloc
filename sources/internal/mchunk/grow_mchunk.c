@@ -34,9 +34,8 @@ static inline bool  can_mchunk_be_partitioned(mchunk_t *mchunk, size_t reallocat
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    *grow_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size)
+mchunk_t    *grow_mchunk(marena_t *marena, mregion_t **mregion, mchunk_t *mchunk, size_t reallocation_size)
 {
-    mregion_t   **mregion;
     mchunk_t    *reallocated_mchunk;
 
     if (!marena || !mchunk || mchunk->allocation_size >= reallocation_size)
@@ -47,7 +46,7 @@ mchunk_t    *grow_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation
     if (can_mchunk_grow_in_place(mchunk, reallocation_size))
         return (mchunk->allocation_size = reallocation_size), mchunk;
 
-    if ((mregion = get_mregion_by_mchunk(marena, mchunk, mchunk->allocation_size)) == STATUS_FAILURE)
+    if (!mregion && (mregion = get_mregion_by_mchunk(marena, mchunk, mchunk->allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
     if (!try_coalesce_until_allocation_size_reached(*mregion, mchunk, reallocation_size))

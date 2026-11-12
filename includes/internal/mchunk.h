@@ -76,8 +76,8 @@ mchunk_t    *use_mchunk(mregion_t **mregion, mchunk_t *original_mchunk, size_t a
 mchunk_t    *free_mchunk(mregion_t *mregion, mchunk_t *used_mchunk);
 
 mchunk_t    *partition_mchunk(mregion_t **mregion, mchunk_t **original_mchunk, size_t new_allocation_size);
-mchunk_t    *grow_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size);
-mchunk_t    *shrink_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size);
+mchunk_t    *grow_mchunk(marena_t *marena, mregion_t **mregion, mchunk_t *mchunk, size_t reallocation_size);
+mchunk_t    *shrink_mchunk(marena_t *marena, mregion_t **mregion, mchunk_t *mchunk, size_t reallocation_size);
 /* coalesce */
 void        try_coalesce_with_next_free_mchunk(mregion_t *mregion, mchunk_t *mchunk);
 void        try_coalesce_with_neighboring_free_mchunks(mregion_t *mregion, mchunk_t **mchunk);

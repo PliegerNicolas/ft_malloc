@@ -20,6 +20,7 @@ static inline bool  can_mchunk_shrink_in_place(mchunk_t *mchunk, size_t realloca
 {
     if (!mchunk)
         return false;
+    // An mchunk spans MCHUNK_HEADER_SIZE + ALIGN_UP(allocation_size): resizing in place must keep that span.
     return ALIGN_UP(reallocation_size, ALIGNMENT_BOUNDARY) == ALIGN_UP(mchunk->allocation_size, ALIGNMENT_BOUNDARY);
 }
 
@@ -34,9 +35,8 @@ static inline bool  can_mchunk_be_partitioned(mchunk_t *mchunk, size_t reallocat
 /* *                                 LINKED                                  * */
 /* *************************************************************************** */
 
-mchunk_t    *shrink_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocation_size)
+mchunk_t    *shrink_mchunk(marena_t *marena, mregion_t **mregion, mchunk_t *mchunk, size_t reallocation_size)
 {
-    mregion_t   **mregion;
     mchunk_t    *shrunk_mchunk;
     mchunk_t    *free_mchunk;
 
@@ -48,7 +48,7 @@ mchunk_t    *shrink_mchunk(marena_t *marena, mchunk_t *mchunk, size_t reallocati
     if (can_mchunk_shrink_in_place(mchunk, reallocation_size))
         return (mchunk->allocation_size = reallocation_size), mchunk;
 
-    if ((mregion = get_mregion_by_mchunk(marena, mchunk, mchunk->allocation_size)) == STATUS_FAILURE)
+    if (!mregion && (mregion = get_mregion_by_mchunk(marena, mchunk, mchunk->allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
 
     if (!can_mchunk_be_partitioned(mchunk, reallocation_size))

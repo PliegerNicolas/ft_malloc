@@ -37,6 +37,7 @@ mregion_t   **get_mregion_by_mchunk(marena_t *marena, mchunk_t *mchunk, size_t a
 
     if ((mregion_head = map_allocation_size_to_marena_mregion_head(marena, allocation_size)) == STATUS_FAILURE)
         return STATUS_FAILURE;
+    // allocation_size is only a hint: an mchunk can outgrow its size class (cf. grow_mchunk()).
     if ((mregion = find_mregion_containing_mchunk(mregion_head, mchunk)))
         return mregion;
 
